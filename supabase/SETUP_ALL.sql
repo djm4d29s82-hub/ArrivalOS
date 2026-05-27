@@ -494,9 +494,7 @@ create policy "missions_select" on public.missions for select to authenticated
   using (
     public.is_admin()
     or (public.current_user_role() = 'company' and company_id = public.current_company_id())
-    or (public.current_user_role() = 'greeter' and (greeter_id = public.current_greeter_id() or public.current_greeter_id() = any (
-         (select array_agg(g::uuid) from unnest(matched_greeters) g)
-       )))
+    or (public.current_user_role() = 'greeter' and (greeter_id = public.current_greeter_id() or public.current_greeter_id()::text = any (matched_greeters)))
     or (public.current_user_role() = 'talent' and candidate_id = public.current_candidate_id())
   );
 create policy "missions_insert" on public.missions for insert to authenticated
