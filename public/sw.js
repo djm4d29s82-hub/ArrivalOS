@@ -1,5 +1,5 @@
 // ArrivalOS Service Worker — Network-first, Offline-Fallback
-const VERSION = 'arrivalos-v1';
+const VERSION = 'arrivalos-v2';
 const CORE = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icon-192.svg', '/icon-512.svg'];
 
 self.addEventListener('install', (e) => {
