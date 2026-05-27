@@ -7,8 +7,14 @@
 import { uid } from '@/lib/utils';
 import { createSupabaseClient } from './supabaseAdapter';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://jtaegmuftgxzjddfevbs.supabase.co';
+
+// Sicherheits-Guard: Ein SECRET-Key darf NIEMALS im Browser laufen. Falls der Host (z.B. eine
+// falsch gesetzte Vercel-Env-Var) einen `sb_secret_`-Key injiziert, ignorieren wir ihn und nutzen
+// den ÖFFENTLICHEN Publishable-Key (der ist client-safe und gehört ohnehin ins Bundle).
+const PUBLISHABLE_KEY = 'sb_publishable_QjJrJ9QPGqicol0QY1HrIw_kC2cs3lw';
+const ENV_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = ENV_KEY && !ENV_KEY.startsWith('sb_secret_') ? ENV_KEY : PUBLISHABLE_KEY;
 const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_KEY);
 
 const LS_KEY = 'neuland-base44-db-v1';
