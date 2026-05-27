@@ -77,8 +77,10 @@ JWT+Rollen-gated; Approval-Gate (Talent active, privilegiert pending). **Behoben
 
 **Nur markiert (kein Fix — Entscheidung/Folge-Schritt):**
 - **R3 🔴 bestätigt** — `token=` wird NICHT aus Sentry-URLs redigiert (`src/lib/sentry.js:30-32` filtert nur
-  `email=`). Bei einem Fehler auf `/register?token=…` geht der Roh-Token an Sentry. Fix-Optionen: `token=`
-  in die `beforeSend`-Redaction aufnehmen UND/ODER Token nach Peek per `history.replaceState` aus der URL ziehen.
+  `email=`). Bei einem Fehler auf `/register?token=…` geht der Roh-Token im Event-Body an Sentry. Fix-Optionen:
+  `token=` in die `beforeSend`-Redaction aufnehmen UND/ODER Token nach Peek per `history.replaceState` aus der
+  URL ziehen. _Teilmitigation bereits aktiv:_ `Referrer-Policy: strict-origin-when-cross-origin` im
+  `vercel.json` verhindert den **Referer-Header**-Leak an Dritte — den Sentry-**Body**-Vektor deckt es NICHT ab.
 - **R4 🟡** Kein Server-Peek in Supabase (`peekInvite`→null) → „Einladung ungültig"-Seite erscheint nie; Nutzer
   merkt Ungültigkeit erst nach Absenden. Reine UX.
 - **R5 🟡** Bestehende E-Mail: `createUser` schlägt hart fehl (Enumeration-Meldung; kein „Invite für bestehenden
@@ -124,6 +126,24 @@ Deploy. → Abschnitt 5.
 
 Reihenfolge strikt einhalten. Details in `supabase/README.md`.
 
+### Hosting / Vercel
+> **Repo-Layout:** Das GitHub-Repo `djm4d29s82-hub/ArrivalOS` ist **flach** — `package.json`,
+> `vite.config.js`, `index.html`, `vercel.json` liegen im **Repo-Root**. Vercel Root Directory daher
+> auf **`./` (Repo-Root)** lassen, NICHT auf einen Unterordner setzen.
+- [ ] **Build-Skript NICHT ändern.** `package.json` baut via `node node_modules/vite/bin/vite.js build`
+      (umgeht `vite: Permission denied`). Niemals `buildCommand: "vite build"` setzen (Vercel-Settings
+      oder vercel.json) — das bricht den Build wieder. Das committete `vercel.json` überschreibt
+      `buildCommand` bewusst **nicht**.
+- [ ] **SPA-Rewrite verifizieren** (im `vercel.json` enthalten): direkter Aufruf von
+      `/register?token=…`, `/admin`, `/company/missions/<id>` darf **nicht** 404 liefern (BrowserRouter).
+- [ ] **Env-Vars (Production-Scope), DANN frischer Build OHNE Cache** — Vite bakt `VITE_*` zur
+      Build-Zeit: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (kein `service_role`), optional
+      `VITE_SENTRY_DSN`/`VITE_SENTRY_ENV`, `VITE_PLAUSIBLE_*`. Nach dem Setzen neu deployen
+      (Push oder Redeploy mit deaktiviertem Build-Cache) und das **neueste** Deployment öffnen.
+- [ ] **Supabase Auth → URL Configuration** auf die Vercel-Domain setzen (Site-URL + Redirect `…/*`),
+      sonst brechen Magic-Link/Invite-Redirect.
+
+### Supabase
 - [ ] **Projekt** in Region **Frankfurt (EU Central)** anlegen, DB-Passwort sicher ablegen.
 - [ ] **SQL in dieser Reihenfolge** im SQL-Editor ausführen:
       `schema.sql` → `rls-hardening.sql` → `audit-triggers.sql` → `rate-limit.sql` → `storage-policies.sql`.
