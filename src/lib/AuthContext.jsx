@@ -5,6 +5,15 @@ import { setSentryUser } from '@/lib/sentry';
 
 const AuthContext = createContext(null);
 
+// Boot-Failsafe: ein hängender Supabase-Aufruf (alter SW, navigator.locks etc.) darf den
+// App-Start nicht ewig blockieren. Nach `ms` wird mit `fallback` aufgelöst.
+function withTimeout(promise, ms = 8000, fallback = null) {
+  return Promise.race([
+    Promise.resolve(promise).catch(() => fallback),
+    new Promise((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [publicSettings, setPublicSettings] = useState(null);
@@ -15,7 +24,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     (async () => {
       try {
-        const [s] = await base44.entities.Settings.filter({ key: 'public' });
+        const rows = await withTimeout(base44.entities.Settings.filter({ key: 'public' }), 8000, []);
+        const s = Array.isArray(rows) ? rows[0] : null;
         setPublicSettings(s?.value || null);
       } catch (e) {
         setPublicSettings(null);
@@ -28,7 +38,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     (async () => {
       try {
-        const me = await base44.auth.me();
+        const me = await withTimeout(base44.auth.me(), 8000, null);
         setUser(me);
         setSentryUser(me);
       } catch (e) {
