@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /company
+Disallow: /greeter-dashboard
+Disallow: /talent
+
+Sitemap: https://arrivalos.neuland.de/sitemap.xml
