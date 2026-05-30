@@ -65,6 +65,35 @@ export default function AdminMissionDetail() {
     finally { setBusy(false); }
   };
 
+  // Admin override: reopen a completed/cancelled mission (the state machine treats those as terminal,
+  // so this is a deliberate authority action, not a normal transition). Reverts to the last active
+  // status — in_progress when a greeter is on it, otherwise created. Steps/progress are kept.
+  const onReopen = async () => {
+    if (typeof window !== 'undefined' && !window.confirm('Mission wieder öffnen? Der Status wird zurückgesetzt.')) return;
+    setBusy(true);
+    const next = mission.greeter_id ? 'in_progress' : 'created';
+    try {
+      await base44.entities.Mission.update(mission.id, {
+        status: next,
+        greeter_stage: mission.greeter_id ? 'in_progress' : null,
+        last_updated_by: 'admin@neuland.de',
+        last_status_change: new Date().toISOString(),
+      });
+      try {
+        await base44.entities.ActivityLog.create({
+          entity_type: 'Mission', entity_id: mission.id, action: `mission.${next}`,
+          old_value: mission.status, new_value: next, created_by: 'admin@neuland.de',
+          description: `Mission wieder geöffnet (${mission.status} → ${next})`,
+          timestamp: new Date().toISOString(),
+        });
+      } catch { /* log best-effort */ }
+      toast({ title: 'Mission wieder geöffnet' });
+      refresh();
+    } catch (e) {
+      toast({ title: 'Fehler', description: e.message, variant: 'destructive' });
+    } finally { setBusy(false); }
+  };
+
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
@@ -83,6 +112,11 @@ export default function AdminMissionDetail() {
             {mission.has_issue && <Pill tone="red" size="xs" dot>Issue gemeldet</Pill>}
           </div>
         </div>
+        {['completed', 'cancelled'].includes(mission.status) && (
+          <Button variant="outline" size="sm" icon={RefreshCw} onClick={onReopen} loading={busy}>
+            Wieder öffnen
+          </Button>
+        )}
       </div>
 
       {/* Stage progress */}
