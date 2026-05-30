@@ -56,39 +56,27 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
     setError(null);
 
     try {
-      // Create Arrival
-      const arrival = await base44.entities.Arrival.create({
-        candidate_name: data.candidateName,
-        candidate_email: data.candidateEmail,
-        candidate_phone: data.candidatePhone,
-        arrival_city: data.arrivalCity,
-        arrival_datetime: `${data.arrivalDate}T${data.arrivalTime}:00Z`,
-        flight_number: data.flightNumber,
-        language_level: data.languageLevel,
-        notes: data.notes,
-        status: 'pending_assignment',
-      });
-
-      // Create Mission with CREATED status
+      // Create Mission with CREATED status.
+      // NOTE: there is intentionally no Arrival entity — it is not registered in
+      // base44 (ENTITY_NAMES) and calling base44.entities.Arrival.create() throws.
+      // The mission is the single source of truth for an arrival request.
       const { mission } = await createMission({
-        arrivalId: arrival.id,
         companyId: user?.company_id || 'unknown',
         title: `${data.candidateName} → ${data.arrivalCity}`,
         city: data.arrivalCity,
         datetime: `${data.arrivalDate}T${data.arrivalTime}:00Z`,
         location: `${data.arrivalCity} Airport`,
+        flightNumber: data.flightNumber || undefined,
         role: user?.role || 'company',
         actor: user?.email || 'company@neuland.de',
         base44,
       });
 
       // Invalidate queries
-      qc.invalidateQueries({ queryKey: ['arrivals'] });
       qc.invalidateQueries({ queryKey: ['missions'] });
 
       // Show confirmation
       setConfirmation({
-        arrivalId: arrival.id,
         missionId: mission.id,
         candidateName: data.candidateName,
         city: data.arrivalCity,
@@ -138,7 +126,7 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-sm text-gray-600">Tracking-ID</p>
               <p className="font-mono text-sm font-semibold text-green-700">
-                {confirmation.arrivalId.slice(0, 8).toUpperCase()}
+                {confirmation.missionId.slice(0, 8).toUpperCase()}
               </p>
             </div>
 

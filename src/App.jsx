@@ -2,7 +2,7 @@ import { Toaster, ToastProvider } from '@/components/ui/toaster';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { queryClientInstance } from '@/lib/query-client';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import PlausibleLoader from '@/lib/PlausibleLoader';
 import PWAInstaller from '@/lib/PWAInstaller';
@@ -18,7 +18,6 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import MobileGreeterLayout from '@/components/layout/MobileGreeterLayout';
 
 // Lazy — Portale werden nur bei Bedarf geladen
-const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 const OperationsCenterDashboard = lazy(() => import('@/pages/admin/OperationsCenterDashboard'));
 const AdminMissions = lazy(() => import('@/pages/admin/AdminMissions'));
 const AdminMissionDetail = lazy(() => import('@/pages/admin/AdminMissionDetail'));
@@ -35,7 +34,6 @@ const AdminActivityLog = lazy(() => import('@/pages/admin/AdminActivityLog'));
 const AdminSOPs = lazy(() => import('@/pages/admin/AdminSOPs'));
 const AdminQuality = lazy(() => import('@/pages/admin/AdminQuality'));
 const CompanyDashboard = lazy(() => import('@/pages/company/CompanyDashboard'));
-const CompanyMissions = lazy(() => import('@/pages/company/CompanyMissions'));
 const CompanyMissionDetail = lazy(() => import('@/pages/company/CompanyMissionDetail'));
 const CompanyDocuments = lazy(() => import('@/pages/company/CompanyDocuments'));
 const GreeterDashboard = lazy(() => import('@/pages/greeter/GreeterDashboard'));
@@ -47,7 +45,6 @@ const GreeterSOP = lazy(() => import('@/pages/greeter/GreeterSOP'));
 const TalentDashboard = lazy(() => import('@/pages/talent/TalentDashboard'));
 const TalentDocuments = lazy(() => import('@/pages/talent/TalentDocuments'));
 const TalentGreeter = lazy(() => import('@/pages/talent/TalentGreeter'));
-const TalentJourney = lazy(() => import('@/pages/talent/TalentJourney'));
 
 const PortalFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -92,9 +89,7 @@ const AuthenticatedApp = () => {
 
         <Route element={<DashboardLayout role="company" />}>
           <Route path="/company" element={<CompanyDashboard />} />
-          <Route path="/company/missions" element={<CompanyMissions />} />
           <Route path="/company/missions/:id" element={<CompanyMissionDetail />} />
-          <Route path="/company/candidates" element={<AdminCandidates />} />
           <Route path="/company/documents" element={<CompanyDocuments />} />
           <Route path="/company/invoices" element={<AdminInvoices />} />
           <Route path="/company/messages" element={<AdminMessages />} />
@@ -115,7 +110,8 @@ const AuthenticatedApp = () => {
         <Route element={<DashboardLayout role="talent" />}>
           <Route path="/talent" element={<TalentDashboard />} />
           <Route path="/talent/documents" element={<TalentDocuments />} />
-          <Route path="/talent/journey" element={<TalentJourney />} />
+          {/* Journey merged into the dashboard — keep the path as an alias */}
+          <Route path="/talent/journey" element={<Navigate to="/talent" replace />} />
           <Route path="/talent/greeter" element={<TalentGreeter />} />
           <Route path="/talent/messages" element={<AdminMessages />} />
           <Route path="/talent/settings" element={<AdminSettings />} />

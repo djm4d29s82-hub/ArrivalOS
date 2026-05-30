@@ -9,10 +9,10 @@ import { useAuth } from '@/lib/AuthContext';
 import { STAGE_LABELS_DE } from '@/api';
 import { Card, Avatar, Pill, Button, SectionHeader } from '@/components/ui';
 import { getStatusLabel } from '@/lib/missionStateMachine';
-import { relativeTime } from '@/lib/utils';
+import { relativeTime, relativeStepDate } from '@/lib/utils';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { talentKernel } from '@/lib/missionKernel';
-import { JOURNEY_STEPS, journeyProgress } from '@/lib/journeySteps';
+import { JOURNEY_STEPS, journeyProgress, resolveStepMeta } from '@/lib/journeySteps';
 
 /**
  * TalentDashboard — emotional, warm welcome screen.
@@ -60,10 +60,10 @@ export default function TalentDashboard() {
   const arrivalDate = candidate?.arrival_date;
   const daysToArrival = arrivalDate ? Math.ceil((new Date(arrivalDate) - Date.now()) / (1000 * 60 * 60 * 24)) : null;
 
-  // Next 3 actionable steps
-  const nextSteps = steps.filter((s) => s.status !== 'completed').slice(0, 3);
-  const fallbackNext = JOURNEY_STEPS.slice(jp.currentIndex, jp.currentIndex + 3);
-  const nextToShow = nextSteps.length > 0 ? nextSteps : fallbackNext.map((m, i) => ({ id: `f-${i}`, title: m.title, description: m.short, status: 'pending' }));
+  // Full journey timeline — real DB steps, or the static plan as a fallback.
+  const journeyList = steps.length > 0
+    ? steps
+    : JOURNEY_STEPS.map((m, i) => ({ id: `f-${i}`, key: m.key, title: m.title, description: m.short, status: 'pending' }));
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -104,7 +104,7 @@ export default function TalentDashboard() {
             statement={k.statement}
             sub={k.sub}
             progress={{ index: jp.currentIndex, total: jp.total }}
-            primaryAction={k.actionLabel ? { label: k.actionLabel, onClick: () => nav('/talent/journey'), variant: 'gold' } : undefined}
+            primaryAction={k.actionLabel ? { label: k.actionLabel, onClick: () => nav('/talent/greeter'), variant: 'gold' } : undefined}
           />
         );
       })()}
@@ -163,38 +163,46 @@ export default function TalentDashboard() {
         </div>
       )}
 
-      {/* Next steps */}
+      {/* Journey timeline — the full plan, on one screen (merged from TalentJourney) */}
       <section>
-        <SectionHeader
-          title="Was als Nächstes kommt"
-          action={
-            <Link to="/talent/journey" className="text-[12px] text-gold font-medium hover:underline">
-              Alle 8 Schritte →
-            </Link>
-          }
-        />
+        <SectionHeader title="Deine Journey" count={`${jp.completed}/${journeyList.length}`} />
         <div className="space-y-2.5 animate-stagger">
-          {nextToShow.map((s, i) => {
-            const meta = JOURNEY_STEPS[i] || JOURNEY_STEPS[0];
+          {journeyList.map((s) => {
+            const meta = resolveStepMeta(s);
             const Icon = meta.icon;
+            const done = s.status === 'completed';
             const isInProgress = s.status === 'in_progress';
             return (
               <div
                 key={s.id}
                 className="px-4 py-3.5 flex items-center gap-3 rounded-xl"
-                style={{ background: 'var(--ds-card)', border: `1px solid ${isInProgress ? 'rgba(196,146,40,0.35)' : 'var(--ds-card-border)'}` }}
+                style={{
+                  background: 'var(--ds-card)',
+                  border: `1px solid ${isInProgress ? 'rgba(196,146,40,0.35)' : 'var(--ds-card-border)'}`,
+                  opacity: (!done && !isInProgress) ? 0.7 : 1,
+                }}
               >
                 <div
                   className="w-10 h-10 rounded-xl grid place-items-center shrink-0"
-                  style={{ background: isInProgress ? 'rgba(196,146,40,0.15)' : 'var(--ds-card-border)', color: isInProgress ? '#c49228' : 'var(--ds-t2)' }}
+                  style={{
+                    background: done ? 'rgba(34,197,94,0.12)' : isInProgress ? 'rgba(196,146,40,0.15)' : 'var(--ds-card-border)',
+                    color: done ? '#16a34a' : isInProgress ? '#c49228' : 'var(--ds-t2)',
+                  }}
                 >
-                  <Icon className="w-4 h-4" strokeWidth={2.2} />
+                  {done ? <CheckCircle2 className="w-4 h-4" strokeWidth={2.2} /> : <Icon className="w-4 h-4" strokeWidth={2.2} />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-[14px]" style={{ color: 'var(--ds-t1)' }}>{s.title || meta.title}</div>
+                  <div className="font-semibold text-[14px]" style={{ color: done ? 'var(--ds-t3)' : 'var(--ds-t1)', textDecoration: done ? 'line-through' : 'none' }}>{s.title || meta.title}</div>
                   <div className="text-[12px] mt-0.5" style={{ color: 'var(--ds-t2)' }}>{s.description || meta.short}</div>
+                  {!done && s.scheduled_at && (
+                    <div className="text-[11px] mt-1 inline-flex items-center gap-1" style={{ color: '#c49228' }}>
+                      <Clock className="w-3 h-3" /> {relativeStepDate(s.scheduled_at)}
+                    </div>
+                  )}
                 </div>
-                {isInProgress ? (
+                {done ? (
+                  <Pill tone="green" size="xs">Erledigt</Pill>
+                ) : isInProgress ? (
                   <Pill tone="gold" size="xs">Läuft</Pill>
                 ) : (
                   <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--ds-t3)' }} />

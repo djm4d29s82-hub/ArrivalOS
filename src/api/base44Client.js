@@ -153,7 +153,7 @@ function seedDB(db) {
   // Notifications
   db.Notification = [
     { id: uid(), user_email: 'sophie@neuland.de', title: 'Neue Mission!', message: 'Flughafenabholung in Düsseldorf', type: 'action', read: false, link: '/greeter-dashboard/missions', created_at: new Date().toISOString() },
-    { id: uid(), user_email: 'hr@lumen.de', title: 'Greeter zugewiesen', message: 'Miriam Schulz übernimmt Priya Nair', type: 'success', read: false, link: '/company/missions', created_at: new Date().toISOString() },
+    { id: uid(), user_email: 'hr@lumen.de', title: 'Greeter zugewiesen', message: 'Miriam Schulz übernimmt Priya Nair', type: 'success', read: false, link: '/company', created_at: new Date().toISOString() },
   ];
 
   // Invoices

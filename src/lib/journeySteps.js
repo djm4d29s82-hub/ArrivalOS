@@ -1,4 +1,4 @@
-import { Plane, MapPin, Home, Smartphone, FileText, Landmark, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Plane, MapPin, Home, Smartphone, FileText, Landmark, ShieldCheck, CheckCircle2, Circle } from 'lucide-react';
 
 /**
  * Single source of truth for the talent onboarding journey.
@@ -18,6 +18,41 @@ export const JOURNEY_STEPS = [
 ];
 
 export const JOURNEY_TOTAL = JOURNEY_STEPS.length;
+
+/**
+ * Default journey steps created automatically when a greeter is assigned.
+ * SINGLE SOURCE OF TRUTH — replaces the two duplicated DEFAULT_JOURNEY_STEPS that
+ * previously lived in missionEngine.js and missionWriteApi.ts (BUG 4 + BUG 6).
+ * DB shape only: the React `icon` is intentionally dropped (not persistable).
+ * `order` uses gaps of 10 so steps can be reordered/inserted without renumbering.
+ */
+export const DEFAULT_JOURNEY_STEPS = JOURNEY_STEPS.map((s, i) => ({
+  title: s.title,
+  description: s.short,
+  order: (i + 1) * 10,
+}));
+
+/**
+ * Resolves display metadata (currently just an icon) for a journey step that may
+ * come from the DB (only has title/description) or from a config object (has key).
+ * Matches by `key` first, then by title (exact or contained), else a neutral default.
+ * Lets custom admin-planned steps render a sensible icon instead of an index-based one.
+ */
+export function resolveStepMeta(step) {
+  const key = step?.key;
+  const title = (step?.title || '').toLowerCase().trim();
+  let match = null;
+  if (key) match = JOURNEY_STEPS.find((s) => s.key === key);
+  if (!match && title) {
+    match = JOURNEY_STEPS.find((s) => {
+      const t = s.title.toLowerCase();
+      return title === t || title.includes(t) || t.includes(title);
+    });
+  }
+  // Spread the matched config (key/title/short/emotional/detail) so callers can map
+  // emotional copy by identity too; icon always falls back to a neutral default.
+  return { ...(match || {}), icon: match?.icon || Circle };
+}
 
 /**
  * Derives a single, consistent progress view from a steps array.

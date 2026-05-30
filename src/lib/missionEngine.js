@@ -1,15 +1,5 @@
 import { base44 } from '@/api/base44Client';
-
-const DEFAULT_JOURNEY_STEPS = [
-  { title: 'Arrival Check', description: 'Bestätigung der Ankunft', order: 1 },
-  { title: 'Meet Client', description: 'Persönliches Treffen', order: 2 },
-  { title: 'Unterkunft & Check-in', description: 'Transfer und Einchecken', order: 3 },
-  { title: 'SIM & Connectivity', description: 'SIM-Karte einrichten', order: 4 },
-  { title: 'Behördengang', description: 'Anmeldung und Bürgeramt', order: 5 },
-  { title: 'Bankkonto', description: 'Kontoeröffnung', order: 6 },
-  { title: 'Mid Check', description: 'Zwischenstand besprechen', order: 7 },
-  { title: 'Feedback & Sign-off', description: 'Abschlussgespräch', order: 8 },
-];
+import { DEFAULT_JOURNEY_STEPS } from '@/lib/journeySteps';
 
 const TRANSITIONS = {
   open: ['matched', 'cancelled'],
@@ -125,7 +115,13 @@ export async function completeJourneyStep(stepId, actor) {
   const all = await base44.entities.JourneyStep.filter({ mission_id: step.mission_id });
   const allDone = all.every((s) => s.id === stepId || s.status === 'completed');
   if (allDone) {
-    await transitionMission(step.mission_id, 'completed', actor);
+    // Auto-complete only when the mission is in a state that legally allows it
+    // (Option A: completion happens from `in_progress`). Checking off a step must
+    // never throw an "Invalid transition" error if it's hit from another state.
+    const mission = await base44.entities.Mission.get(step.mission_id);
+    if (mission && canTransition(mission.status, 'completed')) {
+      await transitionMission(step.mission_id, 'completed', actor);
+    }
   }
   return true;
 }

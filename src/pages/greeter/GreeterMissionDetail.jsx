@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft, MapPin, Phone, MessageCircle, Navigation as NavIcon, AlertTriangle,
   Camera, CheckCircle2, Clock, Plane, Building2, FileText, Send, Sparkles, Timer,
-  ChevronRight, ChevronDown, ShieldAlert, X, MessageSquare, ExternalLink, WifiOff, Loader2,
+  ChevronRight, ChevronDown, ShieldAlert, X, MessageSquare, ExternalLink, WifiOff, Loader2, CheckCheck,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -12,13 +12,16 @@ import { useToast } from '@/components/ui/toaster';
 import { useMissionState } from '@/lib/useMissionState';
 import { MissionStatus, IssueServerity } from '@/lib/missionStateMachine';
 import { addMissionNote } from '@/api';
+import { completeJourneyStep } from '@/lib/missionEngine';
+import { resolveStepMeta } from '@/lib/journeySteps';
 import {
   Card, Avatar, Pill, StatusPill, Button, EmptyState, BottomSheet,
   Field, Textarea, Input, SkeletonCard,
 } from '@/components/ui';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { greeterKernel, greeterProgress, greeterBlockers } from '@/lib/missionKernel';
-import { relativeTime } from '@/lib/utils';
+import { useRealtimeMessages } from '@/lib/useRealtimeMessages';
+import { relativeTime, relativeStepDate } from '@/lib/utils';
 
 /**
  * PHASE 2A.1 — GreeterMissionDetail: Operational Workflow UI (Uber/Linear/Ramp Style)
@@ -55,7 +58,13 @@ export default function GreeterMissionDetail() {
   const [sheet, setSheet] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [docsExpanded, setDocsExpanded] = useState(false);
+  const [steps, setSteps] = useState([]);
+  const [msg, setMsg] = useState('');
   const fileInputRef = useRef(null);
+  const chatEndRef = useRef(null);
+
+  // Live chat with the talent — same realtime thread TalentGreeter uses (BUG 1 fix).
+  const { thread, markRead, send } = useRealtimeMessages({ missionId: id });
 
   // Load related data (candidate, company, docs, logs)
   const loadRelated = async () => {
@@ -78,6 +87,41 @@ export default function GreeterMissionDetail() {
   useEffect(() => {
     loadRelated();
   }, [mission?.id]);
+
+  // Onboarding journey steps — shown during the in_progress phase (Option A).
+  useEffect(() => {
+    if (!id) return;
+    base44.entities.JourneyStep
+      .filter({ mission_id: id }, 'order')
+      .then((js) => setSteps([...js].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))))
+      .catch(() => setSteps([]));
+  }, [id, mission?.status]);
+
+  const onCompleteStep = async (stepId) => {
+    try {
+      await completeJourneyStep(stepId, user?.email);
+      setSteps((prev) => prev.map((s) => (s.id === stepId
+        ? { ...s, status: 'completed', completed_at: new Date().toISOString() }
+        : s)));
+      toast({ title: '✓ Schritt erledigt' });
+    } catch (e) {
+      toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
+    }
+  };
+
+  // Mark talent messages read + keep the thread scrolled to the latest.
+  useEffect(() => { if (id) markRead(id); }, [id, thread.length, markRead]);
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [thread.length]);
+
+  const onSendMessage = async () => {
+    if (!msg.trim()) return;
+    try {
+      await send({ content: msg, missionId: id, receiverId: candidate?.user_id });
+      setMsg('');
+    } catch (e) {
+      toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
+    }
+  };
 
   if (loading) {
     return (
@@ -245,6 +289,47 @@ export default function GreeterMissionDetail() {
           </MissionKernel>
         )}
 
+        {/* ONBOARDING STEPS — Greeter checks off the multi-week journey (in_progress only) */}
+        {isMine && mission.status === MissionStatus.IN_PROGRESS && steps.length > 0 && (
+          <div className="rounded-xl overflow-hidden" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+            <div className="px-3 sm:px-4 pt-3 pb-2 flex items-center justify-between">
+              <div className="text-[9px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--ds-t3)' }}>Onboarding-Schritte</div>
+              <span className="text-[11px] tabular-nums" style={{ color: 'var(--ds-t3)' }}>
+                {steps.filter((s) => s.status === 'completed').length}/{steps.length}
+              </span>
+            </div>
+            <div style={{ borderTop: '1px solid var(--ds-card-border)' }}>
+              {steps.map((s, i) => {
+                const done = s.status === 'completed';
+                const StepIcon = resolveStepMeta(s).icon;
+                const due = relativeStepDate(s.scheduled_at);
+                return (
+                  <div key={s.id} className="flex items-center gap-3 px-3 sm:px-4 py-3" style={i > 0 ? { borderTop: '1px solid var(--ds-card-border)' } : {}}>
+                    <div className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: done ? 'rgba(34,197,94,0.12)' : 'rgba(196,146,40,0.10)', color: done ? '#16a34a' : '#c49228' }}>
+                      <StepIcon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[13px] font-medium" style={{ color: done ? 'var(--ds-t3)' : 'var(--ds-t1)', textDecoration: done ? 'line-through' : 'none' }}>{s.title}</div>
+                      {due && <div className="text-[11px] mt-0.5" style={{ color: 'var(--ds-t3)' }}>{due}</div>}
+                    </div>
+                    {done ? (
+                      <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: '#16a34a' }} />
+                    ) : (
+                      <button
+                        onClick={() => onCompleteStep(s.id)}
+                        className="shrink-0 h-11 px-4 rounded-lg text-[12.5px] font-semibold transition active:scale-95"
+                        style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}
+                      >
+                        Erledigt
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* TALENT INFO CARD */}
         {candidate && (
           <div className="rounded-xl overflow-hidden" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
@@ -306,8 +391,8 @@ export default function GreeterMissionDetail() {
         <Card variant="default" className="p-3 sm:p-4 space-y-2.5">
           <div className="text-[9px] uppercase tracking-[0.12em] text-[var(--light)] font-semibold">Ankunftsdetails</div>
           <DetailRow icon={Clock} label="Treffpunkt" value={formatDateTimeShort(mission.datetime)} accent />
-          {candidate?.flight_no && (
-            <DetailRow icon={Plane} label="Flug" value={`${candidate.flight_no}${candidate.arrival_time ? ' · ' + formatTime(candidate.arrival_time) : ''}`} />
+          {(mission.flight_number || candidate?.flight_no) && (
+            <DetailRow icon={Plane} label="Flug" value={`${mission.flight_number || candidate.flight_no}${candidate?.arrival_time ? ' · ' + formatTime(candidate.arrival_time) : ''}`} />
           )}
           {mission.eta_at && (
             <DetailRow icon={Timer} label="Deine ETA" value={formatTime(mission.eta_at)} accent />
@@ -433,6 +518,54 @@ export default function GreeterMissionDetail() {
           </div>
         )}
 
+        {/* LIVE CHAT — Talent ↔ Greeter (BUG 1 fix) */}
+        {isMine && (
+          <div className="p-3 sm:p-4 rounded-xl" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+            <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mb-2.5 inline-flex items-center gap-1.5" style={{ color: 'var(--ds-t3)' }}>
+              <MessageSquare className="w-3 h-3" /> Chat mit {candidate?.full_name || 'Talent'}
+            </div>
+            <div className="rounded-xl p-3 max-h-72 overflow-y-auto space-y-3" style={{ background: 'rgba(0,0,0,0.06)' }}>
+              {thread.length === 0 && (
+                <div className="text-center text-[12px] py-4" style={{ color: 'var(--ds-t2)' }}>Noch keine Nachrichten — schreib die erste!</div>
+              )}
+              {thread.map((m) => {
+                const mine = m.sender_id === user?.id;
+                return (
+                  <div key={m.id} className={`max-w-[80%] ${mine ? 'ml-auto text-right' : ''}`}>
+                    <div className="text-[10px] mb-0.5" style={{ color: 'var(--ds-t3)' }}>
+                      {m.sender_name} · {relativeTime(m.timestamp)}
+                    </div>
+                    <div
+                      className="inline-block rounded-lg px-3 py-2 text-[13px]"
+                      style={mine
+                        ? { background: '#1a2340', color: 'rgba(255,255,255,0.90)' }
+                        : { background: 'var(--ds-card)', color: 'var(--ds-t1)', border: '1px solid var(--ds-card-border)' }}
+                    >
+                      {m.content}
+                    </div>
+                    {mine && m.read && <div className="text-[10px] mt-0.5 inline-flex items-center gap-1" style={{ color: 'var(--ds-t3)' }}><CheckCheck className="w-2.5 h-2.5" /> gelesen</div>}
+                  </div>
+                );
+              })}
+              <div ref={chatEndRef} />
+            </div>
+            <div className="mt-2.5 flex gap-2">
+              <textarea
+                value={msg}
+                onChange={(e) => setMsg(e.target.value)}
+                rows={2}
+                placeholder={`Schreib ${candidate?.full_name?.split(' ')[0] || 'dem Talent'}…`}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSendMessage(); } }}
+                className="flex-1 px-3 py-2 rounded-lg text-[13px] focus:outline-none transition"
+                style={{ background: 'var(--ds-input, var(--ds-card))', border: '1px solid var(--ds-input-border, var(--ds-card-border))', color: 'var(--ds-t1)' }}
+              />
+              <Button variant="primary" size="sm" icon={Send} onClick={onSendMessage} disabled={!msg.trim()}>
+                Senden
+              </Button>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* ═══════════════════════════════════════════════ */}
@@ -455,6 +588,7 @@ export default function GreeterMissionDetail() {
             onPhotoUpload={() => fileInputRef.current?.click()}
             onIssue={() => setSheet('issue')}
             onNote={() => setSheet('note')}
+            onWrap={() => setSheet('wrap')}
           />
         </div>
       </div>
@@ -503,7 +637,7 @@ function DetailRow({ icon: Icon, label, value, accent = false }) {
   );
 }
 
-function PrimaryActionBar({ mission, stage, isMine, isMatched, canTransitionTo, isDirty, isSyncing, onAccept, onSendETA, onTransition, onPhotoUpload, onIssue, onNote }) {
+function PrimaryActionBar({ mission, stage, isMine, isMatched, canTransitionTo, isDirty, isSyncing, onAccept, onSendETA, onTransition, onPhotoUpload, onIssue, onNote, onWrap }) {
   // Matched but not yet accepted
   if (isMatched) {
     return (
@@ -584,7 +718,54 @@ function PrimaryActionBar({ mission, stage, isMine, isMatched, canTransitionTo, 
       break;
 
     case MissionStatus.ARRIVED:
+      // Option A: arriving at the airport STARTS the onboarding phase (in_progress) —
+      // it does not complete the mission. The multi-week journey steps then appear in
+      // the body; checking off the last step auto-completes the mission.
+      primary = (
+        <Button
+          variant="gold"
+          size="lg"
+          fullWidth
+          icon={CheckCircle2}
+          loading={isBusy}
+          disabled={!canTransitionTo(MissionStatus.IN_PROGRESS)}
+          onClick={() => onTransition(MissionStatus.IN_PROGRESS, '✓ Onboarding gestartet')}
+          className="!h-12"
+        >
+          ✓ Talent ist da — Onboarding starten
+        </Button>
+      );
+      secondaryActions.push(
+        { icon: Camera, label: 'Foto', onClick: onPhotoUpload },
+        { icon: ShieldAlert, label: 'Problem', onClick: onIssue }
+      );
+      break;
+
+    case MissionStatus.IN_PROGRESS:
+      // Onboarding weeks: the journey-steps checklist below drives completion
+      // automatically (last step → completed). This is a manual fallback to close out.
+      primary = (
+        <Button
+          variant="success"
+          size="lg"
+          fullWidth
+          icon={CheckCircle2}
+          loading={isBusy}
+          disabled={!canTransitionTo(MissionStatus.COMPLETED)}
+          onClick={onWrap}
+          className="!h-12"
+        >
+          ✓ Onboarding abschließen
+        </Button>
+      );
+      secondaryActions.push(
+        { icon: Camera, label: 'Foto', onClick: onPhotoUpload },
+        { icon: MessageSquare, label: 'Notiz', onClick: onNote }
+      );
+      break;
+
     case MissionStatus.MET_TALENT:
+      // Legacy direct-completion path (kept for any mission still on met_talent).
       primary = (
         <Button
           variant="success"

@@ -84,7 +84,7 @@ export default function CommandPalette() {
         icon: Briefcase,
         to: role === 'admin' ? `/admin/missions/${m.id}`
           : role === 'greeter' ? `/greeter-dashboard/missions/${m.id}`
-          : '/company/missions',
+          : `/company/missions/${m.id}`,
       }));
     const greeters = role === 'admin' ? data.greeters.filter((g) => match(g.full_name)).slice(0, 5).map((g) => ({
       type: 'greeter', id: g.id, title: g.full_name,
@@ -227,9 +227,7 @@ function buildActions(role) {
     A('Einstellungen', '/admin/settings', Settings),
   ];
   if (role === 'company') return [
-    A('Dashboard', '/company', Activity),
-    A('Missionen', '/company/missions', Briefcase),
-    A('Talente', '/company/candidates', UserCheck),
+    A('Übersicht', '/company', Activity),
     A('Dokumente', '/company/documents', FileText),
     A('Nachrichten', '/company/messages', MessageSquare),
     A('Rechnungen', '/company/invoices', Receipt),

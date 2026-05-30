@@ -596,10 +596,11 @@ export async function createMissionFromArrival(opts: {
   city: string;
   title: string;
   pay?: number;
+  flightNumber?: string;
   actor?: string;
   base44: any;
 }): Promise<{ mission: any; event: StandardEvent }> {
-  const { companyId, candidateId, arrivalId, datetime, location, city, title, pay, actor = 'system', base44 } = opts;
+  const { companyId, candidateId, arrivalId, datetime, location, city, title, pay, flightNumber, actor = 'system', base44 } = opts;
   const mission = await base44.entities.Mission.create({
     company_id: companyId,
     candidate_id: candidateId ?? null,
@@ -609,6 +610,9 @@ export async function createMissionFromArrival(opts: {
     city,
     title,
     pay: pay ?? null,
+    // Only set flight_number when provided — keeps the insert column-clean for
+    // databases that have not yet run the missions.flight_number migration.
+    ...(flightNumber ? { flight_number: flightNumber } : {}),
     status: MissionStatus.CREATED,
     created_at: new Date().toISOString(),
     last_updated_by: actor,

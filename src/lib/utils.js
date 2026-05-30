@@ -32,6 +32,24 @@ export function uid() {
   return Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
 }
 
+/**
+ * Relative due-date label for a scheduled journey step (German).
+ * "heute" / "morgen" / "in N Tagen" / "gestern fällig" / "N Tage überfällig".
+ * Returns '' when no date is set, so callers can conditionally render.
+ */
+export function relativeStepDate(scheduledAt) {
+  if (!scheduledAt) return '';
+  const date = new Date(scheduledAt);
+  if (isNaN(date)) return '';
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diff = Math.round((startOfDay(date) - startOfDay(new Date())) / 86400000);
+  if (diff === 0) return 'heute';
+  if (diff === 1) return 'morgen';
+  if (diff > 1) return `in ${diff} Tagen`;
+  if (diff === -1) return 'gestern fällig';
+  return `${Math.abs(diff)} Tage überfällig`;
+}
+
 export const STATUS_COLORS = {
   open:        'bg-navy/10 text-navy dark:bg-white/[0.08] dark:text-white/70',
   matched:     'bg-blue-500/15 text-blue-700 dark:text-blue-400',

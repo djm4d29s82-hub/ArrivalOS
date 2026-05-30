@@ -28,10 +28,9 @@ const MENUS = {
     { to: '/admin/companies', label: 'Companies', icon: Building2 },
   ],
   company: [
-    { to: '/company', label: 'Dashboard', icon: LayoutDashboard, end: true },
-    { to: '/company/missions', label: 'Missionen', icon: Briefcase },
-    { to: '/company/candidates', label: 'Talente', icon: UserCheck },
+    { to: '/company', label: 'Übersicht', icon: LayoutDashboard, end: true },
     { to: '/company/documents', label: 'Dokumente', icon: FileText },
+    { to: '/company/invoices', label: 'Rechnungen', icon: Receipt },
   ],
   greeter: [
     { to: '/greeter-dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },

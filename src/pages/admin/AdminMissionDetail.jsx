@@ -17,6 +17,7 @@ import {
   Card, CardBody, Pill, StatusPill, Avatar, Button, IconButton, EmptyState,
   Modal, Field, Select, Textarea, SkeletonCard, SectionHeader,
 } from '@/components/ui';
+import MissionStepPlanner from '@/components/mission/MissionStepPlanner';
 import { relativeTime } from '@/lib/utils';
 
 const STAGES = ['accepted', 'eta_sent', 'on_the_way', 'arrived', 'in_progress', 'completed'];
@@ -33,7 +34,7 @@ export default function AdminMissionDetail() {
   const [greeter, setGreeter] = useState(null);
   const [greeters, setGreeters] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [steps, setSteps] = useState([]);
+  const [plannedCount, setPlannedCount] = useState(0); // reported by MissionStepPlanner
   const [showReassign, setShowReassign] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -45,7 +46,6 @@ export default function AdminMissionDetail() {
     if (mission.greeter_id) base44.entities.GreeterProfile.get(mission.greeter_id).then(setGreeter).catch(() => setGreeter(null));
     else setGreeter(null);
     base44.entities.ActivityLog.filter({ entity_id: mission.id }, '-timestamp').then(setLogs).catch(() => setLogs([]));
-    base44.entities.JourneyStep.filter({ mission_id: mission.id }, 'order').then(setSteps).catch(() => setSteps([]));
   }, [mission]);
 
   useEffect(() => { base44.entities.GreeterProfile.list().then(setGreeters); }, []);
@@ -138,6 +138,13 @@ export default function AdminMissionDetail() {
                   {greeter ? 'Neu zuweisen' : 'Zuweisen'}
                 </Button>
               } />
+              {!greeter && plannedCount === 0 && (
+                <div className="mt-2 rounded-lg px-3 py-2 text-[11.5px] flex items-start gap-1.5"
+                  style={{ background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.25)', color: '#b45309' }}>
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>Plane zuerst die Schritte unten — eine Greeter-Zuweisung ist erst danach möglich.</span>
+                </div>
+              )}
               {greeter ? (
                 <div className="flex items-center gap-3 mt-2">
                   <Avatar name={greeter.full_name} size="lg" ringed />
@@ -202,11 +209,14 @@ export default function AdminMissionDetail() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-3 text-[12px]">
                   {candidate.arrival_date && <Info label="Ankunft" value={formatDate(candidate.arrival_date)} />}
-                  {mission.flight_no && <Info label="Flugnummer" value={mission.flight_no} />}
+                  {(mission.flight_number || mission.flight_no) && <Info label="Flugnummer" value={mission.flight_number || mission.flight_no} />}
                 </div>
               </CardBody>
             </Card>
           )}
+
+          {/* Journey-step planner — plan/edit/reorder/date the onboarding steps */}
+          <MissionStepPlanner missionId={mission.id} missionDatetime={mission.datetime} onStepsChange={setPlannedCount} />
 
           {/* Activity log */}
           <Card variant="default">
@@ -254,23 +264,6 @@ export default function AdminMissionDetail() {
             </CardBody>
           </Card>
 
-          {steps.length > 0 && (
-            <Card variant="default">
-              <CardBody>
-                <SectionHeader title="Checkliste" count={`${steps.filter((s)=>s.status==='completed').length}/${steps.length}`} />
-                <ul className="mt-2 space-y-1.5">
-                  {steps.map((s) => (
-                    <li key={s.id} className="flex items-center gap-2 text-[12.5px]">
-                      <span className={`w-2 h-2 rounded-full ${s.status === 'completed' ? 'bg-green-500' : ''}`}
-                        style={s.status !== 'completed' ? { background: 'var(--ds-card-border)', border: '1px solid var(--ds-card-border)' } : {}} />
-                      <span style={{ color: s.status === 'completed' ? 'var(--ds-t3)' : 'var(--ds-t1)', textDecoration: s.status === 'completed' ? 'line-through' : 'none' }}>{s.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardBody>
-            </Card>
-          )}
-
           {/* Quick links */}
           <Card variant="default">
             <CardBody>
@@ -294,6 +287,7 @@ export default function AdminMissionDetail() {
         <ReassignDialog
           mission={mission}
           greeters={greeters}
+          stepsPlanned={plannedCount > 0}
           onClose={() => setShowReassign(false)}
           onDone={refresh}
         />
@@ -318,13 +312,17 @@ function Info({ label, value }) {
   );
 }
 
-function ReassignDialog({ mission, greeters, onClose, onDone }) {
+function ReassignDialog({ mission, greeters, stepsPlanned, onClose, onDone }) {
   const { toast } = useToast();
   const [greeterId, setGreeterId] = useState(mission.greeter_id || '');
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
     if (!greeterId) return;
+    if (!stepsPlanned) {
+      toast({ title: 'Keine Schritte geplant', description: 'Bitte erst den Schritt-Plan erstellen, bevor du einen Greeter zuweist.', variant: 'destructive' });
+      return;
+    }
     setBusy(true);
     try {
       const event = await assignGreeter({ mission, greeterId, role: 'admin', actor: 'admin@neuland.de', base44 });

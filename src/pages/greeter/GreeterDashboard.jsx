@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { Briefcase, MapPin, Clock, CheckCircle2 } from 'lucide-react';
+import { Briefcase, MapPin, Clock, CheckCircle2, ChevronRight } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { assignGreeter } from '@/api';
 import { useToast } from '@/components/ui/toaster';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { greeterKernel, greeterProgress } from '@/lib/missionKernel';
+import { relativeStepDate } from '@/lib/utils';
+import { resolveStepMeta } from '@/lib/journeySteps';
 
 const STATUS_CFG = {
   matched:     { bg: 'rgba(167,139,250,0.15)', color: '#c4b5fd', label: 'Matched' },
@@ -27,14 +29,27 @@ export default function GreeterHome() {
     if (user?.email) base44.entities.GreeterProfile.filter({ email: user.email }).then((p) => setProfile(p[0]));
   }, [user?.email]);
 
-  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],   queryFn: () => base44.entities.Mission.list('-created_at') });
-  const { data: candidates = [] } = useQuery({ queryKey: ['candidates'], queryFn: () => base44.entities.Candidate.list() });
+  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],     queryFn: () => base44.entities.Mission.list('-created_at') });
+  const { data: candidates = [] } = useQuery({ queryKey: ['candidates'],   queryFn: () => base44.entities.Candidate.list() });
+  const { data: allSteps = [] }   = useQuery({ queryKey: ['journeySteps'], queryFn: () => base44.entities.JourneyStep.list() });
 
   if (!profile) return (
     <div className="py-16 text-center text-sm" style={{ color: 'var(--ds-t3)' }}>Profil wird geladen…</div>
   );
 
   const mine = missions.filter((m) => m.greeter_id === profile.id);
+
+  // Task-view: aggregate scheduled journey steps across all of the greeter's missions.
+  const mineIds = new Set(mine.map((m) => m.id));
+  const missionById = Object.fromEntries(mine.map((m) => [m.id, m]));
+  const candidateFor = (mid) => candidates.find((c) => c.id === missionById[mid]?.candidate_id);
+  const endOfToday = new Date(); endOfToday.setHours(23, 59, 59, 999);
+  const endOfWeek = new Date(endOfToday.getTime() + 7 * 86400000);
+  const openSteps = allSteps
+    .filter((s) => mineIds.has(s.mission_id) && s.status !== 'completed' && s.scheduled_at)
+    .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+  const dueToday = openSteps.filter((s) => new Date(s.scheduled_at) <= endOfToday); // today + overdue
+  const dueWeek  = openSteps.filter((s) => { const t = new Date(s.scheduled_at); return t > endOfToday && t <= endOfWeek; });
   const newRequests = missions.filter((m) => m.status === 'matched' && m.matched_greeters?.includes(profile.id));
   const today    = mine.filter((m) => isToday(m.datetime) && m.status !== 'completed');
   const upcoming = mine.filter((m) => !isToday(m.datetime) && new Date(m.datetime) > new Date() && m.status !== 'completed').slice(0, 3);
@@ -154,6 +169,30 @@ export default function GreeterHome() {
         </section>
       )}
 
+      {/* Fällige Aufgaben — Steps aus ALLEN Missionen, nach Datum aggregiert */}
+      {dueToday.length > 0 && (
+        <section>
+          <SectionLabel title="Fällige Aufgaben" count={dueToday.length} />
+          <div className="space-y-2">
+            {dueToday.map((s) => (
+              <TaskRow key={s.id} step={s} mission={missionById[s.mission_id]} candidate={candidateFor(s.mission_id)} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Aufgaben diese Woche — nächste 7 Tage */}
+      {dueWeek.length > 0 && (
+        <section>
+          <SectionLabel title="Aufgaben diese Woche" count={dueWeek.length} />
+          <div className="space-y-2">
+            {dueWeek.map((s) => (
+              <TaskRow key={s.id} step={s} mission={missionById[s.mission_id]} candidate={candidateFor(s.mission_id)} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Today's missions — dringendste als Kernel, Rest als ruhige Zeilen */}
       <section>
         <SectionLabel title="Heutige Einsätze" count={today.length} />
@@ -250,6 +289,33 @@ export default function GreeterHome() {
         </section>
       )}
     </div>
+  );
+}
+
+function TaskRow({ step, mission, candidate }) {
+  const due = relativeStepDate(step.scheduled_at);
+  const overdue = due.includes('überfällig');
+  const StepIcon = resolveStepMeta(step).icon;
+  return (
+    <Link
+      to={`/greeter-dashboard/missions/${step.mission_id}`}
+      className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+      style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(196,146,40,0.25)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--ds-card-border)'; }}
+    >
+      <div className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: 'rgba(196,146,40,0.10)', color: '#c49228' }}>
+        <StepIcon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="font-medium text-[13.5px] truncate" style={{ color: 'var(--ds-t1)' }}>{step.title}</div>
+        <div className="flex items-center gap-1.5 text-[11.5px] mt-0.5" style={{ color: 'var(--ds-t3)' }}>
+          <span className="truncate">{candidate?.full_name || mission?.title || 'Mission'}</span>
+          {due && <span style={{ color: overdue ? '#dc2626' : 'var(--ds-t3)' }}>· {due}</span>}
+        </div>
+      </div>
+      <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--ds-t3)' }} />
+    </Link>
   );
 }
 

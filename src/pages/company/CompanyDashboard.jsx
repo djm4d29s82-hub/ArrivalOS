@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Briefcase, MapPin, ChevronRight, Plus, ArrowRight, Calendar } from 'lucide-react';
+import { Briefcase, MapPin, ChevronRight, ChevronDown, Plus, Calendar, Filter } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { EmptyState } from '@/components/ui';
-import { getStatusLabel } from '@/lib/missionStateMachine';
+import { Card, SearchInput, Select } from '@/components/ui';
 import { missionProgress } from '@/lib/missionKernel';
 import CompanyArrivalForm from './CompanyArrivalForm';
 
@@ -17,14 +16,30 @@ const STATUS_CFG = {
   created:     { bg: 'rgba(196,146,40,0.12)',  color: '#c49228', label: 'Geplant',        progress: 5 },
 };
 
+const FILTER_STATUSES = ['created', 'matched', 'assigned', 'in_progress', 'completed', 'cancelled'];
+const FILTER_LABELS = {
+  created: 'Geplant', matched: 'Matched', assigned: 'Zugewiesen',
+  in_progress: 'Läuft', completed: 'Abgeschlossen', cancelled: 'Storniert',
+};
+const ACTIVE_STATUSES = ['matched', 'assigned', 'accepted', 'on_the_way', 'arrived', 'met_talent', 'in_progress'];
+
+/**
+ * CompanyHome — the single company landing page.
+ * Merges the old CompanyDashboard (hero + stats + active/planned) with the old
+ * CompanyMissions (search + status filter + full list). One arrival flow:
+ * the "Neue Ankunft" button opens the CompanyArrivalForm wizard.
+ */
 export default function CompanyDashboard() {
   const { user } = useAuth();
   const companyId = user?.company_id;
   const [showArrivalForm, setShowArrivalForm] = useState(false);
+  const [q, setQ] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showCompleted, setShowCompleted] = useState(false);
 
-  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],   queryFn: () => base44.entities.Mission.list('-datetime') });
-  const { data: candidates = [] } = useQuery({ queryKey: ['candidates'], queryFn: () => base44.entities.Candidate.list() });
-  const { data: greeters = [] }   = useQuery({ queryKey: ['greeters'],   queryFn: () => base44.entities.GreeterProfile.list() });
+  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],     queryFn: () => base44.entities.Mission.list('-datetime') });
+  const { data: candidates = [] } = useQuery({ queryKey: ['candidates'],   queryFn: () => base44.entities.Candidate.list() });
+  const { data: greeters = [] }   = useQuery({ queryKey: ['greeters'],     queryFn: () => base44.entities.GreeterProfile.list() });
   const { data: allSteps = [] }   = useQuery({ queryKey: ['journeySteps'], queryFn: () => base44.entities.JourneyStep.list() });
 
   const stepsByMission = useMemo(() => {
@@ -35,9 +50,27 @@ export default function CompanyDashboard() {
 
   const myMissions   = companyId ? missions.filter((m) => m.company_id === companyId) : missions;
   const myCandidates = companyId ? candidates.filter((c) => c.company_id === companyId) : candidates;
-  const active   = myMissions.filter((m) => ['matched', 'assigned', 'in_progress'].includes(m.status));
-  const planned  = myMissions.filter((m) => m.status === 'created');
-  const done     = myMissions.filter((m) => m.status === 'completed').length;
+  const active    = myMissions.filter((m) => ACTIVE_STATUSES.includes(m.status));
+  const planned   = myMissions.filter((m) => m.status === 'created');
+  const completed = myMissions.filter((m) => m.status === 'completed');
+  const done = completed.length;
+
+  const isFiltering = q.trim() !== '' || statusFilter !== 'all';
+  const filtered = myMissions.filter((m) => {
+    if (statusFilter !== 'all' && m.status !== statusFilter) return false;
+    if (q && !`${m.title} ${m.city} ${m.location || ''}`.toLowerCase().includes(q.toLowerCase())) return false;
+    return true;
+  });
+
+  const renderLine = (m) => (
+    <MissionLine
+      key={m.id}
+      mission={m}
+      candidate={candidates.find((c) => c.id === m.candidate_id)}
+      greeter={greeters.find((g) => g.id === m.greeter_id)}
+      steps={stepsByMission[m.id]}
+    />
+  );
 
   return (
     <>
@@ -85,58 +118,83 @@ export default function CompanyDashboard() {
         </div>
       </div>
 
-      {/* Active missions */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <span className="font-serif text-[18px] font-bold" style={{ color: 'var(--ds-t1)' }}>Laufende Einsätze</span>
-            {active.length > 0 && (
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}>{active.length}</span>
-            )}
-          </div>
-          <Link to="/company/missions" className="text-[12px] font-medium flex items-center gap-1 transition" style={{ color: '#c49228' }}>
-            Alle ansehen <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+      {/* Search + status filter */}
+      <Card variant="default" className="px-4 py-3 flex flex-wrap items-center gap-3">
+        <div className="flex-1 min-w-[220px]">
+          <SearchInput value={q} onChange={(e) => setQ(e.target.value)} placeholder="Titel, Stadt oder Treffpunkt…" />
         </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-3.5 h-3.5 text-[var(--light)]" />
+          <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="all">Alle Status</option>
+            {FILTER_STATUSES.map((s) => <option key={s} value={s}>{FILTER_LABELS[s]}</option>)}
+          </Select>
+        </div>
+      </Card>
 
-        {active.length === 0 ? (
-          <div className="rounded-2xl px-6 py-10 text-center" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
-            <Briefcase className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--ds-t3)' }} />
-            <div className="text-[13px] font-medium" style={{ color: 'var(--ds-t2)' }}>Aktuell keine aktiven Einsätze</div>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {active.map((m) => (
-              <MissionLine
-                key={m.id}
-                mission={m}
-                candidate={candidates.find((c) => c.id === m.candidate_id)}
-                greeter={greeters.find((g) => g.id === m.greeter_id)}
-                steps={stepsByMission[m.id]}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Planned arrivals */}
-      {planned.length > 0 && (
+      {isFiltering ? (
+        /* Filtered results */
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2.5">
-              <span className="font-serif text-[18px] font-bold" style={{ color: 'var(--ds-t1)' }}>Geplante Ankünfte</span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}>{planned.length}</span>
+          <div className="flex items-center gap-2.5 mb-4">
+            <span className="font-serif text-[18px] font-bold" style={{ color: 'var(--ds-t1)' }}>Ergebnisse</span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}>{filtered.length}</span>
+          </div>
+          {filtered.length === 0 ? (
+            <div className="rounded-2xl px-6 py-10 text-center" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+              <Briefcase className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--ds-t3)' }} />
+              <div className="text-[13px] font-medium" style={{ color: 'var(--ds-t2)' }}>Keine Missionen gefunden</div>
             </div>
-            <Link to="/company/missions" className="text-[12px] font-medium flex items-center gap-1 transition" style={{ color: '#c49228' }}>
-              Verwalten <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-          <div className="space-y-2">
-            {planned.slice(0, 4).map((m) => (
-              <PlannedRow key={m.id} mission={m} candidate={candidates.find((c) => c.id === m.candidate_id)} />
-            ))}
-          </div>
+          ) : (
+            <div className="space-y-2">{filtered.map(renderLine)}</div>
+          )}
         </section>
+      ) : (
+        <>
+          {/* Active missions */}
+          <section>
+            <div className="flex items-center gap-2.5 mb-4">
+              <span className="font-serif text-[18px] font-bold" style={{ color: 'var(--ds-t1)' }}>Laufende Einsätze</span>
+              {active.length > 0 && (
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}>{active.length}</span>
+              )}
+            </div>
+            {active.length === 0 ? (
+              <div className="rounded-2xl px-6 py-10 text-center" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+                <Briefcase className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--ds-t3)' }} />
+                <div className="text-[13px] font-medium" style={{ color: 'var(--ds-t2)' }}>Aktuell keine aktiven Einsätze</div>
+              </div>
+            ) : (
+              <div className="space-y-2">{active.map(renderLine)}</div>
+            )}
+          </section>
+
+          {/* Planned arrivals */}
+          {planned.length > 0 && (
+            <section>
+              <div className="flex items-center gap-2.5 mb-4">
+                <span className="font-serif text-[18px] font-bold" style={{ color: 'var(--ds-t1)' }}>Geplante Ankünfte</span>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}>{planned.length}</span>
+              </div>
+              <div className="space-y-2">
+                {planned.map((m) => (
+                  <PlannedRow key={m.id} mission={m} candidate={candidates.find((c) => c.id === m.candidate_id)} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Completed (collapsible) */}
+          {completed.length > 0 && (
+            <section>
+              <button onClick={() => setShowCompleted((v) => !v)} className="flex items-center gap-2.5 mb-4">
+                <span className="font-serif text-[18px] font-bold" style={{ color: 'var(--ds-t1)' }}>Abgeschlossen</span>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,222,128,0.15)', color: '#16a34a' }}>{completed.length}</span>
+                <ChevronDown className={`w-4 h-4 transition ${showCompleted ? 'rotate-180' : ''}`} style={{ color: 'var(--ds-t3)' }} />
+              </button>
+              {showCompleted && <div className="space-y-2">{completed.map(renderLine)}</div>}
+            </section>
+          )}
+        </>
       )}
     </div>
 

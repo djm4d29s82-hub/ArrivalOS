@@ -22,21 +22,11 @@ import {
   createMissionFromArrival as _createMissionFromArrival,
 } from '@/lib/missionStateMachine';
 import { runMatchingEngine, STAGE_LABELS_DE as _STAGE_LABELS_DE } from '@/lib/missionEngine';
+import { DEFAULT_JOURNEY_STEPS } from '@/lib/journeySteps';
 
 export const STAGE_LABELS_DE = _STAGE_LABELS_DE;
 import { assert, type Role } from '@/lib/permissions';
 import type { StandardEvent } from '@/lib/events/createEvent';
-
-const DEFAULT_JOURNEY_STEPS = [
-  { title: 'Arrival Check',         description: 'Bestätigung der Ankunft',    order: 1 },
-  { title: 'Meet Client',           description: 'Persönliches Treffen',        order: 2 },
-  { title: 'Unterkunft & Check-in', description: 'Transfer und Einchecken',     order: 3 },
-  { title: 'SIM & Connectivity',    description: 'SIM-Karte einrichten',        order: 4 },
-  { title: 'Behördengang',          description: 'Anmeldung und Bürgeramt',     order: 5 },
-  { title: 'Bankkonto',             description: 'Kontoeröffnung',              order: 6 },
-  { title: 'Mid Check',             description: 'Zwischenstand besprechen',    order: 7 },
-  { title: 'Feedback & Sign-off',   description: 'Abschlussgespräch',           order: 8 },
-];
 
 export type { MissionStatus, IssueServerity };
 
@@ -176,6 +166,7 @@ export async function createMission(opts: {
   city: string;
   title: string;
   pay?: number;
+  flightNumber?: string;
   role: Role;
   actor: string;
   base44: any;
@@ -190,6 +181,7 @@ export async function createMission(opts: {
     city: opts.city,
     title: opts.title,
     pay: opts.pay,
+    flightNumber: opts.flightNumber,
     actor: opts.actor,
     base44: opts.base44,
   });

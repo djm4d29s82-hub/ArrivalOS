@@ -98,12 +98,17 @@ create table if not exists public.missions (
   city text,
   location text,
   datetime timestamptz,
+  flight_number text,
   requirements jsonb default '{}',
   pay numeric(10,2),
   matched_greeters text[] default '{}',
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+-- Idempotent: ensure flight_number exists on databases created before 2026-05
+-- (flight-tracker edge function). Mirrors migrations/2026-05-mission-flight-number.sql.
+alter table public.missions add column if not exists flight_number text;
 
 create table if not exists public.journey_steps (
   id uuid primary key default uuid_generate_v4(),
@@ -113,8 +118,13 @@ create table if not exists public.journey_steps (
   "order" int,
   status text default 'pending' check (status in ('pending','in_progress','completed','skipped')),
   completed_at timestamptz,
+  scheduled_at timestamptz,
   created_at timestamptz default now()
 );
+
+-- Idempotent: ensure scheduled_at exists on databases created before 2026-05
+-- (MissionStepPlanner / talent timeline). Mirrors migrations/2026-05-journey-step-scheduled-at.sql.
+alter table public.journey_steps add column if not exists scheduled_at timestamptz;
 
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
