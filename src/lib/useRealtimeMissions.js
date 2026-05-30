@@ -4,7 +4,7 @@
 // Damit Greeter, Talent und Admin in Echtzeit sehen, wenn sich
 // status / greeter_stage / eta_at / checked_in_at ändern.
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
@@ -28,10 +28,14 @@ export function useRealtimeMissions({ id } = {}) {
     staleTime: isSupabase ? Infinity : 0,
   });
 
+  // Unique channel topic per hook instance — a fixed name collides when two instances mount
+  // (supabase-js dedupes by topic → .on() after .subscribe() throws).
+  const channelId = useMemo(() => `missions-stream-${Math.random().toString(36).slice(2)}`, []);
+
   useEffect(() => {
     if (!isSupabase) return;
     const channel = base44.raw
-      .channel('missions-stream')
+      .channel(channelId)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'missions' },
         (payload) => {
@@ -41,7 +45,7 @@ export function useRealtimeMissions({ id } = {}) {
       )
       .subscribe();
     return () => { base44.raw.removeChannel(channel); };
-  }, [qc]);
+  }, [qc, channelId]);
 
   return { mission: single.data, missions: list.data || [], isLoading: single.isLoading || list.isLoading };
 }

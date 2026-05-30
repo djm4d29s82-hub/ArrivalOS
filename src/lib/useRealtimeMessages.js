@@ -28,18 +28,23 @@ export function useRealtimeMessages({ missionId } = {}) {
     staleTime: isSupabase ? Infinity : 0,
   });
 
+  // Unique channel topic per hook instance — supabase-js dedupes channels by topic, so a fixed
+  // name would return an already-subscribed channel to a second mounting instance (e.g. layout
+  // unread badge + a thread panel), and chaining .on() after .subscribe() throws.
+  const channelId = useMemo(() => `messages-stream-${Math.random().toString(36).slice(2)}`, []);
+
   // Supabase Realtime: bei jedem INSERT/UPDATE auf messages → Cache invalidieren
   useEffect(() => {
     if (!isSupabase) return;
     const channel = base44.raw
-      .channel('messages-stream')
+      .channel(channelId)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'messages' },
         () => qc.invalidateQueries({ queryKey: ['messages'] }),
       )
       .subscribe();
     return () => { base44.raw.removeChannel(channel); };
-  }, [qc]);
+  }, [qc, channelId]);
 
   const thread = useMemo(
     () => (missionId ? messages.filter((m) => m.mission_id === missionId) : messages),
