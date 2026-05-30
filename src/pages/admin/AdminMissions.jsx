@@ -37,11 +37,20 @@ export default function AdminMissions() {
     return true;
   });
 
-  // group by status bucket for visual scanning
+  // group by status bucket for visual scanning — must cover ALL statuses,
+  // otherwise a mission (e.g. a freshly 'created' one) lands in no bucket and
+  // stays invisible even though the counter shows it.
+  const CRITICAL = ['created', 'open', 'matched', 'issue_open', 'issue_reported'];
+  const ACTIVE = ['assigned', 'accepted', 'on_the_way', 'arrived', 'met_talent', 'in_progress'];
+  const CLOSED = ['completed', 'cancelled'];
+  const covered = new Set([...CRITICAL, ...ACTIVE, ...CLOSED]);
+
   const buckets = [
-    { key: 'critical', label: 'Aufmerksamkeit nötig', items: filtered.filter((m) => ['open', 'matched'].includes(m.status)) },
-    { key: 'active', label: 'Aktive Einsätze', items: filtered.filter((m) => ['assigned', 'in_progress'].includes(m.status)) },
-    { key: 'closed', label: 'Erledigt', items: filtered.filter((m) => ['completed', 'cancelled'].includes(m.status)) },
+    { key: 'critical', label: 'Aufmerksamkeit nötig', items: filtered.filter((m) => CRITICAL.includes(m.status)) },
+    { key: 'active', label: 'Aktive Einsätze', items: filtered.filter((m) => ACTIVE.includes(m.status)) },
+    { key: 'closed', label: 'Erledigt', items: filtered.filter((m) => CLOSED.includes(m.status)) },
+    // Defensive catch-all: any unknown/future status still renders here.
+    { key: 'other', label: 'Sonstige', items: filtered.filter((m) => !covered.has(m.status)) },
   ];
 
   const refresh = () => qc.invalidateQueries();
