@@ -21,7 +21,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
   const sizes = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-xl', xl: 'max-w-3xl' };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/35 backdrop-blur-[2px] p-4 animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/35 backdrop-blur-md p-4 animate-fade-in" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
         className={`relative w-full ${sizes[size]} rounded-2xl shadow-[0_24px_64px_-16px_rgba(16,24,40,.30)] flex flex-col max-h-[90vh]`}

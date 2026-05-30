@@ -55,6 +55,13 @@ export default function AdminSOPs() {
             </tr>
           </thead>
           <tbody>
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-5 py-10 text-center text-[12.5px]" style={{ color: 'var(--ds-t3)' }}>
+                  Keine SOPs gefunden.
+                </td>
+              </tr>
+            )}
             {filtered.map((s) => (
               <tr key={s.id} className="cursor-pointer transition" style={{ borderTop: '1px solid var(--ds-card-border)' }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,146,40,0.04)'; }}

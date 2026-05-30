@@ -29,7 +29,7 @@ export default function CandidateJourneySection() {
 
         <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4">
           {STEPS.map((s) => (
-            <div key={s.n} className="bg-white/[0.05] border border-white/[0.08] rounded-2xl p-5 hover:bg-white/[0.08] transition-all duration-200">
+            <div key={s.n} className="bg-white/[0.06] backdrop-blur-md border border-white/[0.08] rounded-2xl p-5 hover:bg-white/[0.08] transition-all duration-200">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-full bg-gold/15 text-gold font-bold text-[13px] grid place-items-center">{s.n}</div>
                 <s.i className="w-4 h-4 text-gold" />

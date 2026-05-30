@@ -38,8 +38,8 @@ export default function ProblemSection() {
         <div className="grid md:grid-cols-3 gap-4 mt-14">
           {PAINS.map((p) => (
             <div key={p.title}
-                 className="rounded-2xl p-7 transition"
-                 style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.08)' }}>
+                 className="rounded-2xl p-7 transition backdrop-blur-md"
+                 style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.08)' }}>
               <div className="w-10 h-10 rounded-xl grid place-items-center mb-5"
                    style={{ background: 'rgba(220,38,38,.15)' }}>
                 <p.i className="w-4.5 h-4.5 text-red-400" style={{ width: '18px', height: '18px' }} />

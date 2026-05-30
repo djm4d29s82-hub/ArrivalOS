@@ -524,7 +524,7 @@ export default function GreeterMissionDetail() {
             <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mb-2.5 inline-flex items-center gap-1.5" style={{ color: 'var(--ds-t3)' }}>
               <MessageSquare className="w-3 h-3" /> Chat mit {candidate?.full_name || 'Talent'}
             </div>
-            <div className="rounded-xl p-3 max-h-72 overflow-y-auto space-y-3" style={{ background: 'rgba(0,0,0,0.06)' }}>
+            <div className="rounded-xl p-3 max-h-72 overflow-y-auto space-y-3 bg-black/[0.05] dark:bg-white/[0.04]">
               {thread.length === 0 && (
                 <div className="text-center text-[12px] py-4" style={{ color: 'var(--ds-t2)' }}>Noch keine Nachrichten — schreib die erste!</div>
               )}

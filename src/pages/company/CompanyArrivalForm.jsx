@@ -123,20 +123,20 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Tracking-ID</p>
-              <p className="font-mono text-sm font-semibold text-green-700">
+            <div className="bg-green-50 border border-green-200 dark:bg-green-500/[0.08] dark:border-green-500/20 rounded-lg p-4">
+              <p className="text-sm text-gray-600 dark:text-white/60">Tracking-ID</p>
+              <p className="font-mono text-sm font-semibold text-green-700 dark:text-green-400">
                 {confirmation.missionId.slice(0, 8).toUpperCase()}
               </p>
             </div>
 
             <div className="space-y-2">
               <p className="text-sm"><strong>{confirmation.candidateName}</strong></p>
-              <p className="text-sm text-gray-600">→ {confirmation.city}</p>
+              <p className="text-sm text-gray-600 dark:text-white/60">→ {confirmation.city}</p>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
-              <p className="text-blue-900">
+            <div className="bg-blue-50 border border-blue-200 dark:bg-blue-500/[0.08] dark:border-blue-500/20 rounded-lg p-3 text-sm">
+              <p className="text-blue-900 dark:text-blue-300">
                 ✓ Matching Engine läuft<br/>
                 ✓ Operations Team benachrichtigt<br/>
                 ✓ SMS an Kandidat
@@ -348,26 +348,26 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
             <div className="bg-blue-50 border border-blue-200 dark:bg-blue-500/[0.08] dark:border-blue-500/20 rounded-lg p-4 space-y-1">
               <p className="text-sm text-blue-600 dark:text-blue-400 uppercase text-xs tracking-widest font-bold">Kandidat</p>
               <p className="font-semibold" style={{ color: 'var(--ds-t1)' }}>{data.candidateName}</p>
-              <p className="text-sm text-gray-600">{data.candidateEmail}</p>
-              <p className="text-sm text-gray-600">{data.candidatePhone}</p>
-              <p className="text-sm text-gray-500 mt-2">Deutsch: {data.languageLevel.toUpperCase()}</p>
+              <p className="text-sm text-gray-600 dark:text-white/60">{data.candidateEmail}</p>
+              <p className="text-sm text-gray-600 dark:text-white/60">{data.candidatePhone}</p>
+              <p className="text-sm text-gray-500 mt-2 dark:text-white/45">Deutsch: {data.languageLevel.toUpperCase()}</p>
             </div>
 
             {/* Logistics card */}
             <div className="bg-amber-50 border border-amber-200 dark:bg-amber-500/[0.08] dark:border-amber-500/20 rounded-lg p-4 space-y-1">
               <p className="text-sm text-amber-600 dark:text-amber-400 uppercase text-xs tracking-widest font-bold">Logistik</p>
               <p className="font-semibold" style={{ color: 'var(--ds-t1)' }}>{data.arrivalCity}</p>
-              <p className="text-sm text-gray-600">{data.arrivalDate} um {data.arrivalTime} Uhr</p>
-              <p className="text-sm text-gray-600">Flug: {data.flightNumber}</p>
-              {data.notes && <p className="text-sm text-gray-500 mt-2">Hinweis: {data.notes}</p>}
+              <p className="text-sm text-gray-600 dark:text-white/60">{data.arrivalDate} um {data.arrivalTime} Uhr</p>
+              <p className="text-sm text-gray-600 dark:text-white/60">Flug: {data.flightNumber}</p>
+              {data.notes && <p className="text-sm text-gray-500 mt-2 dark:text-white/45">Hinweis: {data.notes}</p>}
             </div>
 
             {/* Automations preview */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm space-y-1">
-              <p className="text-green-900 font-medium">Dies wird automatisch ausgelöst:</p>
-              <p className="text-green-800">✓ Matching Engine läuft</p>
-              <p className="text-green-800">✓ Operations Team benachrichtigt</p>
-              <p className="text-green-800">✓ SMS an {data.candidateName}</p>
+            <div className="bg-green-50 border border-green-200 dark:bg-green-500/[0.08] dark:border-green-500/20 rounded-lg p-3 text-sm space-y-1">
+              <p className="text-green-900 dark:text-green-300 font-medium">Dies wird automatisch ausgelöst:</p>
+              <p className="text-green-800 dark:text-green-400">✓ Matching Engine läuft</p>
+              <p className="text-green-800 dark:text-green-400">✓ Operations Team benachrichtigt</p>
+              <p className="text-green-800 dark:text-green-400">✓ SMS an {data.candidateName}</p>
             </div>
 
             <div className="flex gap-3 pt-4">

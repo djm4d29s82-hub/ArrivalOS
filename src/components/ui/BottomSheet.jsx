@@ -20,7 +20,7 @@ export function BottomSheet({ open, onClose, title, description, children, foote
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-navy/35 backdrop-blur-[2px] animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-navy/35 backdrop-blur-md animate-fade-in" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative w-full sm:max-w-md sm:mx-4 sm:rounded-2xl rounded-t-3xl shadow-[0_-12px_40px_-8px_rgba(16,24,40,.25)] flex flex-col"

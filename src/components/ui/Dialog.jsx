@@ -15,7 +15,7 @@ export function Dialog({ open, onOpenChange, children }) {
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/35 backdrop-blur-[2px] p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/35 backdrop-blur-md p-4 animate-fade-in">
       <div className="absolute inset-0" onClick={() => onOpenChange?.(false)} />
       <div className="relative z-10 w-full flex items-center justify-center">
         {children}

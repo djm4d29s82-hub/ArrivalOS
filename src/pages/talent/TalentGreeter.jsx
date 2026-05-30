@@ -95,7 +95,7 @@ export default function TalentGreeter() {
           <div className="text-[11px] uppercase tracking-widest font-bold mb-3 inline-flex items-center gap-1.5" style={{ color: 'var(--ds-t2)' }}>
             <MessageSquare className="w-3 h-3" /> Konversation
           </div>
-          <div className="rounded-xl p-4 max-h-72 overflow-y-auto space-y-3" style={{ background: 'rgba(0,0,0,0.06)' }}>
+          <div className="rounded-xl p-4 max-h-72 overflow-y-auto space-y-3 bg-black/[0.05] dark:bg-white/[0.04]">
             {thread.length === 0 && (
               <div className="text-center text-[12px] py-4" style={{ color: 'var(--ds-t2)' }}>Noch keine Nachrichten — schreib die erste!</div>
             )}
