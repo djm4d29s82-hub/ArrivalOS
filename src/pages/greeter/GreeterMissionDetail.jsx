@@ -675,6 +675,28 @@ function PrimaryActionBar({ mission, stage, isMine, isMatched, canTransitionTo, 
 
   switch (mission.status) {
     case MissionStatus.ASSIGNED:
+      // Greeter must first accept the assignment (assigned → accepted) before sending an ETA.
+      // ETA senden (→ on_the_way) is only legal from 'accepted', so it lives in the next case.
+      primary = (
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          icon={CheckCircle2}
+          loading={isBusy}
+          disabled={!canTransitionTo(MissionStatus.ACCEPTED)}
+          onClick={onAccept}
+          className="!h-12"
+        >
+          ✓ Einsatz annehmen
+        </Button>
+      );
+      secondaryActions.push(
+        { icon: Camera, label: 'Foto', onClick: onPhotoUpload },
+        { icon: MessageSquare, label: 'Notiz', onClick: onNote }
+      );
+      break;
+
     case MissionStatus.ACCEPTED:
       primary = (
         <Button
