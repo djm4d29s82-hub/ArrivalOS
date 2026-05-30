@@ -325,15 +325,9 @@ function ReassignDialog({ mission, greeters, stepsPlanned, onClose, onDone }) {
     }
     setBusy(true);
     try {
-      const event = await assignGreeter({ mission, greeterId, role: 'admin', actor: 'admin@neuland.de', base44 });
-      await base44.entities.ActivityLog.create({
-        entity_type: 'mission',
-        entity_id: mission.id,
-        action: 'mission.reassigned',
-        actor: 'admin@neuland.de',
-        payload: { greeter_id: greeterId },
-        timestamp: event.timestamp,
-      });
+      // assignGreeter persists the assignment and logs it via the engine (+ DB status trigger).
+      // No extra ActivityLog.create here — the old one used non-existent actor/payload columns.
+      await assignGreeter({ mission, greeterId, role: 'admin', actor: 'admin@neuland.de', base44 });
       toast({ title: 'Greeter zugewiesen' });
       onDone?.(); onClose();
     } catch (e) {
