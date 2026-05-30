@@ -102,12 +102,12 @@ export default function AdminMissions() {
         <div className="space-y-8">
           {buckets.map((b) => {
             if (b.items.length === 0) return null;
-            const bucketIcon = b.key === 'critical' ? AlertCircle : b.key === 'active' ? Clock : CheckCircle2;
+            const BucketIcon = b.key === 'critical' ? AlertCircle : b.key === 'active' ? Clock : CheckCircle2;
             const bucketColor = b.key === 'critical' ? 'text-red-600' : b.key === 'active' ? 'text-gold' : 'text-green-600';
             return (
               <section key={b.key} className="space-y-3.5">
                 <div className="flex items-center gap-2 px-1">
-                  {bucketIcon && <div className={`w-5 h-5 ${bucketColor}`}>{bucketIcon({ size: 20 })}</div>}
+                  <div className={`w-5 h-5 ${bucketColor}`}><BucketIcon size={20} /></div>
                   <h2 className="font-semibold text-[14px]" style={{ color: 'var(--ds-t1)' }}>{b.label}</h2>
                   <div className="text-[11px] font-medium text-[var(--mid)] ml-auto">{b.items.length} {b.items.length === 1 ? 'Einsatz' : 'Einsätze'}</div>
                 </div>
