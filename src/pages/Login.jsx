@@ -171,6 +171,7 @@ export default function Login() {
                     <input
                       type="email"
                       required
+                      autoComplete="off"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@unternehmen.de"
@@ -182,6 +183,7 @@ export default function Login() {
                     <label className="block text-[11.5px] font-semibold mb-1.5" style={{ color: 'var(--ds-t1)' }}>Passwort</label>
                     <input
                       type="password"
+                      autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"

@@ -91,7 +91,11 @@ export function createSupabaseClient(url, anonKey) {
 
   const auth = {
     async me() {
-      const { data: { user } } = await sb.auth.getUser();
+      // Restore from the persisted session (localStorage, no network) — getUser() would make a
+      // network round-trip and, behind the boot timeout, resolves to null on any slowness → the
+      // user looks logged out after a reload.
+      const { data: { session } } = await sb.auth.getSession();
+      const user = session?.user;
       if (!user) return null;
       const { data: profile } = await sb.from('users').select('*').eq('id', user.id).maybeSingle();
       return profile || { id: user.id, email: user.email, role: 'talent' };
@@ -118,7 +122,12 @@ export function createSupabaseClient(url, anonKey) {
       await sb.auth.signOut();
     },
     onChange(cb) {
-      const { data } = sb.auth.onAuthStateChange((event, session) => cb(event, session));
+      // Defer off the listener stack: the callback fires while GoTrue holds its navigator.locks auth
+      // lock, and calling another auth/DB method from inside it can deadlock. setTimeout(…, 0) runs
+      // the consumer after the lock is released.
+      const { data } = sb.auth.onAuthStateChange((event, session) => {
+        setTimeout(() => cb(event, session), 0);
+      });
       return () => data.subscription.unsubscribe();
     },
   };
