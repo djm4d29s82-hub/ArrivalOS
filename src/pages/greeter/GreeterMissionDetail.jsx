@@ -103,6 +103,11 @@ export default function GreeterMissionDetail() {
       setSteps((prev) => prev.map((s) => (s.id === stepId
         ? { ...s, status: 'completed', completed_at: new Date().toISOString() }
         : s)));
+      // Propagate to every surface that derives progress from steps (greeter home, company, talent):
+      // refresh the shared caches + this mission (last step may have auto-completed it).
+      qc.invalidateQueries({ queryKey: ['journeySteps'] });
+      qc.invalidateQueries({ queryKey: ['missions'] });
+      qc.invalidateQueries({ queryKey: ['mission', id] });
       toast({ title: '✓ Schritt erledigt' });
     } catch (e) {
       toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
@@ -292,11 +297,24 @@ export default function GreeterMissionDetail() {
         {/* ONBOARDING STEPS — Greeter checks off the multi-week journey (in_progress only) */}
         {isMine && mission.status === MissionStatus.IN_PROGRESS && steps.length > 0 && (
           <div className="rounded-xl overflow-hidden" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
-            <div className="px-3 sm:px-4 pt-3 pb-2 flex items-center justify-between">
-              <div className="text-[9px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--ds-t3)' }}>Onboarding-Schritte</div>
-              <span className="text-[11px] tabular-nums" style={{ color: 'var(--ds-t3)' }}>
-                {steps.filter((s) => s.status === 'completed').length}/{steps.length}
-              </span>
+            <div className="px-3 sm:px-4 pt-3 pb-2.5">
+              <div className="flex items-center justify-between">
+                <div className="text-[9px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--ds-t3)' }}>Onboarding-Schritte</div>
+                {(() => {
+                  const done = steps.filter((s) => s.status === 'completed').length;
+                  const pct = Math.round((done / steps.length) * 100);
+                  return <span className="text-[11px] tabular-nums font-semibold" style={{ color: '#c49228' }}>{done}/{steps.length} · {pct}%</span>;
+                })()}
+              </div>
+              <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--ds-card-border)' }}>
+                <div
+                  className="h-full transition-all duration-500"
+                  style={{
+                    width: `${Math.round((steps.filter((s) => s.status === 'completed').length / steps.length) * 100)}%`,
+                    background: 'linear-gradient(90deg, #c49228, #d4a83a)',
+                  }}
+                />
+              </div>
             </div>
             <div style={{ borderTop: '1px solid var(--ds-card-border)' }}>
               {steps.map((s, i) => {

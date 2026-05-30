@@ -29,9 +29,10 @@ export default function GreeterHome() {
     if (user?.email) base44.entities.GreeterProfile.filter({ email: user.email }).then((p) => setProfile(p[0]));
   }, [user?.email]);
 
-  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],     queryFn: () => base44.entities.Mission.list('-created_at') });
+  // Poll so a greeter's step check-off (and status changes) surface here within a few seconds.
+  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],     queryFn: () => base44.entities.Mission.list('-created_at'), refetchInterval: 12000 });
   const { data: candidates = [] } = useQuery({ queryKey: ['candidates'],   queryFn: () => base44.entities.Candidate.list() });
-  const { data: allSteps = [] }   = useQuery({ queryKey: ['journeySteps'], queryFn: () => base44.entities.JourneyStep.list() });
+  const { data: allSteps = [] }   = useQuery({ queryKey: ['journeySteps'], queryFn: () => base44.entities.JourneyStep.list(), refetchInterval: 12000 });
 
   if (!profile) return (
     <div className="py-16 text-center text-sm" style={{ color: 'var(--ds-t3)' }}>Profil wird geladen…</div>
@@ -181,17 +182,22 @@ export default function GreeterHome() {
         </section>
       )}
 
-      {/* Aufgaben diese Woche — nächste 7 Tage */}
-      {dueWeek.length > 0 && (
-        <section>
-          <SectionLabel title="Aufgaben diese Woche" count={dueWeek.length} />
+      {/* Aufgaben diese Woche — nächste 7 Tage (immer sichtbar als Wochen-Überblick) */}
+      <section>
+        <SectionLabel title="Aufgaben diese Woche" count={dueWeek.length} />
+        {dueWeek.length > 0 ? (
           <div className="space-y-2">
             {dueWeek.map((s) => (
               <TaskRow key={s.id} step={s} mission={missionById[s.mission_id]} candidate={candidateFor(s.mission_id)} />
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="rounded-2xl px-6 py-8 text-center" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+            <CheckCircle2 className="w-7 h-7 mx-auto mb-2.5" style={{ color: 'var(--ds-t3)' }} />
+            <div className="text-[13px] font-medium" style={{ color: 'var(--ds-t2)' }}>Diese Woche keine geplanten Aufgaben.</div>
+          </div>
+        )}
+      </section>
 
       {/* Today's missions — dringendste als Kernel, Rest als ruhige Zeilen */}
       <section>

@@ -37,10 +37,11 @@ export default function CompanyDashboard() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCompleted, setShowCompleted] = useState(false);
 
-  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],     queryFn: () => base44.entities.Mission.list('-datetime') });
+  // Poll so greeter progress (status + step check-offs) reflects on the company view within seconds.
+  const { data: missions = [] }   = useQuery({ queryKey: ['missions'],     queryFn: () => base44.entities.Mission.list('-datetime'), refetchInterval: 12000 });
   const { data: candidates = [] } = useQuery({ queryKey: ['candidates'],   queryFn: () => base44.entities.Candidate.list() });
   const { data: greeters = [] }   = useQuery({ queryKey: ['greeters'],     queryFn: () => base44.entities.GreeterProfile.list() });
-  const { data: allSteps = [] }   = useQuery({ queryKey: ['journeySteps'], queryFn: () => base44.entities.JourneyStep.list() });
+  const { data: allSteps = [] }   = useQuery({ queryKey: ['journeySteps'], queryFn: () => base44.entities.JourneyStep.list(), refetchInterval: 12000 });
 
   const stepsByMission = useMemo(() => {
     const map = {};
