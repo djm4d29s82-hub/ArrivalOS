@@ -301,10 +301,13 @@ export function useMissionState(missionId: string, userEmail: string): UseMissio
       // (no rollback, no error toast — the greeter keeps their progress; UI shows "pending").
       try {
         await base44.entities.Mission.update(update.id, update.patch);
-        await base44.entities.ActivityLog.create(log);
+        // The Mission.update IS the state change — clear dirty as soon as it lands. The activity
+        // log is best-effort (Supabase already logs status changes via a DB trigger; a failing log
+        // insert, e.g. under hardened RLS, must NOT keep the UI stuck on "wird synchronisiert").
         pendingRef.current = null;
         setIsDirty(false);
         setLastSyncTime(new Date().toISOString());
+        try { await base44.entities.ActivityLog.create(log); } catch { /* log is best-effort */ }
       } catch {
         pendingRef.current = { update, log };
       }
