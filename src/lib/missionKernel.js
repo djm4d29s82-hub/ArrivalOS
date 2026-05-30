@@ -6,7 +6,10 @@ import { JOURNEY_STEPS, journeyProgress } from './journeySteps';
  * No JSX, no side effects. Each portal supplies the wiring (onClick) itself.
  */
 
-const GREETER_TIMELINE_TOTAL = 6; // ASSIGNED→ACCEPTED→ON_THE_WAY→ARRIVED→MET_TALENT→COMPLETED
+// Operational lifecycle the greeter actually walks (status-driven, includes in_progress so the
+// progress line never gets stuck during the onboarding phase). met_talent is legacy → maps to 4.
+const GREETER_STAGE_ORDER = ['assigned', 'accepted', 'on_the_way', 'arrived', 'in_progress', 'completed'];
+const GREETER_TIMELINE_TOTAL = GREETER_STAGE_ORDER.length;
 
 /**
  * Greeter view: maps mission status → one human statement + the single next action.
@@ -35,7 +38,9 @@ export function greeterKernel(mission, candidateName) {
 
 /** Greeter progress as {index, total} for the kernel's calm progress line. */
 export function greeterProgress(mission) {
-  const idx = getTimelineIndex(mission?.greeter_stage || mission?.status);
+  const s = mission?.status;
+  let idx = GREETER_STAGE_ORDER.indexOf(s);
+  if (idx < 0) idx = s === 'met_talent' ? 4 : Math.max(0, getTimelineIndex(mission?.greeter_stage || s));
   return { index: idx >= 0 ? idx : 0, total: GREETER_TIMELINE_TOTAL };
 }
 

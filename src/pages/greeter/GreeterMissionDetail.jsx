@@ -279,7 +279,7 @@ export default function GreeterMissionDetail() {
             statement={isMatched
               ? `Neuer Einsatz: ${candidate?.full_name || 'das Talent'} braucht dich.`
               : greeterKernel(mission, candidate?.full_name).statement}
-            progress={greeterProgress(mission)}
+            progress={mission.status === MissionStatus.IN_PROGRESS ? undefined : greeterProgress(mission)}
             blockers={greeterBlockers(mission, docs)}
           >
             {canAct && (
