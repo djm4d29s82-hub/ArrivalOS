@@ -14,28 +14,35 @@ export function canTransition(from, to) {
   return TRANSITIONS[from]?.includes(to) ?? false;
 }
 
+// Best-effort side-effects: an audit log / notification must NEVER throw and break the primary
+// action (e.g. a step check-off or status transition). In Supabase mode a DB trigger already records
+// status changes, and hardened RLS may reject these inserts; in localStorage mode they always succeed.
 async function logEvent(entityType, entityId, action, oldValue, newValue, description, createdBy) {
-  await base44.entities.ActivityLog.create({
-    entity_type: entityType,
-    entity_id: entityId,
-    action,
-    old_value: String(oldValue || ''),
-    new_value: String(newValue || ''),
-    created_by: createdBy || 'system',
-    description,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    await base44.entities.ActivityLog.create({
+      entity_type: entityType,
+      entity_id: entityId,
+      action,
+      old_value: String(oldValue || ''),
+      new_value: String(newValue || ''),
+      created_by: createdBy || 'system',
+      description,
+      timestamp: new Date().toISOString(),
+    });
+  } catch { /* audit log is best-effort */ }
 }
 
 async function createNotification(userEmail, title, message, type = 'info', link = '') {
-  await base44.entities.Notification.create({
-    user_email: userEmail,
-    title,
-    message,
-    type,
-    link,
-    read: false,
-  });
+  try {
+    await base44.entities.Notification.create({
+      user_email: userEmail,
+      title,
+      message,
+      type,
+      link,
+      read: false,
+    });
+  } catch { /* notification is best-effort */ }
 }
 
 export async function runMatchingEngine(mission) {
