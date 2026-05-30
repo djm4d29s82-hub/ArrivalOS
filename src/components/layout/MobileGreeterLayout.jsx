@@ -40,7 +40,7 @@ export default function MobileGreeterLayout() {
   // Nicht-Greeter (außer admin) → eigenes Portal. Dev (localStorage) bleibt unberührt.
   useEffect(() => {
     if (!IS_SUPABASE) return;
-    if (!user) { nav('/login', { state: { from: window.location }, replace: true }); return; }
+    if (!user) { nav('/login', { state: { from: { pathname: window.location.pathname + window.location.search } }, replace: true }); return; }
     if (user.role !== 'greeter' && user.role !== 'admin') {
       nav(user.role === 'company' ? '/company' : user.role === 'talent' ? '/talent' : '/login', { replace: true });
     }

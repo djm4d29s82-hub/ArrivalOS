@@ -58,7 +58,7 @@ export default function DashboardLayout({ role }) {
 
   useEffect(() => {
     if (!IS_SUPABASE) return;
-    if (!user) { nav('/login', { state: { from: window.location }, replace: true }); return; }
+    if (!user) { nav('/login', { state: { from: { pathname: window.location.pathname + window.location.search } }, replace: true }); return; }
     if (user.role !== role && user.role !== 'admin') {
       nav(user.role === 'company' ? '/company' : user.role === 'greeter' ? '/greeter-dashboard' : user.role === 'talent' ? '/talent' : '/login', { replace: true });
     }
