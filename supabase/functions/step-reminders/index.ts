@@ -16,6 +16,8 @@ Deno.serve(async () => {
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
+  // Where overdue-step escalations go. Set `supabase secrets set ADMIN_EMAIL=...` to your real admin.
+  const adminEmail = Deno.env.get('ADMIN_EMAIL') ?? 'admin@neuland.de';
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
@@ -68,7 +70,7 @@ Deno.serve(async () => {
 
   for (const s of overdue ?? []) {
     notifications.push({
-      user_email: 'admin@neuland.de',
+      user_email: adminEmail,
       title: `Überfällig: ${s.title}`,
       message: `Schritt „${s.title}“ ist überfällig (geplant ${new Date(s.scheduled_at).toLocaleDateString('de-DE')}).`,
       type: 'alert',
