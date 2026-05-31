@@ -6,20 +6,19 @@ import {
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { STAGE_LABELS_DE } from '@/api';
+import { useLang } from '@/lib/LangContext';
 import { Card, Avatar, Pill, Button, SectionHeader } from '@/components/ui';
-import { getStatusLabel } from '@/lib/missionStateMachine';
 import { relativeTime, relativeStepDate } from '@/lib/utils';
 import MissionKernel from '@/components/mission/MissionKernel';
-import { talentKernel } from '@/lib/missionKernel';
-import { JOURNEY_STEPS, journeyProgress, resolveStepMeta, stepBringItems } from '@/lib/journeySteps';
+import { JOURNEY_STEPS, journeyProgress, resolveStepMeta, stepBringItems, localizeStep } from '@/lib/journeySteps';
 
 /**
- * TalentDashboard — emotional, warm welcome screen.
+ * TalentDashboard — emotional, warm welcome screen (DE/EN).
  * Greeting + journey progress + next steps + greeter card + appointments + documents.
  */
 export default function TalentDashboard() {
   const { user } = useAuth();
+  const { t, lang } = useLang();
   const nav = useNavigate();
   const [candidate, setCandidate] = useState(null);
   const [steps, setSteps] = useState([]);
@@ -59,11 +58,26 @@ export default function TalentDashboard() {
   const progressPct = steps.length ? Math.round((jp.completed / jp.total) * 100) : (candidate?.progress ?? 0);
   const arrivalDate = candidate?.arrival_date;
   const daysToArrival = arrivalDate ? Math.ceil((new Date(arrivalDate) - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+  const city = candidate?.city || t('dash.fallbackCity');
 
   // Full journey timeline — real DB steps, or the static plan as a fallback.
   const journeyList = steps.length > 0
     ? steps
     : JOURNEY_STEPS.map((m, i) => ({ id: `f-${i}`, key: m.key, title: m.title, description: m.short, status: 'pending' }));
+
+  // Talent kernel ("where am I / what's next") — localized via the dict (missionKernel stays German).
+  const kernel = (() => {
+    const stage = mission?.greeter_stage;
+    const stageKeys = ['accepted', 'eta_sent', 'on_the_way', 'arrived', 'in_progress', 'wrap_up'];
+    if (stage && stageKeys.includes(stage)) {
+      return { statement: t(`kernel.stage.${stage}`), actionLabel: t('kernel.live') };
+    }
+    let idx = steps.findIndex((s) => s.status === 'in_progress');
+    if (idx < 0) idx = steps.findIndex((s) => s.status !== 'completed');
+    if (idx < 0) return { statement: t('kernel.doneTitle'), sub: t('kernel.doneSub') };
+    const ls = localizeStep(steps[idx], lang);
+    return { statement: t('kernel.next', { step: ls.title }), sub: ls.emotional, actionLabel: t('kernel.viewStep') };
+  })();
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -71,21 +85,21 @@ export default function TalentDashboard() {
       <div className="rounded-2xl overflow-hidden -mx-1">
         <div className="px-7 pt-8 pb-7 bg-gradient-to-br from-navy via-navy to-navy-2 text-cream">
           <div className="text-[11px] uppercase tracking-[0.16em] text-gold font-bold mb-1.5">
-            Deine Journey
+            {t('dash.eyebrow')}
           </div>
           <h1 className="font-serif text-[32px] md:text-[38px] leading-[1.1] font-bold">
-            Schön, dass du da bist, {candidate?.full_name?.split(' ')[0] || 'Talent'}.
+            {t('dash.hello', { name: candidate?.full_name?.split(' ')[0] || 'Talent' })}
           </h1>
           <p className="text-cream/75 text-[14px] mt-2 max-w-lg leading-relaxed">
-            {daysToArrival !== null && daysToArrival > 0 && <>Deine Reise nach <strong className="text-cream">{candidate?.city || 'Deutschland'}</strong> beginnt in {daysToArrival} Tagen.</>}
-            {daysToArrival === 0 && 'Heute ist dein erster Tag. Willkommen in Deutschland.'}
-            {daysToArrival !== null && daysToArrival < 0 && <>Du bist angekommen. Wie läuft&apos;s?</>}
-            {daysToArrival === null && <>Auf dem Weg nach <strong className="text-cream">{candidate?.city || 'Deutschland'}</strong>.</>}
+            {daysToArrival !== null && daysToArrival > 0 && t('dash.arriveIn', { city, days: daysToArrival })}
+            {daysToArrival === 0 && t('dash.arriveToday')}
+            {daysToArrival !== null && daysToArrival < 0 && t('dash.arrived')}
+            {daysToArrival === null && t('dash.onWay', { city })}
           </p>
 
           <div className="mt-6">
             <div className="flex items-baseline justify-between mb-2">
-              <div className="text-[11px] uppercase tracking-widest text-cream/55 font-semibold">Schritt {Math.min(jp.currentIndex + 1, jp.total)} von {jp.total}</div>
+              <div className="text-[11px] uppercase tracking-widest text-cream/55 font-semibold">{t('dash.stepXofY', { i: Math.min(jp.currentIndex + 1, jp.total), n: jp.total })}</div>
               <div className="font-serif text-3xl font-bold text-gold tabular-nums">{progressPct}%</div>
             </div>
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -96,18 +110,13 @@ export default function TalentDashboard() {
       </div>
 
       {/* MISSION KERNEL — Wo bin ich? Was kommt als Nächstes? */}
-      {(() => {
-        const k = talentKernel({ mission, steps });
-        return (
-          <MissionKernel
-            eyebrow="Deine Journey"
-            statement={k.statement}
-            sub={k.sub}
-            progress={{ index: jp.currentIndex, total: jp.total }}
-            primaryAction={k.actionLabel ? { label: k.actionLabel, onClick: () => nav('/talent/greeter'), variant: 'gold' } : undefined}
-          />
-        );
-      })()}
+      <MissionKernel
+        eyebrow={t('dash.eyebrow')}
+        statement={kernel.statement}
+        sub={kernel.sub}
+        progress={{ index: jp.currentIndex, total: jp.total }}
+        primaryAction={kernel.actionLabel ? { label: kernel.actionLabel, onClick: () => nav('/talent/greeter'), variant: 'gold' } : undefined}
+      />
 
       {/* Live Greeter Tracker */}
       {mission?.greeter_stage && mission.greeter_stage !== 'completed' && greeter && (
@@ -120,7 +129,7 @@ export default function TalentDashboard() {
           <div className="p-5 flex items-center gap-4">
             <Avatar name={greeter.full_name} size="xl" ringed />
             <div className="min-w-0 flex-1">
-              <div className="text-[11px] uppercase tracking-[0.14em] font-bold mb-0.5" style={{ color: '#c49228' }}>Dein Greeter</div>
+              <div className="text-[11px] uppercase tracking-[0.14em] font-bold mb-0.5" style={{ color: '#c49228' }}>{t('dash.greeterEyebrow')}</div>
               <div className="font-serif text-xl font-bold" style={{ color: 'var(--ds-t1)' }}>{greeter.full_name}</div>
               <div className="flex items-center flex-wrap gap-1.5 mt-1.5">
                 {greeter.languages?.slice(0, 3).map((l) => (
@@ -140,11 +149,11 @@ export default function TalentDashboard() {
           </div>
           <div className="grid grid-cols-2" style={{ borderTop: '1px solid var(--ds-card-border)' }}>
             <Link to="/talent/messages" className="flex items-center justify-center gap-2 py-3 text-[13px] font-medium transition" style={{ color: 'var(--ds-t1)' }}>
-              <MessageCircle className="w-4 h-4" style={{ color: '#c49228' }} /> Chat
+              <MessageCircle className="w-4 h-4" style={{ color: '#c49228' }} /> {t('dash.chat')}
             </Link>
             {greeter.phone && (
               <a href={`tel:${greeter.phone}`} className="flex items-center justify-center gap-2 py-3 text-[13px] font-medium transition" style={{ color: 'var(--ds-t1)', borderLeft: '1px solid var(--ds-card-border)' }}>
-                <Phone className="w-4 h-4" style={{ color: '#c49228' }} /> Anrufen
+                <Phone className="w-4 h-4" style={{ color: '#c49228' }} /> {t('dash.call')}
               </a>
             )}
           </div>
@@ -158,18 +167,20 @@ export default function TalentDashboard() {
             <Sparkles className="w-4 h-4" />
           </div>
           <div className="text-[13px] leading-relaxed" style={{ color: 'var(--ds-t2)' }}>
-            Dein Greeter wird gerade zugewiesen — du erfährst es hier, sobald jemand bestätigt ist.
+            {t('dash.noGreeter')}
           </div>
         </div>
       )}
 
-      {/* Journey timeline — the full plan, on one screen (merged from TalentJourney) */}
+      {/* Journey timeline — the full plan, on one screen */}
       <section>
-        <SectionHeader title="Deine Journey" count={`${jp.completed}/${journeyList.length}`} />
+        <SectionHeader title={t('dash.journeyTitle')} count={`${jp.completed}/${journeyList.length}`} />
         <div className="space-y-2.5 animate-stagger">
           {journeyList.map((s) => {
             const meta = resolveStepMeta(s);
             const Icon = meta.icon;
+            const ls = localizeStep(s, lang);
+            const bring = stepBringItems(s, lang);
             const done = s.status === 'completed';
             const isInProgress = s.status === 'in_progress';
             return (
@@ -192,29 +203,26 @@ export default function TalentDashboard() {
                   {done ? <CheckCircle2 className="w-4 h-4" strokeWidth={2.2} /> : <Icon className="w-4 h-4" strokeWidth={2.2} />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-[14px]" style={{ color: done ? 'var(--ds-t3)' : 'var(--ds-t1)', textDecoration: done ? 'line-through' : 'none' }}>{s.title || meta.title}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: 'var(--ds-t2)' }}>{s.description || meta.short}</div>
+                  <div className="font-semibold text-[14px]" style={{ color: done ? 'var(--ds-t3)' : 'var(--ds-t1)', textDecoration: done ? 'line-through' : 'none' }}>{ls.title}</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: 'var(--ds-t2)' }}>{ls.description}</div>
                   {!done && s.scheduled_at && (
                     <div className="text-[11px] mt-1 inline-flex items-center gap-1" style={{ color: '#c49228' }}>
-                      <Clock className="w-3 h-3" /> {relativeStepDate(s.scheduled_at)}
+                      <Clock className="w-3 h-3" /> {relativeStepDate(s.scheduled_at, lang)}
                     </div>
                   )}
-                  {!done && (() => {
-                    const bring = stepBringItems(s);
-                    return bring.length > 0 ? (
-                      <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                        <span className="text-[9px] uppercase tracking-[0.1em] font-semibold mr-0.5" style={{ color: 'var(--ds-t3)' }}>Mitbringen</span>
-                        {bring.map((b, bi) => (
-                          <span key={bi} className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-card-border)', color: 'var(--ds-t2)' }}>{b}</span>
-                        ))}
-                      </div>
-                    ) : null;
-                  })()}
+                  {!done && bring.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                      <span className="text-[9px] uppercase tracking-[0.1em] font-semibold mr-0.5" style={{ color: 'var(--ds-t3)' }}>{t('bring.label')}</span>
+                      {bring.map((b, bi) => (
+                        <span key={bi} className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-card-border)', color: 'var(--ds-t2)' }}>{b}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {done ? (
-                  <Pill tone="green" size="xs">Erledigt</Pill>
+                  <Pill tone="green" size="xs">{t('step.done')}</Pill>
                 ) : isInProgress ? (
-                  <Pill tone="gold" size="xs">Läuft</Pill>
+                  <Pill tone="gold" size="xs">{t('step.inProgress')}</Pill>
                 ) : (
                   <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--ds-t3)' }} />
                 )}
@@ -227,11 +235,11 @@ export default function TalentDashboard() {
       {/* Documents */}
       <section>
         <SectionHeader
-          title="Deine Dokumente"
+          title={t('dash.docsTitle')}
           count={documents.length || undefined}
           action={
             <Link to="/talent/documents" className="text-[12px] text-gold font-medium hover:underline">
-              Alle ansehen →
+              {t('dash.viewAll')}
             </Link>
           }
         />
@@ -239,9 +247,9 @@ export default function TalentDashboard() {
           {documents.length === 0 && (
             <div className="px-4 py-6 text-center">
               <Sparkles className="w-5 h-5 mx-auto mb-2" style={{ color: '#c49228' }} />
-              <div className="text-[13px]" style={{ color: 'var(--ds-t2)' }}>Noch keine Dokumente hochgeladen.</div>
+              <div className="text-[13px]" style={{ color: 'var(--ds-t2)' }}>{t('dash.noDocs')}</div>
               <Link to="/talent/documents">
-                <Button variant="outline" size="sm" className="mt-3">Dokumente hochladen</Button>
+                <Button variant="outline" size="sm" className="mt-3">{t('dash.uploadDocs')}</Button>
               </Link>
             </div>
           )}
@@ -255,9 +263,9 @@ export default function TalentDashboard() {
                 <div className="text-[11px]" style={{ color: 'var(--ds-t2)' }}>{d.type || 'Dokument'}</div>
               </div>
               {d.verified ? (
-                <Pill tone="green" size="xs" icon={CheckCircle2}>Geprüft</Pill>
+                <Pill tone="green" size="xs" icon={CheckCircle2}>{t('doc.verified')}</Pill>
               ) : (
-                <Pill tone="amber" size="xs">In Prüfung</Pill>
+                <Pill tone="amber" size="xs">{t('doc.inReview')}</Pill>
               )}
             </div>
           ))}
@@ -267,16 +275,8 @@ export default function TalentDashboard() {
   );
 }
 
-const STAGE_STEP_LABELS = {
-  accepted: 'Greeter angenommen',
-  eta_sent: 'ETA bestätigt',
-  on_the_way: 'Greeter ist unterwegs zu dir',
-  arrived: 'Greeter ist am Treffpunkt',
-  in_progress: 'Ihr seid gemeinsam unterwegs',
-  wrap_up: 'Letzte Schritte',
-};
-
 function LiveGreeterTracker({ mission, greeter }) {
+  const { t, lang } = useLang();
   const stage = mission.greeter_stage;
   const STAGES = ['accepted', 'eta_sent', 'on_the_way', 'arrived', 'in_progress'];
   const idx = STAGES.indexOf(stage);
@@ -290,21 +290,21 @@ function LiveGreeterTracker({ mission, greeter }) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
           </span>
-          <span className="text-[10.5px] uppercase tracking-[0.16em] text-[#8a6818] font-bold">Live</span>
+          <span className="text-[10.5px] uppercase tracking-[0.16em] text-[#8a6818] font-bold">{t('tracker.live')}</span>
         </div>
         <div className="flex items-start gap-3">
           <Avatar name={greeter.full_name} size="md" ringed />
           <div className="flex-1 min-w-0">
             <div className="font-semibold text-[14px] leading-tight" style={{ color: 'var(--ds-t1)' }}>
-              {STAGE_STEP_LABELS[stage] || getStatusLabel(stage) || stage}
+              {t(`tracker.${stage}`)}
             </div>
             <div className="text-[12px] mt-0.5" style={{ color: 'var(--ds-t2)' }}>
               {greeter.full_name}
               {mission.eta_at && stage === 'eta_sent' && (
-                <> · <span className="font-medium" style={{ color: 'var(--ds-t1)' }}>ETA {formatTime(mission.eta_at)}</span></>
+                <> · <span className="font-medium" style={{ color: 'var(--ds-t1)' }}>{t('tracker.eta', { time: formatTime(mission.eta_at) })}</span></>
               )}
               {mission.checked_in_at && stage === 'arrived' && (
-                <> · angekommen {relativeTime(mission.checked_in_at)}</>
+                <> · {t('tracker.arrivedAt', { time: relativeTime(mission.checked_in_at, lang) })}</>
               )}
             </div>
           </div>
@@ -323,18 +323,18 @@ function LiveGreeterTracker({ mission, greeter }) {
         <div className="flex justify-between mt-1.5 text-[9.5px] uppercase tracking-wider">
           {STAGES.map((s, i) => (
             <span key={s} style={{ color: i <= idx ? 'var(--ds-t1)' : 'var(--ds-t3)', fontWeight: i <= idx ? 600 : 400 }}>
-              {STAGE_LABELS_DE[s]?.split(' ')[0]}
+              {t(`stageShort.${s}`)}
             </span>
           ))}
         </div>
       </div>
       <div className="grid grid-cols-2" style={{ borderTop: '1px solid var(--ds-card-border)' }}>
         <Link to="/talent/messages" className="flex items-center justify-center gap-2 py-3 text-[13px] font-medium transition" style={{ color: 'var(--ds-t1)' }}>
-          <MessageCircle className="w-4 h-4" style={{ color: '#c49228' }} /> Nachricht
+          <MessageCircle className="w-4 h-4" style={{ color: '#c49228' }} /> {t('tracker.message')}
         </Link>
         {greeter.phone && (
           <a href={`tel:${greeter.phone}`} className="flex items-center justify-center gap-2 py-3 text-[13px] font-medium transition" style={{ color: 'var(--ds-t1)', borderLeft: '1px solid var(--ds-card-border)' }}>
-            <Phone className="w-4 h-4" style={{ color: '#c49228' }} /> Anrufen
+            <Phone className="w-4 h-4" style={{ color: '#c49228' }} /> {t('tracker.call')}
           </a>
         )}
       </div>

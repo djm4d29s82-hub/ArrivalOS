@@ -19,9 +19,15 @@ export function formatDateTime(d) {
   return date.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-export function relativeTime(d) {
+export function relativeTime(d, lang = 'de') {
   if (!d) return '';
   const diff = (Date.now() - new Date(d).getTime()) / 1000;
+  if (lang === 'en') {
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} h ago`;
+    return `${Math.floor(diff / 86400)} days ago`;
+  }
   if (diff < 60) return 'gerade eben';
   if (diff < 3600) return `vor ${Math.floor(diff / 60)} Min.`;
   if (diff < 86400) return `vor ${Math.floor(diff / 3600)} Std.`;
@@ -37,12 +43,19 @@ export function uid() {
  * "heute" / "morgen" / "in N Tagen" / "gestern fällig" / "N Tage überfällig".
  * Returns '' when no date is set, so callers can conditionally render.
  */
-export function relativeStepDate(scheduledAt) {
+export function relativeStepDate(scheduledAt, lang = 'de') {
   if (!scheduledAt) return '';
   const date = new Date(scheduledAt);
   if (isNaN(date)) return '';
   const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   const diff = Math.round((startOfDay(date) - startOfDay(new Date())) / 86400000);
+  if (lang === 'en') {
+    if (diff === 0) return 'today';
+    if (diff === 1) return 'tomorrow';
+    if (diff > 1) return `in ${diff} days`;
+    if (diff === -1) return 'due yesterday';
+    return `${Math.abs(diff)} days overdue`;
+  }
   if (diff === 0) return 'heute';
   if (diff === 1) return 'morgen';
   if (diff > 1) return `in ${diff} Tagen`;

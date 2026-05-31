@@ -1,6 +1,7 @@
 import { Toaster, ToastProvider } from '@/components/ui/toaster';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/lib/ThemeContext';
+import { LangProvider } from '@/lib/LangContext';
 import { queryClientInstance } from '@/lib/query-client';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -124,6 +125,7 @@ const AuthenticatedApp = () => {
 export default function App() {
   return (
     <ThemeProvider>
+    <LangProvider>
     <SentryErrorBoundary
       fallback={({ resetError }) => (
         <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--ds-bg)' }}>
@@ -152,6 +154,7 @@ export default function App() {
         </QueryClientProvider>
       </AuthProvider>
     </SentryErrorBoundary>
+    </LangProvider>
     </ThemeProvider>
   );
 }

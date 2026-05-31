@@ -14,6 +14,7 @@ import { useRealtimeMessages } from '@/lib/useRealtimeMessages';
 import CommandPalette from '@/components/ui/CommandPalette';
 import WaitingForApproval from '@/components/layout/WaitingForApproval';
 import { useTheme } from '@/lib/ThemeContext';
+import { useLang } from '@/lib/LangContext';
 
 const IS_SUPABASE = !!base44.raw;
 
@@ -49,12 +50,17 @@ const SETTINGS_ROUTE = { admin: '/admin/settings', company: '/company/settings',
 const MESSAGES_ROUTE = { admin: '/admin/messages', company: '/company/messages', greeter: '/greeter-dashboard/messages', talent: '/talent/messages' };
 
 const ROLE_LABELS = { admin: 'Admin', company: 'Unternehmen', greeter: 'Greeter', talent: 'Talent' };
+// Talent nav labels are translatable (DE/EN); other roles stay German.
+const TALENT_NAV_KEY = { '/talent': 'nav.journey', '/talent/documents': 'nav.documents', '/talent/greeter': 'nav.greeter' };
 
 export default function DashboardLayout({ role }) {
   const { user, switchRole, logout } = useAuth();
   const nav = useNavigate();
   const menu = MENUS[role] || [];
   const { isDark, toggle } = useTheme();
+  const { lang, setLang, t } = useLang();
+  const isTalent = role === 'talent';
+  const navLabel = (m) => (isTalent && TALENT_NAV_KEY[m.to] ? t(TALENT_NAV_KEY[m.to]) : m.label);
 
   useEffect(() => {
     if (!IS_SUPABASE) return;
@@ -137,7 +143,7 @@ export default function DashboardLayout({ role }) {
                 }
               >
                 <Icon className="w-4 h-4 shrink-0" strokeWidth={2} />
-                <span className="flex-1">{m.label}</span>
+                <span className="flex-1">{navLabel(m)}</span>
               </NavLink>
             );
           })}
@@ -156,7 +162,7 @@ export default function DashboardLayout({ role }) {
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; }}
           >
-            <Settings className="w-4 h-4" /> Einstellungen
+            <Settings className="w-4 h-4" /> {isTalent ? t('nav.settings') : 'Einstellungen'}
           </Link>
           <button
             onClick={logout}
@@ -165,7 +171,7 @@ export default function DashboardLayout({ role }) {
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; }}
           >
-            <LogOut className="w-4 h-4" /> Abmelden
+            <LogOut className="w-4 h-4" /> {isTalent ? t('nav.logout') : 'Abmelden'}
           </button>
         </div>
       </aside>
@@ -196,6 +202,25 @@ export default function DashboardLayout({ role }) {
               <span>Suche…</span>
               <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono tabular-nums" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)', color: 'var(--ds-t3)' }}>⌘K</kbd>
             </button>
+
+            {/* Language toggle — talent only (DE default, EN for international talents) */}
+            {isTalent && (
+              <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--ds-input-border)' }}>
+                {['de', 'en'].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setLang(l)}
+                    className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide transition"
+                    style={lang === l
+                      ? { background: '#c49228', color: '#0c1220' }
+                      : { background: 'transparent', color: 'var(--ds-t3)' }}
+                    aria-pressed={lang === l}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Theme toggle */}
             <button
