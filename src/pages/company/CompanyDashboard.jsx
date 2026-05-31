@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Briefcase, MapPin, ChevronRight, ChevronDown, Plus, Calendar, Filter } from 'lucide-react';
+import { Briefcase, MapPin, ChevronRight, ChevronDown, Plus, Calendar, Filter, Upload } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Card, SearchInput, Select } from '@/components/ui';
 import { missionProgress } from '@/lib/missionKernel';
 import CompanyArrivalForm from './CompanyArrivalForm';
+import CompanyCsvImport from './CompanyCsvImport';
 
 const STATUS_CFG = {
   matched:     { bg: 'rgba(167,139,250,0.15)', color: '#c4b5fd', label: 'Matched',        progress: 25 },
@@ -33,6 +34,7 @@ export default function CompanyDashboard() {
   const { user } = useAuth();
   const companyId = user?.company_id;
   const [showArrivalForm, setShowArrivalForm] = useState(false);
+  const [showCsvImport, setShowCsvImport] = useState(false);
   const [q, setQ] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCompleted, setShowCompleted] = useState(false);
@@ -107,15 +109,24 @@ export default function CompanyDashboard() {
             ))}
           </div>
 
-          <button
-            onClick={() => setShowArrivalForm(true)}
-            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:-translate-y-px"
-            style={{ background: '#c49228', color: '#0c1220' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#d4a83a'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(196,146,40,.35)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '#c49228'; e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            <Plus className="w-4 h-4" /> Neue Ankunft planen
-          </button>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowArrivalForm(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:-translate-y-px"
+              style={{ background: '#c49228', color: '#0c1220' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#d4a83a'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(196,146,40,.35)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#c49228'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              <Plus className="w-4 h-4" /> Neue Ankunft planen
+            </button>
+            <button
+              onClick={() => setShowCsvImport(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:-translate-y-px"
+              style={{ background: 'var(--ds-card)', color: 'var(--ds-t1)', border: '1px solid var(--ds-card-border)' }}
+            >
+              <Upload className="w-4 h-4" /> CSV-Import
+            </button>
+          </div>
         </div>
       </div>
 
@@ -200,6 +211,7 @@ export default function CompanyDashboard() {
     </div>
 
     <CompanyArrivalForm open={showArrivalForm} onOpenChange={setShowArrivalForm} />
+      <CompanyCsvImport open={showCsvImport} onOpenChange={setShowCsvImport} />
     </>
   );
 }
