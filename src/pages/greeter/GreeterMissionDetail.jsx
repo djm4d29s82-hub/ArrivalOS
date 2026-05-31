@@ -13,7 +13,7 @@ import { useMissionState } from '@/lib/useMissionState';
 import { MissionStatus, IssueServerity } from '@/lib/missionStateMachine';
 import { addMissionNote } from '@/api';
 import { completeJourneyStep } from '@/lib/missionEngine';
-import { resolveStepMeta } from '@/lib/journeySteps';
+import { resolveStepMeta, stepBringItems } from '@/lib/journeySteps';
 import {
   Card, Avatar, Pill, StatusPill, Button, EmptyState, BottomSheet,
   Field, Textarea, Input, SkeletonCard,
@@ -321,14 +321,23 @@ export default function GreeterMissionDetail() {
                 const done = s.status === 'completed';
                 const StepIcon = resolveStepMeta(s).icon;
                 const due = relativeStepDate(s.scheduled_at);
+                const bring = stepBringItems(s);
                 return (
-                  <div key={s.id} className="flex items-center gap-3 px-3 sm:px-4 py-3" style={i > 0 ? { borderTop: '1px solid var(--ds-card-border)' } : {}}>
+                  <div key={s.id} className="flex items-start gap-3 px-3 sm:px-4 py-3" style={i > 0 ? { borderTop: '1px solid var(--ds-card-border)' } : {}}>
                     <div className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: done ? 'rgba(34,197,94,0.12)' : 'rgba(196,146,40,0.10)', color: done ? '#16a34a' : '#c49228' }}>
                       <StepIcon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-[13px] font-medium" style={{ color: done ? 'var(--ds-t3)' : 'var(--ds-t1)', textDecoration: done ? 'line-through' : 'none' }}>{s.title}</div>
                       {due && <div className="text-[11px] mt-0.5" style={{ color: 'var(--ds-t3)' }}>{due}</div>}
+                      {!done && bring.length > 0 && (
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                          <span className="text-[9px] uppercase tracking-[0.1em] font-semibold mr-0.5" style={{ color: 'var(--ds-t3)' }}>Mitbringen</span>
+                          {bring.map((b, bi) => (
+                            <span key={bi} className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-card-border)', color: 'var(--ds-t2)' }}>{b}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     {done ? (
                       <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: '#16a34a' }} />

@@ -12,7 +12,7 @@ import { getStatusLabel } from '@/lib/missionStateMachine';
 import { relativeTime, relativeStepDate } from '@/lib/utils';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { talentKernel } from '@/lib/missionKernel';
-import { JOURNEY_STEPS, journeyProgress, resolveStepMeta } from '@/lib/journeySteps';
+import { JOURNEY_STEPS, journeyProgress, resolveStepMeta, stepBringItems } from '@/lib/journeySteps';
 
 /**
  * TalentDashboard — emotional, warm welcome screen.
@@ -199,6 +199,17 @@ export default function TalentDashboard() {
                       <Clock className="w-3 h-3" /> {relativeStepDate(s.scheduled_at)}
                     </div>
                   )}
+                  {!done && (() => {
+                    const bring = stepBringItems(s);
+                    return bring.length > 0 ? (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                        <span className="text-[9px] uppercase tracking-[0.1em] font-semibold mr-0.5" style={{ color: 'var(--ds-t3)' }}>Mitbringen</span>
+                        {bring.map((b, bi) => (
+                          <span key={bi} className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-card-border)', color: 'var(--ds-t2)' }}>{b}</span>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
                 {done ? (
                   <Pill tone="green" size="xs">Erledigt</Pill>

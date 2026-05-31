@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Plus, ChevronUp, ChevronDown, Trash2, Check, CalendarClock, ListPlus,
+  Plus, ChevronUp, ChevronDown, Trash2, Check, CalendarClock, ListPlus, Package,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toaster';
@@ -8,8 +8,10 @@ import {
   Card, CardBody, Button, Input, Select, Field, Modal, SectionHeader, EmptyState,
 } from '@/components/ui';
 import { MISSION_TEMPLATES } from '@/lib/missionTemplates';
-import { resolveStepMeta } from '@/lib/journeySteps';
+import { resolveStepMeta, stepBringItems } from '@/lib/journeySteps';
 import { relativeStepDate } from '@/lib/utils';
+
+const parseBring = (str) => (str || '').split(',').map((x) => x.trim()).filter(Boolean);
 
 /* ── date helpers ────────────────────────────────────────────── */
 function toISO(dateStr) {
@@ -42,9 +44,11 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
   const [templateId, setTemplateId] = useState('');
   const [pendingTemplate, setPendingTemplate] = useState(null);
   const [adding, setAdding] = useState(false);
-  const [newStep, setNewStep] = useState({ title: '', note: '', date: '' });
+  const [newStep, setNewStep] = useState({ title: '', note: '', date: '', bring: '' });
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
+  const [editingBringId, setEditingBringId] = useState(null);
+  const [editBring, setEditBring] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const load = async () => {
@@ -114,6 +118,7 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
   const onAdd = async () => {
     const title = newStep.title.trim();
     if (!title) return;
+    const bring = parseBring(newStep.bring);
     const optimistic = {
       id: `tmp-${Date.now()}`,
       mission_id: missionId,
@@ -123,14 +128,18 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
       status: 'pending',
       completed_at: null,
       scheduled_at: toISO(newStep.date),
+      bring_items: bring,
     };
     setSteps((p) => [...p, optimistic]);
-    setNewStep({ title: '', note: '', date: '' });
+    setNewStep({ title: '', note: '', date: '', bring: '' });
     setAdding(false);
     try {
       const row = { ...optimistic };
       delete row.id;
       if (!row.scheduled_at) delete row.scheduled_at;
+      // Only send bring_items when the admin actually set some — keeps writes working even on a DB
+      // that hasn't run the bring_items migration (empty → app uses code-side defaults anyway).
+      if (!row.bring_items.length) delete row.bring_items;
       const created = await base44.entities.JourneyStep.create(row);
       setSteps((p) => p.map((s) => (s.id === optimistic.id ? created : s)));
     } catch (e) {
@@ -147,6 +156,20 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
     if (!title || title === s.title) return;
     setSteps((p) => p.map((x) => (x.id === s.id ? { ...x, title } : x)));
     try { await base44.entities.JourneyStep.update(s.id, { title }); } catch { load(); }
+  };
+
+  /* ── edit "Was mitbringen" (comma-separated; empty → falls back to defaults) ── */
+  const startEditBring = (s) => { setEditingBringId(s.id); setEditBring(stepBringItems(s).join(', ')); };
+  const saveBring = async (s) => {
+    const arr = parseBring(editBring);
+    setEditingBringId(null);
+    setSteps((p) => p.map((x) => (x.id === s.id ? { ...x, bring_items: arr } : x)));
+    try {
+      await base44.entities.JourneyStep.update(s.id, { bring_items: arr });
+    } catch {
+      toast({ title: 'Fehler', description: 'Konnte „Mitbringen“ nicht speichern (Migration bring_items ausgeführt?).', variant: 'destructive' });
+      load();
+    }
   };
 
   /* ── edit date ─────────────────────────────────────────────── */
@@ -216,6 +239,9 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
                 <Input type="date" value={newStep.date} onChange={(e) => setNewStep((s) => ({ ...s, date: e.target.value }))} />
               </Field>
             </div>
+            <Field label="Mitbringen (optional, kommagetrennt)">
+              <Input value={newStep.bring} onChange={(e) => setNewStep((s) => ({ ...s, bring: e.target.value }))} placeholder="z. B. Reisepass, Mietvertrag" />
+            </Field>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" size="sm" onClick={() => { setAdding(false); setNewStep({ title: '', note: '', date: '' }); }}>Abbrechen</Button>
               <Button variant="primary" size="sm" icon={Check} disabled={!newStep.title.trim()} onClick={onAdd}>Hinzufügen</Button>
@@ -240,8 +266,9 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
               const StepIcon = resolveStepMeta(s).icon;
               const done = s.status === 'completed';
               const due = relativeStepDate(s.scheduled_at);
+              const bring = stepBringItems(s);
               return (
-                <li key={s.id} className="flex items-center gap-2 rounded-lg px-2 py-2" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+                <li key={s.id} className="flex items-start gap-2 rounded-lg px-2 py-2" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
                   {/* reorder */}
                   <div className="flex flex-col">
                     <button onClick={() => move(i, -1)} disabled={i === 0} className="disabled:opacity-25" aria-label="Nach oben">
@@ -272,6 +299,29 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
                       <button onClick={() => startEdit(s)} className="text-left w-full">
                         <span className="text-[13px] font-medium" style={{ color: done ? 'var(--ds-t3)' : 'var(--ds-t1)', textDecoration: done ? 'line-through' : 'none' }}>{s.title}</span>
                         {due && <span className="ml-2 text-[11px] inline-flex items-center gap-1" style={{ color: 'var(--ds-t3)' }}><CalendarClock className="w-3 h-3" />{due}</span>}
+                      </button>
+                    )}
+
+                    {/* "Was mitbringen" — items (admin override or defaults), click to edit */}
+                    {editingBringId === s.id ? (
+                      <input
+                        autoFocus
+                        value={editBring}
+                        onChange={(e) => setEditBring(e.target.value)}
+                        onBlur={() => saveBring(s)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') saveBring(s); if (e.key === 'Escape') setEditingBringId(null); }}
+                        placeholder="Mitbringen, kommagetrennt"
+                        className="mt-1 w-full px-2 py-1 rounded text-[12px]"
+                        style={{ background: 'var(--ds-bg)', border: '1px solid var(--ds-card-border)', color: 'var(--ds-t1)' }}
+                      />
+                    ) : (
+                      <button onClick={() => startEditBring(s)} className="mt-1 flex flex-wrap items-center gap-1 text-left">
+                        <Package className="w-3 h-3 shrink-0" style={{ color: 'var(--ds-t3)' }} />
+                        {bring.length ? bring.map((b, bi) => (
+                          <span key={bi} className="text-[10.5px] px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-card-border)', color: 'var(--ds-t2)' }}>{b}</span>
+                        )) : (
+                          <span className="text-[10.5px]" style={{ color: 'var(--ds-t3)' }}>Mitbringen hinzufügen</span>
+                        )}
                       </button>
                     )}
                   </div>

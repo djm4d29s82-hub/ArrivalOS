@@ -126,6 +126,10 @@ create table if not exists public.journey_steps (
 -- (MissionStepPlanner / talent timeline). Mirrors migrations/2026-05-journey-step-scheduled-at.sql.
 alter table public.journey_steps add column if not exists scheduled_at timestamptz;
 
+-- Idempotent: per-step "Was mitbringen" checklist (override; defaults live in journeySteps.js).
+-- Mirrors migrations/2026-05-journey-step-bring-items.sql.
+alter table public.journey_steps add column if not exists bring_items text[] default '{}';
+
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
   sender_id uuid references public.users(id) on delete set null,

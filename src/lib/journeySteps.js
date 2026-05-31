@@ -7,14 +7,14 @@ import { Plane, MapPin, Home, Smartphone, FileText, Landmark, ShieldCheck, Check
  * `short`/`emotional` come from here, mapped by index.
  */
 export const JOURNEY_STEPS = [
-  { key: 'flug',    icon: Plane,        title: 'Flug & Visa',         short: 'Reisedokumente bestätigt',  emotional: 'Deine Reise hat begonnen.',                detail: 'Flug gebucht, Visum erteilt — der erste Schritt ist getan.' },
-  { key: 'ankunft', icon: MapPin,       title: 'Ankunft',             short: 'Dein Greeter holt dich ab', emotional: 'Ein Mensch wartet mit deinem Namen.',      detail: 'Du musst nichts alleine tragen. Am Ausgang wartet jemand.' },
-  { key: 'wohnung', icon: Home,         title: 'Unterkunft',          short: 'Erste Tage im Apartment',   emotional: 'Dein erstes Zuhause in Deutschland.',      detail: 'Ein Ort, der dir gehört. Schlüssel in der Hand.' },
-  { key: 'sim',     icon: Smartphone,   title: 'SIM-Karte',           short: 'Deutsches Telefonnetz',     emotional: 'Verbunden — ab jetzt bist du erreichbar.', detail: 'Eine neue Nummer. Deine Familie kann dich erreichen.' },
-  { key: 'anmeld',  icon: FileText,     title: 'Anmeldung',           short: 'Wohnsitz registrieren',     emotional: 'Offiziell angekommen.',                    detail: 'Die Anmeldebescheinigung — das wichtigste Dokument.' },
-  { key: 'bank',    icon: Landmark,     title: 'Bankkonto',           short: 'Erste Überweisungen',       emotional: 'Dein erstes Konto. Gehalt kann fließen.',  detail: 'Ohne Konto kein Gehalt. Mit Konto: Freiheit.' },
-  { key: 'kv',      icon: ShieldCheck,  title: 'Krankenversicherung', short: 'Schutz für deine Familie',  emotional: 'Beschützt — für dich und deine Familie.',  detail: 'Die Versicherungskarte kommt in den nächsten Tagen.' },
-  { key: 'done',    icon: CheckCircle2, title: 'Onboarded',           short: 'Willkommen in Deutschland', emotional: 'Du bist angekommen.',                      detail: 'Was als große Reise begann, ist jetzt dein Alltag.' },
+  { key: 'flug',    icon: Plane,        title: 'Flug & Visa',         short: 'Reisedokumente bestätigt',  emotional: 'Deine Reise hat begonnen.',                detail: 'Flug gebucht, Visum erteilt — der erste Schritt ist getan.', bring: ['Reisepass', 'Visum / Aufenthaltstitel', 'Flugticket'] },
+  { key: 'ankunft', icon: MapPin,       title: 'Ankunft',             short: 'Dein Greeter holt dich ab', emotional: 'Ein Mensch wartet mit deinem Namen.',      detail: 'Du musst nichts alleine tragen. Am Ausgang wartet jemand.', bring: ['Reisepass', 'Handy mit Greeter-Kontakt'] },
+  { key: 'wohnung', icon: Home,         title: 'Unterkunft',          short: 'Erste Tage im Apartment',   emotional: 'Dein erstes Zuhause in Deutschland.',      detail: 'Ein Ort, der dir gehört. Schlüssel in der Hand.', bring: ['Reisepass', 'Mietvertrag (falls vorhanden)'] },
+  { key: 'sim',     icon: Smartphone,   title: 'SIM-Karte',           short: 'Deutsches Telefonnetz',     emotional: 'Verbunden — ab jetzt bist du erreichbar.', detail: 'Eine neue Nummer. Deine Familie kann dich erreichen.', bring: ['Reisepass'] },
+  { key: 'anmeld',  icon: FileText,     title: 'Anmeldung',           short: 'Wohnsitz registrieren',     emotional: 'Offiziell angekommen.',                    detail: 'Die Anmeldebescheinigung — das wichtigste Dokument.', bring: ['Reisepass', 'Mietvertrag', 'Wohnungsgeberbestätigung', 'Visum / Aufenthaltstitel'] },
+  { key: 'bank',    icon: Landmark,     title: 'Bankkonto',           short: 'Erste Überweisungen',       emotional: 'Dein erstes Konto. Gehalt kann fließen.',  detail: 'Ohne Konto kein Gehalt. Mit Konto: Freiheit.', bring: ['Reisepass', 'Anmeldebescheinigung', 'Steuer-ID (falls vorhanden)'] },
+  { key: 'kv',      icon: ShieldCheck,  title: 'Krankenversicherung', short: 'Schutz für deine Familie',  emotional: 'Beschützt — für dich und deine Familie.',  detail: 'Die Versicherungskarte kommt in den nächsten Tagen.', bring: ['Reisepass', 'Anmeldebescheinigung', 'Arbeitsvertrag'] },
+  { key: 'done',    icon: CheckCircle2, title: 'Onboarded',           short: 'Willkommen in Deutschland', emotional: 'Du bist angekommen.',                      detail: 'Was als große Reise begann, ist jetzt dein Alltag.', bring: [] },
 ];
 
 export const JOURNEY_TOTAL = JOURNEY_STEPS.length;
@@ -52,6 +52,16 @@ export function resolveStepMeta(step) {
   // Spread the matched config (key/title/short/emotional/detail) so callers can map
   // emotional copy by identity too; icon always falls back to a neutral default.
   return { ...(match || {}), icon: match?.icon || Circle };
+}
+
+/**
+ * "Was mitbringen" items for a step: the admin-set DB list (bring_items) wins; otherwise the
+ * sensible default for the matched step type (passport, contract, …). Always returns an array.
+ */
+export function stepBringItems(step) {
+  if (Array.isArray(step?.bring_items) && step.bring_items.length) return step.bring_items;
+  const meta = resolveStepMeta(step);
+  return Array.isArray(meta.bring) ? meta.bring : [];
 }
 
 /**
