@@ -5,6 +5,10 @@ dist-ssr/
 # Dependencies
 node_modules/
 
+# Supabase CLI local cache (created by `supabase link`) — not project source
+supabase/.temp/
+supabase/.branches/
+
 # Lokale Env-Overrides (NICHT .env.production — die ist bewusst committet mit dem öffentlichen anon key)
 .env
 .env.local
