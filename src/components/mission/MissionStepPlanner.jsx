@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/toaster';
 import {
   Card, CardBody, Button, Input, Select, Field, Modal, SectionHeader, EmptyState,
 } from '@/components/ui';
-import { MISSION_TEMPLATES } from '@/lib/missionTemplates';
+import { MISSION_TEMPLATES, loadAllTemplates } from '@/lib/missionTemplates';
 import { resolveStepMeta, stepBringItems } from '@/lib/journeySteps';
 import { relativeStepDate } from '@/lib/utils';
 
@@ -42,6 +42,7 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [templateId, setTemplateId] = useState('');
+  const [templates, setTemplates] = useState(MISSION_TEMPLATES);
   const [pendingTemplate, setPendingTemplate] = useState(null);
   const [adding, setAdding] = useState(false);
   const [newStep, setNewStep] = useState({ title: '', note: '', date: '', bring: '' });
@@ -64,6 +65,9 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
   };
   useEffect(() => { if (missionId) load(); }, [missionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Merge code-side built-ins with admin-managed DB templates (best-effort).
+  useEffect(() => { loadAllTemplates().then(setTemplates).catch(() => {}); }, []);
+
   // Report the current step count to the parent (drives the assignment guard).
   useEffect(() => { onStepsChange?.(steps.length); }, [steps.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -73,7 +77,7 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
   const onPickTemplate = (id) => {
     setTemplateId(id);
     if (!id) return;
-    const tpl = MISSION_TEMPLATES.find((t) => t.id === id);
+    const tpl = templates.find((t) => t.id === id);
     if (!tpl) return;
     if (steps.length === 0) applyTemplate(tpl, 'replace');
     else setPendingTemplate(tpl);
@@ -96,6 +100,9 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
         };
         const sched = addDaysISO(missionDatetime, s.offsetDays);
         if (sched) row.scheduled_at = sched;
+        // Only attach bring_items when the template step actually defines some — keeps the write
+        // working on a DB that hasn't run the bring_items migration (empty → code-side defaults).
+        if (Array.isArray(s.bring) && s.bring.length) row.bring_items = s.bring;
         return row;
       });
       // Create the new steps FIRST, then delete the old ones — a mid-flight network
@@ -218,7 +225,7 @@ export default function MissionStepPlanner({ missionId, missionDatetime, onSteps
             <div className="flex items-center gap-2">
               <Select value={templateId} onChange={(e) => onPickTemplate(e.target.value)} disabled={busy}>
                 <option value="">Vorlage…</option>
-                {MISSION_TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                {templates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
               </Select>
               <Button variant="outline" size="sm" icon={Plus} onClick={() => setAdding((v) => !v)}>Schritt</Button>
             </div>

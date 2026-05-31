@@ -2,7 +2,7 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toaster';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Database, Bell, User, Users, BarChart3, Receipt, ScrollText, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { AlertTriangle, Database, Bell, User, Users, BarChart3, Receipt, ScrollText, ChevronRight, SlidersHorizontal, ListChecks } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 export default function AdminSettings() {
@@ -46,6 +46,7 @@ export default function AdminSettings() {
           <ControlRow to="/admin/invoices" icon={Receipt} label="Rechnungen" desc="Abrechnung & Belege" />
           <ControlRow to="/admin/logs" icon={ScrollText} label="Activity Log" desc="Audit-Verlauf" />
           <ControlRow to="/admin/sops" icon={ScrollText} label="SOPs" desc="Standard-Abläufe" />
+          <ControlRow to="/admin/templates" icon={ListChecks} label="Schritt-Vorlagen" desc="Onboarding-Abläufe ohne Deploy" />
         </Section>
       )}
 

@@ -19,6 +19,9 @@ pnpm-debug.log*
 logs/
 *.log
 
+# Throwaway local scripts (e.g. E2E seed using a service-role key — never commit)
+scripts/seed-e2e.mjs
+
 # Editor / OS
 .DS_Store
 .vscode/*

@@ -130,6 +130,17 @@ alter table public.journey_steps add column if not exists scheduled_at timestamp
 -- Mirrors migrations/2026-05-journey-step-bring-items.sql.
 alter table public.journey_steps add column if not exists bring_items text[] default '{}';
 
+-- Reusable journey-step templates, admin-editable in the UI (no code deploy).
+-- Mirrors migrations/2026-05-mission-templates.sql. RLS policies live in rls-hardening.sql.
+create table if not exists public.mission_templates (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  steps jsonb not null default '[]',
+  created_by text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
   sender_id uuid references public.users(id) on delete set null,

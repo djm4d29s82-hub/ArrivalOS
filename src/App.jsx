@@ -33,6 +33,7 @@ const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 const AdminActivityLog = lazy(() => import('@/pages/admin/AdminActivityLog'));
 const AdminSOPs = lazy(() => import('@/pages/admin/AdminSOPs'));
+const AdminTemplates = lazy(() => import('@/pages/admin/AdminTemplates'));
 const AdminQuality = lazy(() => import('@/pages/admin/AdminQuality'));
 const CompanyDashboard = lazy(() => import('@/pages/company/CompanyDashboard'));
 const CompanyMissionDetail = lazy(() => import('@/pages/company/CompanyMissionDetail'));
@@ -83,6 +84,7 @@ const AuthenticatedApp = () => {
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/logs" element={<AdminActivityLog />} />
           <Route path="/admin/sops" element={<AdminSOPs />} />
+          <Route path="/admin/templates" element={<AdminTemplates />} />
           <Route path="/admin/quality" element={<AdminQuality />} />
           <Route path="/admin/team" element={<AdminTeam />} />
           <Route path="/admin/settings" element={<AdminSettings />} />

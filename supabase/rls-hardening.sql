@@ -225,6 +225,15 @@ create policy "sops_select" on public.sops for select to authenticated using (tr
 create policy "sops_modify_admin" on public.sops for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
+-- MISSION_TEMPLATES — Admin-only verwaltet (Vorlagen-Editor). Tabelle siehe migrations/2026-05-mission-templates.sql.
+alter table if exists public.mission_templates enable row level security;
+drop policy if exists "mission_templates_select" on public.mission_templates;
+create policy "mission_templates_select" on public.mission_templates for select to authenticated
+  using (public.is_admin());
+drop policy if exists "mission_templates_modify" on public.mission_templates;
+create policy "mission_templates_modify" on public.mission_templates for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
 -- INVITES — Admin alles; Company eigene; Accept läuft per service_role (umgeht RLS).
 -- Kein anon/talent-Zugriff: Token-Validierung passiert serverseitig in der Edge-Function.
 create policy "invites_select" on public.invites for select to authenticated

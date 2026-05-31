@@ -21,6 +21,7 @@ const TABLE_MAP = {
   Lead: 'leads',
   Document: 'documents',
   SOP: 'sops',
+  MissionTemplate: 'mission_templates',
 };
 
 export function createSupabaseClient(url, anonKey) {
