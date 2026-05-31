@@ -8,7 +8,7 @@ import {
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toaster';
 import {
-  transitionMission, cancelMission, runMatchingEngine, STAGE_LABELS_DE, stageIndex,
+  transitionMission, cancelMission, runMatchingEngine, STAGE_LABELS_DE, stageIndex, reopenMission,
 } from '@/lib/missionEngine';
 import { MissionStatus } from '@/lib/missionStateMachine';
 import { assignGreeter, cancelMission as cancelMissionSafe } from '@/api';
@@ -37,6 +37,7 @@ export default function AdminMissionDetail() {
   const [plannedCount, setPlannedCount] = useState(0); // reported by MissionStepPlanner
   const [showReassign, setShowReassign] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
+  const [showReopen, setShowReopen] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -65,34 +66,6 @@ export default function AdminMissionDetail() {
     finally { setBusy(false); }
   };
 
-  // Admin override: reopen a completed/cancelled mission (the state machine treats those as terminal,
-  // so this is a deliberate authority action, not a normal transition). Reverts to the last active
-  // status — in_progress when a greeter is on it, otherwise created. Steps/progress are kept.
-  const onReopen = async () => {
-    if (typeof window !== 'undefined' && !window.confirm('Mission wieder öffnen? Der Status wird zurückgesetzt.')) return;
-    setBusy(true);
-    const next = mission.greeter_id ? 'in_progress' : 'created';
-    try {
-      await base44.entities.Mission.update(mission.id, {
-        status: next,
-        greeter_stage: mission.greeter_id ? 'in_progress' : null,
-        last_updated_by: 'admin@neuland.de',
-        last_status_change: new Date().toISOString(),
-      });
-      try {
-        await base44.entities.ActivityLog.create({
-          entity_type: 'Mission', entity_id: mission.id, action: `mission.${next}`,
-          old_value: mission.status, new_value: next, created_by: 'admin@neuland.de',
-          description: `Mission wieder geöffnet (${mission.status} → ${next})`,
-          timestamp: new Date().toISOString(),
-        });
-      } catch { /* log best-effort */ }
-      toast({ title: 'Mission wieder geöffnet' });
-      refresh();
-    } catch (e) {
-      toast({ title: 'Fehler', description: e.message, variant: 'destructive' });
-    } finally { setBusy(false); }
-  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -113,7 +86,7 @@ export default function AdminMissionDetail() {
           </div>
         </div>
         {['completed', 'cancelled'].includes(mission.status) && (
-          <Button variant="outline" size="sm" icon={RefreshCw} onClick={onReopen} loading={busy}>
+          <Button variant="outline" size="sm" icon={RefreshCw} onClick={() => setShowReopen(true)}>
             Wieder öffnen
           </Button>
         )}
@@ -333,7 +306,50 @@ export default function AdminMissionDetail() {
           onDone={() => { refresh(); nav('/admin/missions'); }}
         />
       )}
+      {showReopen && (
+        <ReopenDialog
+          mission={mission}
+          onClose={() => setShowReopen(false)}
+          onDone={refresh}
+        />
+      )}
     </div>
+  );
+}
+
+function ReopenDialog({ mission, onClose, onDone }) {
+  const { toast } = useToast();
+  const hasGreeter = !!mission.greeter_id;
+  const OPTIONS = hasGreeter
+    ? [['in_progress', 'Onboarding läuft'], ['arrived', 'Vor Ort'], ['on_the_way', 'Unterwegs'], ['accepted', 'Angenommen'], ['assigned', 'Zugewiesen']]
+    : [['created', 'Geplant']];
+  const [toStatus, setToStatus] = useState(OPTIONS[0][0]);
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    setBusy(true);
+    try {
+      await reopenMission(mission, toStatus, 'admin@neuland.de');
+      toast({ title: 'Mission wieder geöffnet' });
+      onDone?.(); onClose();
+    } catch (e) {
+      toast({ title: 'Fehler', description: e.message, variant: 'destructive' });
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <Modal open onClose={onClose} title="Mission wieder öffnen" description="Auf welchen Status zurücksetzen? Schritte und Fortschritt bleiben erhalten." size="md"
+      footer={<>
+        <Button variant="ghost" onClick={onClose}>Abbrechen</Button>
+        <Button variant="primary" onClick={submit} loading={busy}>Wieder öffnen</Button>
+      </>}
+    >
+      <Field label="Status">
+        <Select value={toStatus} onChange={(e) => setToStatus(e.target.value)} className="w-full">
+          {OPTIONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </Select>
+      </Field>
+    </Modal>
   );
 }
 

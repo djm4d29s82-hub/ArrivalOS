@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Filter, Briefcase, MapPin, Calendar, ChevronRight, Building2, Sparkles, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { Plus, Filter, Briefcase, MapPin, Calendar, ChevronRight, Building2, Sparkles, AlertCircle, CheckCircle2, Clock, RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMissionState } from '@/lib/useMissionState';
 import { MissionStatus, getStatusLabel } from '@/lib/missionStateMachine';
 import { runMatching, STAGE_LABELS_DE, createMission } from '@/api';
+import { reopenMission } from '@/lib/missionEngine';
 import { useToast } from '@/components/ui/toaster';
 import {
   PageHeader, SectionHeader, Card, Pill, StatusPill, Avatar, Button, IconButton,
@@ -57,6 +58,11 @@ export default function AdminMissions() {
 
   const onRematch = async (m) => {
     try { await runMatching({ mission: m, role: 'admin', actor: 'admin@neuland.de' }); toast({ title: 'Matching gestartet' }); refresh(); }
+    catch (e) { toast({ title: 'Fehler', description: e.message, variant: 'destructive' }); }
+  };
+
+  const onReopen = async (m) => {
+    try { await reopenMission(m, m.greeter_id ? 'in_progress' : 'created', 'admin@neuland.de'); toast({ title: 'Mission wieder geöffnet' }); refresh(); }
     catch (e) { toast({ title: 'Fehler', description: e.message, variant: 'destructive' }); }
   };
 
@@ -120,6 +126,7 @@ export default function AdminMissions() {
                       candidate={candidates.find((c) => c.id === m.candidate_id)}
                       greeter={greeters.find((g) => g.id === m.greeter_id)}
                       onRematch={onRematch}
+                      onReopen={onReopen}
                     />
                   ))}
                 </div>
@@ -134,7 +141,7 @@ export default function AdminMissions() {
   );
 }
 
-function MissionCard({ mission, company, candidate, greeter, onRematch }) {
+function MissionCard({ mission, company, candidate, greeter, onRematch, onReopen }) {
   const { transitionTo, canTransitionTo, isDirty, isSyncing } = useMissionState(mission.id, 'admin@neuland.de');
   const stage = mission.greeter_stage;
   const isPriority = [MissionStatus.ASSIGNED, MissionStatus.ACCEPTED].includes(mission.status);
@@ -229,6 +236,11 @@ function MissionCard({ mission, company, candidate, greeter, onRematch }) {
         {![MissionStatus.COMPLETED, MissionStatus.CANCELLED, MissionStatus.ISSUE_REPORTED].includes(mission.status) && (
           <Button variant="ghost" size="xs" className="!text-red-600 hover:!bg-red-500/10" disabled={isBusy} onClick={() => onAdvance(MissionStatus.CANCELLED)}>
             Stornieren
+          </Button>
+        )}
+        {[MissionStatus.COMPLETED, MissionStatus.CANCELLED].includes(mission.status) && (
+          <Button variant="outline" size="xs" icon={RefreshCw} onClick={() => onReopen(mission)}>
+            Wieder öffnen
           </Button>
         )}
       </div>

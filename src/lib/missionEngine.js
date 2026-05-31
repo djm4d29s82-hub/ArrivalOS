@@ -95,6 +95,22 @@ export async function transitionMission(missionId, newStatus, actor, notifyEmail
   return { ...mission, status: newStatus };
 }
 
+// Admin authority override: reopen a completed/cancelled mission to an earlier active status.
+// The state machine treats completed/cancelled as terminal, so this writes directly (no canTransition
+// check) and keeps steps/progress intact. greeter_stage mirrors the operational statuses.
+const REOPEN_STAGE = { accepted: 'accepted', on_the_way: 'on_the_way', arrived: 'arrived', in_progress: 'in_progress' };
+export async function reopenMission(mission, toStatus, actor) {
+  await base44.entities.Mission.update(mission.id, {
+    status: toStatus,
+    greeter_stage: REOPEN_STAGE[toStatus] ?? null,
+    last_updated_by: actor || 'admin',
+    last_status_change: new Date().toISOString(),
+  });
+  await logEvent('Mission', mission.id, `mission.${toStatus}`, mission.status, toStatus,
+    `Mission wieder geöffnet (${mission.status} → ${toStatus})`, actor);
+  return { ...mission, status: toStatus };
+}
+
 export async function createMission(data, createdBy) {
   const mission = await base44.entities.Mission.create({ ...data, status: 'open', matched_greeters: [] });
   await logEvent('Mission', mission.id, 'mission.created', '', 'open', `Mission "${mission.title}" created`, createdBy);
