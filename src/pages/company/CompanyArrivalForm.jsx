@@ -56,12 +56,27 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
     setError(null);
 
     try {
-      // Create Mission with CREATED status.
-      // NOTE: there is intentionally no Arrival entity — it is not registered in
-      // base44 (ENTITY_NAMES) and calling base44.entities.Arrival.create() throws.
-      // The mission is the single source of truth for an arrival request.
+      // Create the Candidate first so the mission is candidate-linked and the arrival
+      // actually reaches the talent screen (same shape CompanyCsvImport uses). The
+      // candidates table has no email column — email belongs to the talent user account.
+      const candidate = await base44.entities.Candidate.create({
+        full_name: data.candidateName,
+        company_id: user?.company_id || null,
+        phone: data.candidatePhone || null,
+        languages: data.languageLevel ? [data.languageLevel] : [],
+        arrival_date: data.arrivalDate,
+        arrival_time: `${data.arrivalDate}T${data.arrivalTime}:00Z`,
+        flight_no: data.flightNumber || null,
+        notes: data.notes || null,
+        status: 'preparation',
+      });
+
+      // Create Mission with CREATED status, linked to the candidate.
+      // NOTE: there is intentionally no Arrival entity — the mission is the single
+      // source of truth for an arrival request.
       const { mission } = await createMission({
         companyId: user?.company_id || 'unknown',
+        candidateId: candidate.id,
         title: `${data.candidateName} → ${data.arrivalCity}`,
         city: data.arrivalCity,
         datetime: `${data.arrivalDate}T${data.arrivalTime}:00Z`,
@@ -74,6 +89,7 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
 
       // Invalidate queries
       qc.invalidateQueries({ queryKey: ['missions'] });
+      qc.invalidateQueries({ queryKey: ['candidates'] });
 
       // Show confirmation
       setConfirmation({
@@ -137,9 +153,9 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
 
             <div className="bg-blue-50 border border-blue-200 dark:bg-blue-500/[0.08] dark:border-blue-500/20 rounded-lg p-3 text-sm">
               <p className="text-blue-900 dark:text-blue-300">
-                ✓ Matching Engine läuft<br/>
-                ✓ Operations Team benachrichtigt<br/>
-                ✓ SMS an Kandidat
+                ✓ Ankunft &amp; Kandidat angelegt<br/>
+                ✓ Im Operations-Dashboard sichtbar<br/>
+                Nächster Schritt: Greeter-Zuweisung durch Operations
               </p>
             </div>
 
@@ -362,12 +378,12 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
               {data.notes && <p className="text-sm text-gray-500 mt-2 dark:text-white/45">Hinweis: {data.notes}</p>}
             </div>
 
-            {/* Automations preview */}
+            {/* What actually happens next */}
             <div className="bg-green-50 border border-green-200 dark:bg-green-500/[0.08] dark:border-green-500/20 rounded-lg p-3 text-sm space-y-1">
-              <p className="text-green-900 dark:text-green-300 font-medium">Dies wird automatisch ausgelöst:</p>
-              <p className="text-green-800 dark:text-green-400">✓ Matching Engine läuft</p>
-              <p className="text-green-800 dark:text-green-400">✓ Operations Team benachrichtigt</p>
-              <p className="text-green-800 dark:text-green-400">✓ SMS an {data.candidateName}</p>
+              <p className="text-green-900 dark:text-green-300 font-medium">Nach dem Erstellen:</p>
+              <p className="text-green-800 dark:text-green-400">✓ Ankunft &amp; Kandidat werden angelegt</p>
+              <p className="text-green-800 dark:text-green-400">✓ Sichtbar im Operations-Dashboard</p>
+              <p className="text-green-800 dark:text-green-400">Operations plant die Schritte und weist einen Greeter zu</p>
             </div>
 
             <div className="flex gap-3 pt-4">

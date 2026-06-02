@@ -83,13 +83,23 @@ export default function TalentGreeter() {
               <div className="text-[13px] font-medium" style={{ color: 'var(--ds-t1)' }}>{greeter.email}</div>
             </div>
           </a>
-          <a href="tel:+498912345" className="rounded-xl p-4 flex items-center gap-3 transition" style={{ background: 'var(--ds-card-border)' }}>
-            <Phone className="w-4 h-4" style={{ color: '#c49228' }} />
-            <div>
-              <div className="text-[11px] uppercase tracking-wider" style={{ color: 'var(--ds-t3)' }}>{t('greeter.phone')}</div>
-              <div className="text-[13px] font-medium" style={{ color: 'var(--ds-t1)' }}>{t('greeter.phonePref')}</div>
+          {greeter.phone ? (
+            <a href={`tel:${greeter.phone}`} className="rounded-xl p-4 flex items-center gap-3 transition" style={{ background: 'var(--ds-card-border)' }}>
+              <Phone className="w-4 h-4" style={{ color: '#c49228' }} />
+              <div>
+                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'var(--ds-t3)' }}>{t('greeter.phone')}</div>
+                <div className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--ds-t1)' }}>{greeter.phone}</div>
+              </div>
+            </a>
+          ) : (
+            <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: 'var(--ds-card-border)' }}>
+              <Phone className="w-4 h-4" style={{ color: '#c49228' }} />
+              <div>
+                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'var(--ds-t3)' }}>{t('greeter.phone')}</div>
+                <div className="text-[13px] font-medium" style={{ color: 'var(--ds-t1)' }}>{t('greeter.phonePref')}</div>
+              </div>
             </div>
-          </a>
+          )}
         </div>
 
         {/* Live-Chat-Thread */}
