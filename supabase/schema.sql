@@ -219,6 +219,11 @@ create table if not exists public.documents (
   created_at timestamptz default now()
 );
 
+-- Idempotent: link a document to a journey step (Anmeldung/Bankkonto/Visa …).
+-- Mirrors migrations/2026-05-document-step-link.sql.
+alter table public.documents add column if not exists step_id uuid
+  references public.journey_steps(id) on delete set null;
+
 -- Invites (Pre-User-State; eigene Lifecycle, NICHT gleich User)
 create table if not exists public.invites (
   id uuid primary key default uuid_generate_v4(),

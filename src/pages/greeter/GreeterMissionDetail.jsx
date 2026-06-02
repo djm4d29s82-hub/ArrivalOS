@@ -13,6 +13,7 @@ import { useMissionState } from '@/lib/useMissionState';
 import { MissionStatus, IssueServerity } from '@/lib/missionStateMachine';
 import { addMissionNote } from '@/api';
 import { completeJourneyStep } from '@/lib/missionEngine';
+import { getDocumentUrl } from '@/lib/storage';
 import { resolveStepMeta, stepBringItems } from '@/lib/journeySteps';
 import {
   Card, Avatar, Pill, StatusPill, Button, EmptyState, BottomSheet,
@@ -65,6 +66,11 @@ export default function GreeterMissionDetail() {
 
   // Live chat with the talent — same realtime thread TalentGreeter uses (BUG 1 fix).
   const { thread, markRead, send } = useRealtimeMessages({ missionId: id });
+
+  // Open a talent-uploaded document (signed URL) — read-only for the greeter.
+  const openDoc = async (d) => {
+    try { const url = await getDocumentUrl(d); if (url) window.open(url, '_blank', 'noopener'); } catch { /* empty */ }
+  };
 
   // Load related data (candidate, company, docs, logs)
   const loadRelated = async () => {
@@ -338,6 +344,27 @@ export default function GreeterMissionDetail() {
                           ))}
                         </div>
                       )}
+                      {/* Documents the talent uploaded for this step — read-only download */}
+                      {(() => {
+                        const stepDocs = docs.filter((d) => d.step_id === s.id);
+                        if (!stepDocs.length) return null;
+                        return (
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                            {stepDocs.map((d) => (
+                              <button
+                                key={d.id}
+                                onClick={() => openDoc(d)}
+                                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded transition"
+                                style={{ background: 'rgba(196,146,40,0.10)', color: '#c49228' }}
+                                title={d.title}
+                              >
+                                <FileText className="w-3 h-3" /> <span className="max-w-[140px] truncate">{d.title}</span>
+                                <ExternalLink className="w-3 h-3 opacity-70" />
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                     {done ? (
                       <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: '#16a34a' }} />

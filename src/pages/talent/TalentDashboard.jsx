@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Plane, MapPin, Home, Smartphone, FileText, Landmark, CheckCircle2, Circle, Clock,
   Phone, MessageCircle, ChevronRight, Sparkles, Navigation as NavIcon, Timer,
+  Upload, Loader2, Download,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLang } from '@/lib/LangContext';
 import { Card, Avatar, Pill, Button, SectionHeader } from '@/components/ui';
+import { uploadDocument, getDocumentUrl } from '@/lib/storage';
 import { relativeTime, relativeStepDate } from '@/lib/utils';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { JOURNEY_STEPS, journeyProgress, resolveStepMeta, stepBringItems, localizeStep } from '@/lib/journeySteps';
@@ -25,6 +27,24 @@ export default function TalentDashboard() {
   const [greeter, setGreeter] = useState(null);
   const [mission, setMission] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [docBusyStep, setDocBusyStep] = useState(null);
+  const cid = user?.candidate_id || 'ca1';
+
+  const refreshDocs = async () => {
+    try { setDocuments(await base44.entities.Document.filter({ candidate_id: cid })); } catch { /* empty */ }
+  };
+  const onUploadStep = async (stepId, file) => {
+    if (!file) return;
+    setDocBusyStep(stepId);
+    try {
+      await uploadDocument({ file, candidateId: cid, stepId, type: 'step' });
+      await refreshDocs();
+    } catch { /* surfaced via missing chip; keep UI calm */ }
+    finally { setDocBusyStep(null); }
+  };
+  const openDoc = async (d) => {
+    try { const url = await getDocumentUrl(d); if (url) window.open(url, '_blank', 'noopener'); } catch { /* empty */ }
+  };
 
   useEffect(() => {
     const cid = user?.candidate_id || 'ca1';
@@ -218,6 +238,35 @@ export default function TalentDashboard() {
                       ))}
                     </div>
                   )}
+                  {/* Documents linked to this step — talent uploads + sees them; greeter sees them too */}
+                  {!String(s.id).startsWith('f-') && (() => {
+                    const stepDocs = documents.filter((d) => d.step_id === s.id);
+                    return (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        {stepDocs.map((d) => (
+                          <button
+                            key={d.id}
+                            onClick={() => openDoc(d)}
+                            className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded transition"
+                            style={{ background: 'rgba(196,146,40,0.10)', color: '#c49228' }}
+                            title={d.title}
+                          >
+                            <FileText className="w-3 h-3" /> <span className="max-w-[140px] truncate">{d.title}</span>
+                            <Download className="w-3 h-3 opacity-70" />
+                          </button>
+                        ))}
+                        <label
+                          className={`inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded cursor-pointer transition ${docBusyStep === s.id ? 'opacity-60 pointer-events-none' : ''}`}
+                          style={{ border: '1px dashed var(--ds-card-border)', color: 'var(--ds-t3)' }}
+                        >
+                          {docBusyStep === s.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                          {t('step.upload')}
+                          <input type="file" className="sr-only" disabled={docBusyStep === s.id}
+                            onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; onUploadStep(s.id, f); }} />
+                        </label>
+                      </div>
+                    );
+                  })()}
                 </div>
                 {done ? (
                   <Pill tone="green" size="xs">{t('step.done')}</Pill>

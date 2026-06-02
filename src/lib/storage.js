@@ -18,7 +18,7 @@ const sanitize = (name) => name.replace(/[^a-zA-Z0-9._-]/g, '_');
  * Lädt eine Datei hoch und erstellt eine Document-Entity.
  * @returns {Promise<Document>}
  */
-export async function uploadDocument({ file, candidateId, type = 'upload' }) {
+export async function uploadDocument({ file, candidateId, type = 'upload', stepId = null }) {
   if (!file || !candidateId) throw new Error('file und candidateId erforderlich');
 
   let storagePath = null;
@@ -57,6 +57,9 @@ export async function uploadDocument({ file, candidateId, type = 'upload' }) {
     size: file.size,
     mime_type: file.type,
     uploaded_at: new Date().toISOString(),
+    // Only attach step_id when linking to a step — keeps the insert column-clean on a DB
+    // that hasn't run the document-step-link migration (plain uploads still work).
+    ...(stepId ? { step_id: stepId } : {}),
   });
 }
 
