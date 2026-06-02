@@ -38,6 +38,7 @@ const AdminQuality = lazy(() => import('@/pages/admin/AdminQuality'));
 const CompanyDashboard = lazy(() => import('@/pages/company/CompanyDashboard'));
 const CompanyMissionDetail = lazy(() => import('@/pages/company/CompanyMissionDetail'));
 const CompanyDocuments = lazy(() => import('@/pages/company/CompanyDocuments'));
+const CompanySLA = lazy(() => import('@/pages/company/CompanySLA'));
 const GreeterDashboard = lazy(() => import('@/pages/greeter/GreeterDashboard'));
 const GreeterMissions = lazy(() => import('@/pages/greeter/GreeterMissions'));
 const GreeterMissionDetail = lazy(() => import('@/pages/greeter/GreeterMissionDetail'));
@@ -94,6 +95,7 @@ const AuthenticatedApp = () => {
           <Route path="/company" element={<CompanyDashboard />} />
           <Route path="/company/missions/:id" element={<CompanyMissionDetail />} />
           <Route path="/company/documents" element={<CompanyDocuments />} />
+          <Route path="/company/sla" element={<CompanySLA />} />
           <Route path="/company/invoices" element={<AdminInvoices />} />
           <Route path="/company/messages" element={<AdminMessages />} />
           <Route path="/company/settings" element={<AdminSettings />} />

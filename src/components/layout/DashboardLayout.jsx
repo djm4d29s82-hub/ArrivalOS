@@ -30,6 +30,7 @@ const MENUS = {
   ],
   company: [
     { to: '/company', label: 'Übersicht', icon: LayoutDashboard, end: true },
+    { to: '/company/sla', label: 'Kennzahlen', icon: BarChart3 },
     { to: '/company/documents', label: 'Dokumente', icon: FileText },
     { to: '/company/invoices', label: 'Rechnungen', icon: Receipt },
   ],
