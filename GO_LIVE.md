@@ -1,7 +1,7 @@
 # GO-LIVE — Runbook & Readiness-Audit
 
 > **Status:** Vorbereitung für **öffentlichen Launch** mit echten, zahlenden Kunden.
-> Ab jetzt gilt: **stabiler Betrieb statt Demo-Politur.** NeuLand ist Operations-Software —
+> Ab jetzt gilt: **stabiler Betrieb statt Demo-Politur.** ArrivalOS ist Operations-Software —
 > ein Fehler ist ein echtes Kundenproblem, kein UI-Detail.
 >
 > Dieses Dokument ist die **eine Quelle der Wahrheit** für den Go-Live. Es ist ein Audit
@@ -145,21 +145,51 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
 
 ### Supabase
 - [ ] **Projekt** in Region **Frankfurt (EU Central)** anlegen, DB-Passwort sicher ablegen.
-- [ ] **SQL in dieser Reihenfolge** im SQL-Editor ausführen:
+      Project-Ref (bestehend): `jtaegmuftgxzjddfevbs`.
+- [ ] **Basis-SQL in dieser Reihenfolge** im SQL-Editor ausführen:
       `schema.sql` → `rls-hardening.sql` → `audit-triggers.sql` → `rate-limit.sql` → `storage-policies.sql`.
+- [ ] **Migrationen** aus `supabase/migrations/` ausführen (idempotent, `… if not exists`; auf einer
+      bestehenden DB der sichere, explizite Weg — `schema.sql` spiegelt die meisten bereits):
+      `2026-05-mission-flight-number.sql` · `2026-05-journey-step-scheduled-at.sql` ·
+      `2026-05-journey-step-bring-items.sql` · `2026-05-mission-templates.sql` ·
+      `2026-05-document-step-link.sql`.
 - [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql`.
-- [ ] **Edge Functions deployen:**
-      `admin-invite` (**mit** JWT-Verify) · `accept-invite` (**`--no-verify-jwt`**) ·
-      `notify-on-message` / `notify-on-lead` (`--no-verify-jwt`).
-- [ ] **Secrets setzen:** `APP_URL`, `RESEND_API_KEY`, `RESEND_FROM`, `SALES_INBOX` (optional `CRM_FORWARD_URL`).
-- [ ] **Database → Webhooks:** `messages` INSERT → `notify-on-message`; `leads` INSERT → `notify-on-lead`.
-- [ ] **Auth:** E-Mail + Magic-Link an; **URL Configuration** Site-URL + Redirect `https://domain/*`.
+- [ ] **Edge Functions deployen (alle 7):**
+      - **Auth:** `admin-invite` (**mit** JWT-Verify) · `accept-invite` (**`--no-verify-jwt`**).
+      - **Transaktional (E-Mail):** `notify-on-message` · `notify-on-lead` · `notify-on-mission-status`
+        (alle `--no-verify-jwt`).
+      - **Cron (täglich):** `step-reminders` · `flight-tracker` (alle `--no-verify-jwt`).
+- [ ] **Secrets setzen:** `APP_URL` (`https://arrivalgermany.com`), `RESEND_API_KEY`,
+      `RESEND_FROM` (`ArrivalOS <support@arrivalgermany.com>`), `SALES_INBOX` (`support@arrivalgermany.com`),
+      `AVIATIONSTACK_API_KEY` (flight-tracker), `ADMIN_EMAIL` (step-reminders Eskalation), optional
+      `CRM_FORWARD_URL`. *(Die Code-Defaults zeigen bereits auf arrivalgermany.com — Secrets überschreiben sie.)*
+- [ ] **Database → Webhooks:** `messages` INSERT → `notify-on-message`; `leads` INSERT → `notify-on-lead`;
+      **`missions` UPDATE → `notify-on-mission-status`** (Company-Status-Mails bei Meilensteinen).
+- [ ] **Cron einrichten:** Extensions **`pg_cron` + `pg_net`** aktivieren (Database → Extensions), dann
+      `supabase/functions/CRON_SETUP.sql` mit `<PROJECT_REF>=jtaegmuftgxzjddfevbs` ausführen
+      *(Alternative: Dashboard → Edge Functions → Schedules)*. Test ohne Warten:
+      `supabase functions invoke step-reminders` / `flight-tracker` → JSON-Summary; neue Zeilen in `notifications`.
+- [ ] **Auth:** E-Mail + Magic-Link an; **URL Configuration** Site-URL + Redirect `https://arrivalgermany.com/*`.
 - [ ] **Backups/PITR aktivieren** (Pflicht vor erstem echten Kunden).
 - [ ] **RLS-Tests** (`rls-tests.sql`) mit 4 Test-Usern durchspielen — erwartete Ergebnisse stehen als Kommentare.
+- [ ] 🔑 **`service_role`-Key rotieren** (Dashboard → API → Reset). Er wurde beim E2E-Seeding im Chat
+      eingefügt → vor Launch neu generieren. **Niemals** im Frontend; nur in Edge-Function-Secrets.
 - [ ] **Env beim Host:** `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (Project URL + anon public Key). Kein service_role.
+- [ ] **Impressum-Pflichtfelder** als `VITE_COMPANY_*` setzen, bevor öffentlich:
+      `VITE_COMPANY_LEGAL_NAME`, `VITE_COMPANY_STREET`, `VITE_COMPANY_ZIP`, `VITE_COMPANY_HRB`,
+      `VITE_COMPANY_VAT_ID`, `VITE_COMPANY_REGISTER_COURT`. Aktuell **Platzhalter** in
+      `src/lib/siteConfig.js` (nicht erfunden) — echte Rechtsform/Adresse noch offen
+      (GmbH/UG vs. Einzelunternehmen). Brand/E-Mail/Telefon/Gründer sind bereits real.
 - [ ] **Erstes Admin-Onboarding:** ersten Admin manuell anlegen, dann via In-App-Invite weitere Rollen
       (Invite → User → Approval; privilegierte Rollen landen in „Ausstehende Freigaben").
 - [ ] **App starten** → Konsole zeigt `[ArrivalOS] Backend: supabase`. Falls `localStorage`: env nicht geladen.
+
+### Domain / DNS (Hostinger → Vercel)
+- [ ] **`arrivalgermany.com`** in Vercel als Domain hinzufügen (Project → Settings → Domains), dann bei
+      **Hostinger** die von Vercel angezeigten DNS-Einträge setzen (Apex `A` → Vercel-IP **oder**
+      `CNAME`/`ALIAS`; `www` → `cname.vercel-dns.com`). Nach DNS-Propagation Domain in Vercel verifizieren.
+- [ ] Danach **Supabase Auth → URL Configuration** auf `https://arrivalgermany.com` setzen (siehe oben),
+      sonst brechen Magic-Link/Invite-Redirects auf der echten Domain.
 
 ---
 
@@ -183,6 +213,11 @@ Talent sieht Update → Abholung → Mission completed.**
 ## 7. Definition of „launch-ready"
 
 - [ ] Cloud-Ops-Checkliste (Abschnitt 5) vollständig abgehakt — inkl. **Backups/PITR** und **RLS-Tests grün**.
+- [ ] **Alle 5 Migrationen** ausgeführt; **alle 7 Edge Functions** deployt; **Cron** geplant
+      (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
+- [ ] **Domain** `arrivalgermany.com` live auf Vercel; **Supabase Auth-URL** auf die Domain gesetzt.
+- [ ] 🔑 **`service_role`-Key rotiert** nach dem E2E-Seeding.
+- [ ] **Impressum-Pflichtfelder** (`VITE_COMPANY_*`: Rechtsname, Adresse, HRB/USt-ID, Registergericht) gesetzt.
 - [ ] Code-Härtung Fix A + Fix B (Abschnitt 4) umgesetzt und im Supabase-Build verifiziert.
 - [ ] Golden-Path-QA-Matrix (Abschnitt 6) vollständig grün — inkl. Mobile, langsames Netz, Rollen-Isolation.
 - [ ] Keine `service_role`-Secrets im Frontend; `.env` nur mit `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`.
