@@ -16,10 +16,10 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
-const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'ArrivalOS <noreply@arrivalos.de>';
-const APP_URL = Deno.env.get('APP_URL') || 'https://arrivalos.de';
+const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'ArrivalOS <support@arrivalgermany.com>';
+const APP_URL = Deno.env.get('APP_URL') || 'https://arrivalgermany.com';
 const CRM_FORWARD_URL = Deno.env.get('CRM_FORWARD_URL') || '';
-const SALES_INBOX = Deno.env.get('SALES_INBOX') || 'sales@arrivalos.de';
+const SALES_INBOX = Deno.env.get('SALES_INBOX') || 'support@arrivalgermany.com';
 
 serve(async (req) => {
   try {

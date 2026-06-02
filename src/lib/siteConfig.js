@@ -4,18 +4,21 @@
 const env = import.meta.env;
 
 export const COMPANY = {
-  legalName: env.VITE_COMPANY_LEGAL_NAME || 'NeuLand Welcome Services GmbH',
-  brand: env.VITE_COMPANY_BRAND || 'ArrivalOS by NeuLand',
+  // NOTE: legalName / street / zip / hrb / vatId / registerCourt are still PLACEHOLDERS.
+  // Set the real values via VITE_COMPANY_* env vars before launch for a compliant Impressum —
+  // they were intentionally NOT invented (no real legal entity/address provided yet).
+  legalName: env.VITE_COMPANY_LEGAL_NAME || 'ArrivalOS',
+  brand: env.VITE_COMPANY_BRAND || 'ArrivalOS',
   street: env.VITE_COMPANY_STREET || 'Marienplatz 1',
   zip: env.VITE_COMPANY_ZIP || '80331',
   city: env.VITE_COMPANY_CITY || 'München',
   country: env.VITE_COMPANY_COUNTRY || 'Deutschland',
-  phone: env.VITE_COMPANY_PHONE || '+49 89 12345 6789',
-  email: env.VITE_COMPANY_EMAIL || 'hello@neuland.de',
-  pressEmail: env.VITE_COMPANY_PRESS_EMAIL || 'press@neuland.de',
-  dpoEmail: env.VITE_COMPANY_DPO_EMAIL || 'dpo@neuland.de',
-  careersEmail: env.VITE_COMPANY_CAREERS_EMAIL || 'careers@neuland.de',
-  ceo: env.VITE_COMPANY_CEO || 'Dr. Lena Bachmann, Tobias Reuter',
+  phone: env.VITE_COMPANY_PHONE || '+49 151 24413723',
+  email: env.VITE_COMPANY_EMAIL || 'support@arrivalgermany.com',
+  pressEmail: env.VITE_COMPANY_PRESS_EMAIL || 'support@arrivalgermany.com',
+  dpoEmail: env.VITE_COMPANY_DPO_EMAIL || 'support@arrivalgermany.com',
+  careersEmail: env.VITE_COMPANY_CAREERS_EMAIL || 'support@arrivalgermany.com',
+  ceo: env.VITE_COMPANY_CEO || 'Mustafa Ibrahim, Anton Rauschenbach',
   hrb: env.VITE_COMPANY_HRB || 'HRB 287345',
   registerCourt: env.VITE_COMPANY_REGISTER_COURT || 'Amtsgericht München',
   vatId: env.VITE_COMPANY_VAT_ID || 'DE 367 482 916',
@@ -23,7 +26,7 @@ export const COMPANY = {
 };
 
 export const URLS = {
-  site: env.VITE_SITE_URL || 'https://arrivalos.neuland.de',
+  site: env.VITE_SITE_URL || 'https://arrivalgermany.com',
 };
 
 export const FEATURES = {

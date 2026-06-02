@@ -12,6 +12,7 @@ import { base44 } from '@/api/base44Client';
 import { relativeTime } from '@/lib/utils';
 import { useRealtimeMessages } from '@/lib/useRealtimeMessages';
 import CommandPalette from '@/components/ui/CommandPalette';
+import TalentSOS from '@/components/talent/TalentSOS';
 import WaitingForApproval from '@/components/layout/WaitingForApproval';
 import { useTheme } from '@/lib/ThemeContext';
 import { useLang } from '@/lib/LangContext';
@@ -358,6 +359,7 @@ export default function DashboardLayout({ role }) {
       </div>
 
       <CommandPalette />
+      {isTalent && <TalentSOS />}
     </div>
   );
 }
