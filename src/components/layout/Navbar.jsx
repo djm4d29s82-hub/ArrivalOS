@@ -25,9 +25,11 @@ export default function Navbar() {
       style={{ borderBottom: '1px solid var(--ds-card-border)' }}>
       <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-full bg-navy grid place-items-center group-hover:scale-105 transition">
-            <span className="text-gold font-serif font-bold text-lg">A</span>
-          </div>
+          <svg viewBox="0 0 64 64" className="w-9 h-9 group-hover:scale-105 transition" aria-hidden="true">
+            <path d="M32 5c-11.6 0-21 9.4-21 21 0 15.75 21 32 21 32s21-16.25 21-32c0-11.6-9.4-21-21-21z" fill="#1a2340"/>
+            <circle cx="32" cy="25" r="13" fill="#d4a83a"/>
+            <text x="32" y="33" fontFamily="Georgia,serif" fontSize="20" fontWeight="700" fill="#16243F" textAnchor="middle">A</text>
+          </svg>
           <div className="leading-tight">
             <div className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--ds-t1)' }}>Arrival<span className="text-gold">OS</span></div>
           </div>

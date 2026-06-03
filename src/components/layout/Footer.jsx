@@ -8,9 +8,11 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-5 md:grid-cols-2 gap-10">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gold/15 grid place-items-center">
-              <span className="text-gold font-serif font-bold text-lg">A</span>
-            </div>
+            <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
+              <path d="M32 5c-11.6 0-21 9.4-21 21 0 15.75 21 32 21 32s21-16.25 21-32c0-11.6-9.4-21-21-21z" fill="#1a2340" stroke="#F4EFE6" strokeOpacity="0.25" strokeWidth="2"/>
+              <circle cx="32" cy="25" r="13" fill="#d4a83a"/>
+              <text x="32" y="33" fontFamily="Georgia,serif" fontSize="20" fontWeight="700" fill="#16243F" textAnchor="middle">A</text>
+            </svg>
             <div className="leading-tight">
               <div className="font-bold text-cream text-lg">Arrival<span className="text-gold">OS</span></div>
             </div>

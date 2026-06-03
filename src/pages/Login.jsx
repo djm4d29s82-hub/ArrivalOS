@@ -96,9 +96,11 @@ export default function Login() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2.5 mb-5">
-            <div className="w-10 h-10 rounded-full bg-navy grid place-items-center">
-              <span className="text-gold font-serif font-bold text-xl">A</span>
-            </div>
+            <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
+              <path d="M32 5c-11.6 0-21 9.4-21 21 0 15.75 21 32 21 32s21-16.25 21-32c0-11.6-9.4-21-21-21z" fill="#1a2340"/>
+              <circle cx="32" cy="25" r="13" fill="#d4a83a"/>
+              <text x="32" y="33" fontFamily="Georgia,serif" fontSize="20" fontWeight="700" fill="#16243F" textAnchor="middle">A</text>
+            </svg>
             <div className="leading-tight text-left">
               <div className="font-bold text-[16px] tracking-tight" style={{ color: 'var(--ds-t1)' }}>Arrival<span className="text-gold">OS</span></div>
             </div>
