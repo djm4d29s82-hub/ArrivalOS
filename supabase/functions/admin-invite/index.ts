@@ -13,9 +13,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const APP_URL = Deno.env.get('APP_URL') || '';
+const APP_URL = Deno.env.get('APP_URL') || 'https://arrivalgermany.com';
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || '';
-const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'NeuLand <noreply@arrivalos.de>';
+const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'ArrivalOS <support@arrivalgermany.com>';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -84,18 +84,24 @@ serve(async (req) => {
     const link = `${APP_URL}/register?token=${raw}`;
     let emailSent = false;
     if (mode === 'email' && email && RESEND_API_KEY) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: RESEND_FROM, to: email, subject: 'Du wurdest zu NeuLand eingeladen',
-          html: `<h1 style="font-family:Georgia,serif;">Du wurdest eingeladen.</h1>
-                 <p>Leg dein Konto an — es dauert eine Minute:</p>
-                 <p><a href="${link}">${link}</a></p>
-                 <p style="color:#999;font-size:12px;margin-top:24px;">NeuLand · Ankunft, menschlich gemacht.</p>`,
-        }),
-      }).catch(() => {});
-      emailSent = true;
+      // Report the REAL outcome — a swallowed failure used to return emailSent:true, so the
+      // caller never fell back to the copy-link flow and the invitee got nothing.
+      try {
+        const r = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: RESEND_FROM, to: email, subject: 'Du wurdest zu ArrivalOS eingeladen',
+            html: `<h1 style="font-family:Georgia,serif;">Du wurdest eingeladen.</h1>
+                   <p>Leg dein Konto an — es dauert eine Minute:</p>
+                   <p><a href="${link}">${link}</a></p>
+                   <p style="color:#999;font-size:12px;margin-top:24px;">ArrivalOS · Ankunft, menschlich gemacht.</p>`,
+          }),
+        });
+        emailSent = r.ok;
+      } catch {
+        emailSent = false;
+      }
     }
 
     return json({ ok: true, invite_id: invite.id, link, emailSent });

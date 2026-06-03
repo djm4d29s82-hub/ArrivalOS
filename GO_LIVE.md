@@ -75,17 +75,20 @@ JWT+Rollen-gated; Approval-Gate (Talent active, privilegiert pending). **Behoben
 - **R2 ✅** `accept-invite` rollt verwaiste Auth-User bei Profil-Fehler zurück; Invite wird erst nach
   erfolgreicher Profil-Anlage verbraucht.
 
+**Behoben (Security/Reliability-Pass):**
+- **R3 ✅** Sentry redigiert jetzt `token`/`email`/`code`/`access_token`/`refresh_token` aus **jeder** URL —
+  `request.url`, `Referer`-Header UND Navigation/Fetch/XHR-**Breadcrumbs** (`src/lib/sentry.js`, `scrubUrl`).
+  Zusätzlich zieht `Register.jsx` den Token nach dem Lesen per `history.replaceState` aus der Adresszeile
+  (kein Verbleib in History/Breadcrumbs). Der Sentry-Body-Vektor ist damit geschlossen.
+- **R6 ✅** `admin-invite` meldet das **echte** Mail-Ergebnis (`emailSent = resp.ok`, Fehler → `false`) statt
+  pauschal `true`; `APP_URL`-Default ist jetzt `https://arrivalgermany.com` (kein relativer Link mehr);
+  Branding/From auf ArrivalOS/`support@arrivalgermany.com`.
+
 **Nur markiert (kein Fix — Entscheidung/Folge-Schritt):**
-- **R3 🔴 bestätigt** — `token=` wird NICHT aus Sentry-URLs redigiert (`src/lib/sentry.js:30-32` filtert nur
-  `email=`). Bei einem Fehler auf `/register?token=…` geht der Roh-Token im Event-Body an Sentry. Fix-Optionen:
-  `token=` in die `beforeSend`-Redaction aufnehmen UND/ODER Token nach Peek per `history.replaceState` aus der
-  URL ziehen. _Teilmitigation bereits aktiv:_ `Referrer-Policy: strict-origin-when-cross-origin` im
-  `vercel.json` verhindert den **Referer-Header**-Leak an Dritte — den Sentry-**Body**-Vektor deckt es NICHT ab.
 - **R4 🟡** Kein Server-Peek in Supabase (`peekInvite`→null) → „Einladung ungültig"-Seite erscheint nie; Nutzer
   merkt Ungültigkeit erst nach Absenden. Reine UX.
 - **R5 🟡** Bestehende E-Mail: `createUser` schlägt hart fehl (Enumeration-Meldung; kein „Invite für bestehenden
   Nutzer"-Pfad). Produktentscheidung.
-- **R6 🟡** Resend-Fehler verschluckt (`emailSent:true` trotz Fehlschlag); leerer `APP_URL` → kaputter Link.
 
 ### ☁️ Offen — nur durch den Nutzer ausführbar (Cloud-Ops)
 Supabase-Projekt, SQL-Reihenfolge, Edge-Functions, Secrets, Storage, Backups, Auth-URLs, Domain,

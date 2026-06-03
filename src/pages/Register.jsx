@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { usePublicTheme } from '@/lib/usePublicTheme';
@@ -9,8 +9,9 @@ const DEST = { admin: '/admin', company: '/company', greeter: '/greeter-dashboar
 
 export default function Register() {
   usePublicTheme();
-  const [params] = useSearchParams();
-  const token = params.get('token') || '';
+  // Capture the invite token once, then strip it from the address bar (effect below) so it
+  // never lingers in browser history / Sentry breadcrumbs / over-the-shoulder — R3 hardening.
+  const [token] = useState(() => new URLSearchParams(window.location.search).get('token') || '');
   const nav = useNavigate();
   const { login, loginWithPassword } = useAuth();
 
@@ -20,6 +21,13 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+
+  // Remove ?token=… from the URL once captured (kept in state above; submit still works).
+  useEffect(() => {
+    if (token && window.location.search) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [token]);
 
   useEffect(() => {
     (async () => {
