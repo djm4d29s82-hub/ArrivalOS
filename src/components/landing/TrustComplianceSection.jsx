@@ -20,7 +20,7 @@ export default function TrustComplianceSection() {
           Bei Mitarbeitenden, Behörden und Audit-Teams beruhigend.
         </h2>
         <p className="text-cream/60 mt-5 max-w-2xl leading-relaxed">
-          ArrivalOS ist von Anfang an für regulierte Branchen entworfen: Pflege, Healthcare, öffentliche Träger,
+          Arrival Germany ist von Anfang an für regulierte Branchen entworfen: Pflege, Healthcare, öffentliche Träger,
           Konzern-HR. Compliance ist kein Add-On, sondern Fundament.
         </p>
 

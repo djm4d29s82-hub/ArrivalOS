@@ -3,7 +3,7 @@ import { TrendingDown, TrendingUp, Coins } from 'lucide-react';
 
 // Annahmen:
 //  - Trad. Aufwand pro Talent: 35 HR-Stunden
-//  - Mit ArrivalOS: 10 HR-Stunden
+//  - Mit Arrival Germany: 10 HR-Stunden
 //  - Plattform-Kosten: 599 €/Talent (Standard)
 //  - Friktion / verpasste Retention: 3.500 € pro Talent (Branchenmittel, traditionell)
 export default function RoiSection() {
@@ -40,13 +40,13 @@ export default function RoiSection() {
             <Slider label="Internationale Talente / Jahr" value={count} setValue={setCount} min={1} max={50} suffix="" />
             <Slider label="HR-Stundensatz (Voll-Kosten)" value={rate} setValue={setRate} min={40} max={120} suffix=" €" />
             <div className="text-[11.5px] text-cream/40 italic pt-2">
-              Annahmen: 35 HR-Std/Talent traditionell vs. 10 mit ArrivalOS · 3.500 € Friktionskosten/Talent (verpasste Retention, Fehler) vs. 800 € · Standard-Paket 599 €/Talent.
+              Annahmen: 35 HR-Std/Talent traditionell vs. 10 mit Arrival Germany · 3.500 € Friktionskosten/Talent (verpasste Retention, Fehler) vs. 800 € · Standard-Paket 599 €/Talent.
             </div>
           </div>
 
           <div className="bg-gold/[0.08] border border-gold/20 rounded-3xl p-7 space-y-5 text-cream">
             <Row icon={TrendingUp} label="Heute (Excel-Mode)" val={fmt(calc.tradTotal)} muted />
-            <Row icon={TrendingDown} label="Mit ArrivalOS" val={fmt(calc.newTotal)} muted />
+            <Row icon={TrendingDown} label="Mit Arrival Germany" val={fmt(calc.newTotal)} muted />
             <div className="border-t border-white/10 pt-5">
               <Row icon={Coins} label="Einsparung / Jahr" val={fmt(calc.save)} highlight />
               <div className="text-[12px] text-cream/55 mt-3">+ {calc.hoursSave} HR-Stunden, die in strategische Arbeit fließen statt in Behördentermine.</div>

@@ -31,7 +31,7 @@ export default function Landing() {
               <span className="text-gold italic">menschlich</span> gemacht.
             </h1>
             <p className="mt-10 max-w-xl text-lg text-[var(--mid)] leading-relaxed">
-              ArrivalOS begleitet internationale Fachkräfte in den ersten Wochen in einer neuen Stadt —
+              Arrival Germany begleitet internationale Fachkräfte in den ersten Wochen in einer neuen Stadt —
               mit echten Menschen vor Ort, nicht mit einer App, die sie alleine lässt.
             </p>
             <div className="mt-12 flex items-center gap-8 flex-wrap">

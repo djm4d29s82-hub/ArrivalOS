@@ -24,7 +24,7 @@ try {
     <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#0d1420', color: '#f0ebe0', fontFamily: 'system-ui, sans-serif', padding: 24 }}>
       <div style={{ maxWidth: 540 }}>
         <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c49228', fontWeight: 700, marginBottom: 14 }}>Konfiguration unvollständig</div>
-        <h1 style={{ fontSize: 26, margin: '0 0 14px', fontWeight: 700 }}>ArrivalOS kann nicht starten</h1>
+        <h1 style={{ fontSize: 26, margin: '0 0 14px', fontWeight: 700 }}>Arrival Germany kann nicht starten</h1>
         <p style={{ color: 'rgba(240,235,224,0.72)', lineHeight: 1.65, margin: '0 0 18px' }}>{String(err?.message || err)}</p>
         <p style={{ color: 'rgba(240,235,224,0.5)', fontSize: 13.5, lineHeight: 1.65 }}>
           Bitte <code>VITE_SUPABASE_URL</code> und <code>VITE_SUPABASE_ANON_KEY</code> in den

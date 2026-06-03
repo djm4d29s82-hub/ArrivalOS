@@ -1,6 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <rect width="512" height="512" rx="112" fill="#16243F"/>
-  <circle cx="256" cy="232" r="120" fill="#d4a83a"/>
-  <text x="256" y="280" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="164" font-weight="700" fill="#16243F">A</text>
-  <text x="256" y="452" text-anchor="middle" font-family="Georgia, serif" font-size="44" font-weight="600" fill="#F4EFE6" letter-spacing="4">ArrivalOS</text>
+  <g transform="translate(110 70) scale(4.4)">
+    <path d="M32 6 L58 57 L45.5 57 L32 28 L18.5 57 L6 57 Z" fill="#c49228"/>
+    <path d="M32 28 l2.3 5.5 5.5 2.3 -5.5 2.3 -2.3 5.5 -2.3 -5.5 -5.5 -2.3 5.5 -2.3 Z" fill="#e0bd62"/>
+    <path d="M14 49 Q32 41 50 49" fill="none" stroke="#c49228" stroke-width="2.6" stroke-linecap="round"/>
+    <rect x="27.4" y="43.1" width="3" height="3.4" fill="#1a1a1a"/>
+    <rect x="30.5" y="42.7" width="3" height="3.4" fill="#DD0000"/>
+    <rect x="33.6" y="43.1" width="3" height="3.4" fill="#FFCE00"/>
+  </g>
+  <text x="256" y="400" text-anchor="middle" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#c49228" letter-spacing="8">ARRIVAL</text>
+  <text x="256" y="440" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="500" fill="#F4EFE6" letter-spacing="10">GERMANY</text>
 </svg>

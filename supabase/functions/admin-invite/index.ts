@@ -15,7 +15,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const APP_URL = Deno.env.get('APP_URL') || 'https://arrivalgermany.com';
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || '';
-const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'ArrivalOS <support@arrivalgermany.com>';
+const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'Arrival Germany <support@arrivalgermany.com>';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -91,11 +91,11 @@ serve(async (req) => {
           method: 'POST',
           headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: RESEND_FROM, to: email, subject: 'Du wurdest zu ArrivalOS eingeladen',
+            from: RESEND_FROM, to: email, subject: 'Du wurdest zu Arrival Germany eingeladen',
             html: `<h1 style="font-family:Georgia,serif;">Du wurdest eingeladen.</h1>
                    <p>Leg dein Konto an — es dauert eine Minute:</p>
                    <p><a href="${link}">${link}</a></p>
-                   <p style="color:#999;font-size:12px;margin-top:24px;">ArrivalOS · Ankunft, menschlich gemacht.</p>`,
+                   <p style="color:#999;font-size:12px;margin-top:24px;">Arrival Germany · Ankunft, menschlich gemacht.</p>`,
           }),
         });
         emailSent = r.ok;

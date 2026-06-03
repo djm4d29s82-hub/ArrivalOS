@@ -26,7 +26,7 @@ export default function TalentSection() {
         </h2>
         <p className="text-[var(--mid)] mt-5 max-w-2xl leading-relaxed">
           Internationaler Job-Wechsel ist mehr als ein Vertrag. Es ist eine neue Sprache, neue Behörden, ein neues Leben.
-          ArrivalOS sorgt dafür, dass du nicht allein bist — vom Flughafen bis zum ersten Geburtstag in Deutschland.
+          Arrival Germany sorgt dafür, dass du nicht allein bist — vom Flughafen bis zum ersten Geburtstag in Deutschland.
         </p>
 
         <div className="grid md:grid-cols-4 gap-4 mt-14">

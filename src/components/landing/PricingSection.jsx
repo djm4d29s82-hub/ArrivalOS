@@ -56,7 +56,7 @@ const TIERS = [
     eyebrow: 'Vollständige Arrival-Operations',
     price: null,
     period: 'ab €900 / Kandidat:in',
-    desc: 'Volle ArrivalOS Plattform. Dedizierter Arrival Manager. Skalierbar.',
+    desc: 'Volle Arrival Germany Plattform. Dedizierter Arrival Manager. Skalierbar.',
     outcomes: [
       'Alles aus Professional',
       'Account Manager',

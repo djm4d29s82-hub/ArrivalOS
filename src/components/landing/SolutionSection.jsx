@@ -24,7 +24,7 @@ export default function SolutionSection() {
           Software schafft Struktur. <span className="text-gold">Menschen schaffen Vertrauen.</span>
         </h2>
         <p className="text-[var(--mid)] mt-5 max-w-2xl leading-relaxed">
-          ArrivalOS ist kein HR-Tool. Es ist ein Versprechen: Jedes Talent, das nach Deutschland kommt,
+          Arrival Germany ist kein HR-Tool. Es ist ein Versprechen: Jedes Talent, das nach Deutschland kommt,
           wird von einem echten Menschen begleitet — koordiniert, dokumentiert und live sichtbar für alle Beteiligten.
         </p>
 
@@ -34,7 +34,7 @@ export default function SolutionSection() {
         </div>
 
         <div className="mt-10 max-w-2xl text-[13px] text-[var(--light)] italic">
-          „Wir haben zuerst die Operations gebaut — dann die Software. Deshalb versteht ArrivalOS Ankunft nicht als Prozess, sondern als Moment."
+          „Wir haben zuerst die Operations gebaut — dann die Software. Deshalb versteht Arrival Germany Ankunft nicht als Prozess, sondern als Moment."
         </div>
       </div>
     </section>

@@ -7,8 +7,8 @@ export const COMPANY = {
   // NOTE: legalName / street / zip / hrb / vatId / registerCourt are still PLACEHOLDERS.
   // Set the real values via VITE_COMPANY_* env vars before launch for a compliant Impressum —
   // they were intentionally NOT invented (no real legal entity/address provided yet).
-  legalName: env.VITE_COMPANY_LEGAL_NAME || 'ArrivalOS',
-  brand: env.VITE_COMPANY_BRAND || 'ArrivalOS',
+  legalName: env.VITE_COMPANY_LEGAL_NAME || 'Arrival Germany',
+  brand: env.VITE_COMPANY_BRAND || 'Arrival Germany',
   street: env.VITE_COMPANY_STREET || 'Potsdamer Straße 63',
   zip: env.VITE_COMPANY_ZIP || '10785',
   city: env.VITE_COMPANY_CITY || 'Berlin',

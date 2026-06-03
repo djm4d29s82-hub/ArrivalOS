@@ -117,11 +117,16 @@ export default function DashboardLayout({ role }) {
       {/* Sidebar — always dark (navy in light mode, glass in dark) */}
       <aside className="w-64 shrink-0 flex flex-col" style={{ background: 'var(--ds-sidebar)', borderRight: '1px solid var(--ds-sidebar-border)' }}>
         <Link to="/" className="px-5 h-16 flex items-center gap-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.10)' }}>
-          <div className="w-9 h-9 rounded-full grid place-items-center" style={{ background: 'rgba(196,146,40,0.15)' }}>
-            <span className="text-gold font-serif font-bold text-lg">A</span>
-          </div>
+          <svg viewBox="0 0 64 64" className="w-9 h-9" aria-hidden="true">
+            <path d="M32 6 L58 57 L45.5 57 L32 28 L18.5 57 L6 57 Z" fill="#c49228"/>
+            <path d="M32 28 l2.3 5.5 5.5 2.3 -5.5 2.3 -2.3 5.5 -2.3 -5.5 -5.5 -2.3 5.5 -2.3 Z" fill="#e0bd62"/>
+            <path d="M14 49 Q32 41 50 49" fill="none" stroke="#c49228" strokeWidth="2.6" strokeLinecap="round"/>
+            <rect x="27.4" y="43.1" width="3" height="3.4" fill="#1a1a1a"/>
+            <rect x="30.5" y="42.7" width="3" height="3.4" fill="#DD0000"/>
+            <rect x="33.6" y="43.1" width="3" height="3.4" fill="#FFCE00"/>
+          </svg>
           <div>
-            <div className="font-bold tracking-tight text-white">Arrival<span className="text-gold">OS</span></div>
+            <div className="font-bold tracking-tight text-white text-[15px]">Arrival <span className="text-gold">Germany</span></div>
             <div className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.30)' }}>{ROLE_LABELS[role]}-Portal</div>
           </div>
         </Link>

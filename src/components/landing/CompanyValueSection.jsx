@@ -25,7 +25,7 @@ export default function CompanyValueSection() {
         </h2>
         <p className="text-[var(--mid)] mt-5 max-w-2xl leading-relaxed">
           Internationale Fachkräfte erfolgreich integrieren — ohne Relocation-Komplexität.
-          ArrivalOS kombiniert menschliche Unterstützung vor Ort mit moderner Plattformtechnologie.
+          Arrival Germany kombiniert menschliche Unterstützung vor Ort mit moderner Plattformtechnologie.
         </p>
         <div className="flex flex-wrap gap-3 mt-7">
           <a href="#preise" className="btn-primary inline-flex items-center gap-1.5">

@@ -26,12 +26,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 group">
           <svg viewBox="0 0 64 64" className="w-9 h-9 group-hover:scale-105 transition" aria-hidden="true">
-            <path d="M32 5c-11.6 0-21 9.4-21 21 0 15.75 21 32 21 32s21-16.25 21-32c0-11.6-9.4-21-21-21z" fill="#1a2340"/>
-            <circle cx="32" cy="25" r="13" fill="#d4a83a"/>
-            <text x="32" y="33" fontFamily="Georgia,serif" fontSize="20" fontWeight="700" fill="#16243F" textAnchor="middle">A</text>
+            <path d="M32 6 L58 57 L45.5 57 L32 28 L18.5 57 L6 57 Z" fill="#c49228"/>
+            <path d="M32 28 l2.3 5.5 5.5 2.3 -5.5 2.3 -2.3 5.5 -2.3 -5.5 -5.5 -2.3 5.5 -2.3 Z" fill="#e0bd62"/>
+            <path d="M14 49 Q32 41 50 49" fill="none" stroke="#c49228" strokeWidth="2.6" strokeLinecap="round"/>
+            <rect x="27.4" y="43.1" width="3" height="3.4" fill="#1a1a1a"/>
+            <rect x="30.5" y="42.7" width="3" height="3.4" fill="#DD0000"/>
+            <rect x="33.6" y="43.1" width="3" height="3.4" fill="#FFCE00"/>
           </svg>
           <div className="leading-tight">
-            <div className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--ds-t1)' }}>Arrival<span className="text-gold">OS</span></div>
+            <div className="font-bold text-[15px] tracking-[0.08em]" style={{ color: 'var(--ds-t1)' }}>ARRIVAL</div>
+            <div className="text-[8px] tracking-[0.32em] font-semibold" style={{ color: '#c49228' }}>GERMANY</div>
           </div>
         </Link>
         <ul className="hidden lg:flex items-center gap-7 text-[13px]" style={{ color: 'var(--ds-t2)' }}>

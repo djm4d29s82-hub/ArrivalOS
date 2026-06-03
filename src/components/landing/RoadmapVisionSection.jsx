@@ -13,12 +13,12 @@ const PHASES = [
   },
   {
     p: 'Phase 3', y: '2027 – 2028', i: Layers, t: 'Plattform-Hub',
-    s: 'Öffnung für 3rd-Party-Services: Wohnungsanbieter, Versicherer, Banken. ArrivalOS wird zum Hub des Ankunfts-Ökosystems.',
+    s: 'Öffnung für 3rd-Party-Services: Wohnungsanbieter, Versicherer, Banken. Arrival Germany wird zum Hub des Ankunfts-Ökosystems.',
     state: 'future',
   },
   {
     p: 'Phase 4', y: '2028+', i: Globe, t: 'Europäisches Arrival-Ökosystem',
-    s: 'Expansion: Österreich, Niederlande, Schweden. ArrivalOS als Standard für strukturiertes Onboarding internationaler Talente in Europa.',
+    s: 'Expansion: Österreich, Niederlande, Schweden. Arrival Germany als Standard für strukturiertes Onboarding internationaler Talente in Europa.',
     state: 'future',
   },
 ];
@@ -39,7 +39,7 @@ export default function RoadmapVisionSection() {
           </h2>
           <p className="text-cream/65 mt-5 max-w-2xl leading-relaxed">
             Wir glauben: Deutschland — und Europa — wird die nächsten zwei Jahrzehnte international rekrutieren müssen.
-            ArrivalOS ist die Infrastruktur, die das menschlich und skalierbar macht.
+            Arrival Germany ist die Infrastruktur, die das menschlich und skalierbar macht.
           </p>
 
           <div className="relative mt-16">

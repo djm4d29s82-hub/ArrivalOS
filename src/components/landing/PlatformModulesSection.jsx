@@ -35,7 +35,7 @@ export default function PlatformModulesSection() {
             Vier Rollen. Vier Module. Eine Wahrheit.
           </h2>
           <p className="text-[var(--mid)] mt-5 max-w-2xl leading-relaxed">
-            ArrivalOS ist keine zusätzliche Insel. Es ist eine rollenbasierte Plattform, die jede Stakeholder-Gruppe
+            Arrival Germany ist keine zusätzliche Insel. Es ist eine rollenbasierte Plattform, die jede Stakeholder-Gruppe
             mit exakt dem Interface ausstattet, das sie braucht — auf dem gleichen Daten-Backbone.
           </p>
 

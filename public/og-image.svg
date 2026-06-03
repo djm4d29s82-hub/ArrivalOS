@@ -7,13 +7,17 @@
   </defs>
   <rect width="1200" height="630" fill="#f0ebe0"/>
   <rect width="1200" height="630" fill="url(#g)"/>
-  <g transform="translate(80,84)">
-    <g transform="scale(1.18)">
-      <path d="M32 5c-11.6 0-21 9.4-21 21 0 15.75 21 32 21 32s21-16.25 21-32c0-11.6-9.4-21-21-21z" fill="#1a2340"/>
-      <circle cx="32" cy="25" r="13" fill="#d4a83a"/>
-      <text x="32" y="33" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#16243F" text-anchor="middle">A</text>
+  <g transform="translate(80,80)">
+    <g transform="scale(1.25)">
+      <path d="M32 6 L58 57 L45.5 57 L32 28 L18.5 57 L6 57 Z" fill="#c49228"/>
+      <path d="M32 28 l2.3 5.5 5.5 2.3 -5.5 2.3 -2.3 5.5 -2.3 -5.5 -5.5 -2.3 5.5 -2.3 Z" fill="#a9781f"/>
+      <path d="M14 49 Q32 41 50 49" fill="none" stroke="#c49228" stroke-width="2.6" stroke-linecap="round"/>
+      <rect x="27.4" y="43.1" width="3" height="3.4" fill="#1a1a1a"/>
+      <rect x="30.5" y="42.7" width="3" height="3.4" fill="#DD0000"/>
+      <rect x="33.6" y="43.1" width="3" height="3.4" fill="#FFCE00"/>
     </g>
-    <text x="92" y="48" font-family="DM Sans,sans-serif" font-size="26" font-weight="700" fill="#1a2340">Arrival<tspan fill="#c49228">OS</tspan></text>
+    <text x="104" y="42" font-family="Georgia,serif" font-size="30" font-weight="700" fill="#1a2340" letter-spacing="4">ARRIVAL</text>
+    <text x="105" y="66" font-family="Georgia,serif" font-size="15" font-weight="500" fill="#c49228" letter-spacing="8">GERMANY</text>
   </g>
   <text x="80" y="290" font-family="Georgia,serif" font-size="78" font-weight="700" fill="#1a2340">
     <tspan x="80" dy="0">Human Arrival Platform</tspan>

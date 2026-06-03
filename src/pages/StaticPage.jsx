@@ -26,7 +26,7 @@ function buildPages(c) {
       meta: `Datenschutzerklärung der ${c.legalName} — DSGVO-konform, EU-Hosting.`,
       body: [
         ['1. Verantwortlicher', `${c.legalName}, ${c.street}, ${c.zip} ${c.city}. Datenschutzbeauftragter: ${c.dpoEmail}`],
-        ['2. Erhobene Daten', 'Wir verarbeiten personenbezogene Daten ausschließlich zur Erbringung des ArrivalOS-Services: Stammdaten von Talenten, Unternehmen und Greetern, sowie Operations-Daten der Missions (Status, Kommunikation, Dokumente).'],
+        ['2. Erhobene Daten', 'Wir verarbeiten personenbezogene Daten ausschließlich zur Erbringung des Arrival Germany-Services: Stammdaten von Talenten, Unternehmen und Greetern, sowie Operations-Daten der Missions (Status, Kommunikation, Dokumente).'],
         ['3. Rechtsgrundlagen', 'Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung), lit. f (berechtigtes Interesse an Operations-Effizienz), lit. a (Einwilligung, z.B. Marketing).'],
         ['4. Speicherort & Hosting', `Alle Daten werden ausschließlich auf Servern in ${c.hostingCity} verarbeitet (EU). Kein Datentransfer in Drittstaaten.`],
         ['5. Speicherdauer', 'Talent-Daten: max. 24 Monate nach Mission-Abschluss. Greeter-Profile: bis Widerruf. Auftragsdaten: gem. handels- und steuerrechtlicher Aufbewahrungspflichten (6/10 Jahre).'],
@@ -37,10 +37,10 @@ function buildPages(c) {
     },
     agb: {
       title: 'Allgemeine Geschäftsbedingungen',
-      meta: `AGB der ${c.legalName} für die Nutzung von ArrivalOS.`,
+      meta: `AGB der ${c.legalName} für die Nutzung von Arrival Germany.`,
       body: [
-        ['§1 Geltungsbereich', `Diese AGB gelten für alle Verträge zwischen ${c.legalName} und Unternehmen, die Leistungen über die Plattform ArrivalOS in Anspruch nehmen.`],
-        ['§2 Leistungsgegenstand', `${c.legalName} stellt mit ArrivalOS eine Plattform zur Steuerung internationaler Onboarding-Prozesse bereit, ergänzt durch lokale Greeter-Dienstleistungen.`],
+        ['§1 Geltungsbereich', `Diese AGB gelten für alle Verträge zwischen ${c.legalName} und Unternehmen, die Leistungen über die Plattform Arrival Germany in Anspruch nehmen.`],
+        ['§2 Leistungsgegenstand', `${c.legalName} stellt mit Arrival Germany eine Plattform zur Steuerung internationaler Onboarding-Prozesse bereit, ergänzt durch lokale Greeter-Dienstleistungen.`],
         ['§3 Preise & Zahlungsbedingungen', 'Preise pro Talent gemäß aktueller Preisliste. Rechnungsstellung erfolgt mit Mission-Start. Zahlungsfrist: 14 Tage netto.'],
         ['§4 Pflichten des Auftraggebers', 'Der Auftraggeber stellt rechtzeitig die für das Onboarding notwendigen Informationen bereit (Visa-Daten, Ankunftsdatum, Wohnungssituation).'],
         ['§5 Haftung', `${c.legalName} haftet für Vorsatz und grobe Fahrlässigkeit. Bei leichter Fahrlässigkeit nur bei Verletzung wesentlicher Vertragspflichten und begrenzt auf den vorhersehbaren Schaden.`],
@@ -49,8 +49,8 @@ function buildPages(c) {
       ],
     },
     karriere: {
-      title: 'Karriere bei ArrivalOS',
-      meta: 'Offene Stellen bei ArrivalOS — wir bauen die Infrastruktur für menschliches Ankommen in Deutschland.',
+      title: 'Karriere bei Arrival Germany',
+      meta: 'Offene Stellen bei Arrival Germany — wir bauen die Infrastruktur für menschliches Ankommen in Deutschland.',
       intro: 'Wir bauen die Infrastruktur für menschliches Ankommen in Deutschland. Klingt das nach dir?',
       body: [
         ['Offene Positionen', `– Senior Full-Stack Engineer (Berlin / Remote)
@@ -65,13 +65,13 @@ function buildPages(c) {
     },
     presse: {
       title: 'Presse',
-      meta: 'Pressekontakt und Materialien von ArrivalOS.',
+      meta: 'Pressekontakt und Materialien von Arrival Germany.',
       intro: 'Materialien, Pressekontakt und letzte Meldungen.',
       body: [
         ['Pressekontakt', `${c.ceo.split(',')[0]}\n${c.pressEmail}\n${c.phone}`],
-        ['Über ArrivalOS', `${c.legalName} betreibt ArrivalOS — die Human Arrival Platform für internationales Talent-Onboarding — und arbeitet mit Unternehmen aus Pflege, IT, Engineering und Logistik in deutschen Städten.`],
-        ['Pressemeldungen', `– Mai 2026: ArrivalOS erweitert Greeter-Netzwerk
-– März 2026: ArrivalOS startet HR-Integrationen mit Personio und DATEV
+        ['Über Arrival Germany', `${c.legalName} betreibt Arrival Germany — die Human Arrival Platform für internationales Talent-Onboarding — und arbeitet mit Unternehmen aus Pflege, IT, Engineering und Logistik in deutschen Städten.`],
+        ['Pressemeldungen', `– Mai 2026: Arrival Germany erweitert Greeter-Netzwerk
+– März 2026: Arrival Germany startet HR-Integrationen mit Personio und DATEV
 – Januar 2026: Pilotprojekt mit Klinikum NordWest erfolgreich abgeschlossen`],
         ['Bilder & Logos', `Logo-Pack, Team-Fotos und Produkt-Screenshots auf Anfrage: ${c.pressEmail}`],
       ],

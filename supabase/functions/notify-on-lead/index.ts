@@ -16,7 +16,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
-const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'ArrivalOS <support@arrivalgermany.com>';
+const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'Arrival Germany <support@arrivalgermany.com>';
 const APP_URL = Deno.env.get('APP_URL') || 'https://arrivalgermany.com';
 const CRM_FORWARD_URL = Deno.env.get('CRM_FORWARD_URL') || '';
 const SALES_INBOX = Deno.env.get('SALES_INBOX') || 'support@arrivalgermany.com';
@@ -31,12 +31,12 @@ serve(async (req) => {
     // 1. Bestätigung an Lead
     tasks.push(sendMail({
       to: lead.email,
-      subject: 'Danke für deine Anfrage — ArrivalOS',
+      subject: 'Danke für deine Anfrage — Arrival Germany',
       html: `
         <h1 style="font-family:Georgia,serif;">Vielen Dank, ${escapeHtml(lead.name || '')}!</h1>
         <p>Wir haben deine Anfrage erhalten und melden uns innerhalb von 1 Werktag bei dir.</p>
         <p>Bei Rückfragen erreichst du uns direkt unter <a href="mailto:${SALES_INBOX}">${SALES_INBOX}</a>.</p>
-        <p style="color:#999;font-size:12px;margin-top:32px;">ArrivalOS · Human Arrival Platform</p>
+        <p style="color:#999;font-size:12px;margin-top:32px;">Arrival Germany · Human Arrival Platform</p>
       `,
     }));
 

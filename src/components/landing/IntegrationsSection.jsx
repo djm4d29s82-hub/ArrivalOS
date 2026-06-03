@@ -21,7 +21,7 @@ export default function IntegrationsSection() {
             Eingebettet in Ihren bestehenden Stack — nicht parallel dazu.
           </h2>
           <p className="text-[var(--mid)] mt-5 max-w-2xl leading-relaxed">
-            ArrivalOS spielt mit HR-Systemen, Payroll, Banken, Versicherungen und Wohnungs-Partnern zusammen.
+            Arrival Germany spielt mit HR-Systemen, Payroll, Banken, Versicherungen und Wohnungs-Partnern zusammen.
             Kein weiteres Daten-Silo, sondern die Klammer um Ihr Ankunfts-Ökosystem.
           </p>
 

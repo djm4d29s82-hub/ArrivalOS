@@ -12,7 +12,7 @@
 //
 // Environment-Variablen (Project Settings → Functions → Secrets):
 //   RESEND_API_KEY     = re_...
-//   RESEND_FROM        = ArrivalOS <noreply@arrivalos.de>   (verifizierte Absender-Domain nötig)
+//   RESEND_FROM        = Arrival Germany <noreply@arrivalos.de>   (verifizierte Absender-Domain nötig)
 //   APP_URL            = https://arrival-os-ten.vercel.app
 //
 // Webhook-Setup (Supabase Dashboard):
@@ -27,7 +27,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
-const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'ArrivalOS <support@arrivalgermany.com>';
+const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'Arrival Germany <support@arrivalgermany.com>';
 const APP_URL = Deno.env.get('APP_URL') || 'https://arrivalgermany.com';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -92,7 +92,7 @@ serve(async (req) => {
           ${escapeHtml(milestone.message)}
         </blockquote>
         <p><a href="${APP_URL}/company" style="background:#16243F;color:#F4EFE6;padding:10px 20px;border-radius:999px;text-decoration:none;display:inline-block;">Im Portal ansehen</a></p>
-        <p style="color:#999;font-size:12px;margin-top:32px;">ArrivalOS · Human Arrival Platform</p>
+        <p style="color:#999;font-size:12px;margin-top:32px;">Arrival Germany · Human Arrival Platform</p>
       </body></html>
     `;
 

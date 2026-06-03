@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 
 const FAQS = [
-  { q: 'Was unterscheidet ArrivalOS von einem klassischen HR-Tool?',
-    a: 'Klassische HR-Tools enden bei Onboarding-Workflows im System. ArrivalOS verbindet Software mit echten Greetern vor Ort — wir lösen den Teil, den keine Software allein lösen kann: jemanden zum Bürgeramt begleiten.' },
+  { q: 'Was unterscheidet Arrival Germany von einem klassischen HR-Tool?',
+    a: 'Klassische HR-Tools enden bei Onboarding-Workflows im System. Arrival Germany verbindet Software mit echten Greetern vor Ort — wir lösen den Teil, den keine Software allein lösen kann: jemanden zum Bürgeramt begleiten.' },
   { q: 'Wie schnell ist ein Talent einsatzbereit?',
     a: 'Pilot-Setup in 7 Tagen. Erstes Talent kann unmittelbar gebucht werden. Volle Integration in Ihr HR-System dauert je nach Komplexität 2–6 Wochen.' },
   { q: 'In welchen Sprachen funktioniert die Talent-App?',

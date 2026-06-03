@@ -60,7 +60,7 @@ export default function PWAInstaller() {
           <Download className="w-4 h-4 text-gold" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-serif text-[14px] font-semibold">ArrivalOS als App installieren</div>
+          <div className="font-serif text-[14px] font-semibold">Arrival Germany als App installieren</div>
           {visible && deferred && (
             <p className="text-[12px] text-cream/70 mt-1 leading-relaxed">
               Schneller Zugriff auf dein Onboarding — direkt vom Home-Bildschirm.

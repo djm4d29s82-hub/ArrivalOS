@@ -27,7 +27,7 @@ export default function GreeterSection() {
           Werde Teil eines Netzwerks, das Ankommen <span className="text-gold">menschlich</span> macht.
         </h2>
         <p className="text-cream/65 mt-5 max-w-2xl leading-relaxed">
-          Greeter sind das Herzstück von ArrivalOS. Du holst Talente ab, übersetzt beim Bürgeramt,
+          Greeter sind das Herzstück von Arrival Germany. Du holst Talente ab, übersetzt beim Bürgeramt,
           zeigst die ersten Wege — und wirst dafür fair bezahlt. Mit voller App-Unterstützung.
         </p>
 
