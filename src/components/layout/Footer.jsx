@@ -9,12 +9,15 @@ export default function Footer() {
         <div className="lg:col-span-2">
           <div className="flex items-center gap-2.5 mb-4">
             <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-              <path d="M32 6 L58 57 L45.5 57 L32 28 L18.5 57 L6 57 Z" fill="#c49228"/>
-              <path d="M32 28 l2.3 5.5 5.5 2.3 -5.5 2.3 -2.3 5.5 -2.3 -5.5 -5.5 -2.3 5.5 -2.3 Z" fill="#e0bd62"/>
-              <path d="M14 49 Q32 41 50 49" fill="none" stroke="#c49228" strokeWidth="2.6" strokeLinecap="round"/>
-              <rect x="27.4" y="43.1" width="3" height="3.4" fill="#1a1a1a"/>
-              <rect x="30.5" y="42.7" width="3" height="3.4" fill="#DD0000"/>
-              <rect x="33.6" y="43.1" width="3" height="3.4" fill="#FFCE00"/>
+              <defs><linearGradient id="agFoot" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#e9c66b"/><stop offset=".5" stopColor="#c2902f"/><stop offset="1" stopColor="#9c6f1f"/>
+              </linearGradient></defs>
+              <path d="M8 58 L32 5 L56 58" fill="none" stroke="url(#agFoot)" strokeWidth="7" strokeLinejoin="round"/>
+              <path d="M32 26 l1.9 6.1 6.1 1.9 -6.1 1.9 -1.9 6.1 -1.9 -6.1 -6.1 -1.9 6.1 -1.9 Z" fill="url(#agFoot)"/>
+              <path d="M5 52 Q33 41.5 59 49.5" fill="none" stroke="url(#agFoot)" strokeWidth="2.6" strokeLinecap="round"/>
+              <path d="M20 47.7 L25 46.8" stroke="#161616" strokeWidth="2.8"/>
+              <path d="M25 46.8 L30 46.1" stroke="#DD0000" strokeWidth="2.8"/>
+              <path d="M30 46.1 L35 45.7" stroke="#F6C534" strokeWidth="2.8"/>
             </svg>
             <div className="leading-tight">
               <div className="font-bold text-cream text-lg tracking-[0.08em]">ARRIVAL</div>

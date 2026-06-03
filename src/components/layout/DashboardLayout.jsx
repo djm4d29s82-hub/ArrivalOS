@@ -118,12 +118,15 @@ export default function DashboardLayout({ role }) {
       <aside className="w-64 shrink-0 flex flex-col" style={{ background: 'var(--ds-sidebar)', borderRight: '1px solid var(--ds-sidebar-border)' }}>
         <Link to="/" className="px-5 h-16 flex items-center gap-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.10)' }}>
           <svg viewBox="0 0 64 64" className="w-9 h-9" aria-hidden="true">
-            <path d="M32 6 L58 57 L45.5 57 L32 28 L18.5 57 L6 57 Z" fill="#c49228"/>
-            <path d="M32 28 l2.3 5.5 5.5 2.3 -5.5 2.3 -2.3 5.5 -2.3 -5.5 -5.5 -2.3 5.5 -2.3 Z" fill="#e0bd62"/>
-            <path d="M14 49 Q32 41 50 49" fill="none" stroke="#c49228" strokeWidth="2.6" strokeLinecap="round"/>
-            <rect x="27.4" y="43.1" width="3" height="3.4" fill="#1a1a1a"/>
-            <rect x="30.5" y="42.7" width="3" height="3.4" fill="#DD0000"/>
-            <rect x="33.6" y="43.1" width="3" height="3.4" fill="#FFCE00"/>
+            <defs><linearGradient id="agDash" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#e9c66b"/><stop offset=".5" stopColor="#c2902f"/><stop offset="1" stopColor="#9c6f1f"/>
+            </linearGradient></defs>
+            <path d="M8 58 L32 5 L56 58" fill="none" stroke="url(#agDash)" strokeWidth="7" strokeLinejoin="round"/>
+            <path d="M32 26 l1.9 6.1 6.1 1.9 -6.1 1.9 -1.9 6.1 -1.9 -6.1 -6.1 -1.9 6.1 -1.9 Z" fill="url(#agDash)"/>
+            <path d="M5 52 Q33 41.5 59 49.5" fill="none" stroke="url(#agDash)" strokeWidth="2.6" strokeLinecap="round"/>
+            <path d="M20 47.7 L25 46.8" stroke="#161616" strokeWidth="2.8"/>
+            <path d="M25 46.8 L30 46.1" stroke="#DD0000" strokeWidth="2.8"/>
+            <path d="M30 46.1 L35 45.7" stroke="#F6C534" strokeWidth="2.8"/>
           </svg>
           <div>
             <div className="font-bold tracking-tight text-white text-[15px]">Arrival <span className="text-gold">Germany</span></div>
