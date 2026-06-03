@@ -13,7 +13,6 @@ export default function Footer() {
             </div>
             <div className="leading-tight">
               <div className="font-bold text-cream text-lg">Arrival<span className="text-gold">OS</span></div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-cream/40">by NeuLand</div>
             </div>
           </div>
           <p className="text-[13px] text-cream/75 leading-relaxed max-w-sm">
@@ -35,7 +34,7 @@ export default function Footer() {
           ['Kontakt', '#kontakt'],
         ]} />
 
-        <Col title="Über NeuLand" items={[
+        <Col title="Über ArrivalOS" items={[
           ['Karriere', '/karriere'],
           ['Presse', '/presse'],
         ]} />

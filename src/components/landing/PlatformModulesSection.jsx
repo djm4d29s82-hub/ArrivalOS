@@ -3,7 +3,7 @@ import { LayoutGrid, Building2, Users, Compass, ArrowRight } from 'lucide-react'
 const MODULES = [
   {
     i: LayoutGrid, role: 'Operations', name: 'Admin-Konsole',
-    desc: 'Steuerzentrale für NeuLand-Operations: SOPs, Eskalationen, Qualitätskontrolle, Greeter-Allokation.',
+    desc: 'Steuerzentrale für Operations: SOPs, Eskalationen, Qualitätskontrolle, Greeter-Allokation.',
     features: ['SOP-Bibliothek', 'Eskalations-Workflow', 'Kennzahlen-Dashboard', 'Greeter-Pool-Steuerung'],
   },
   {

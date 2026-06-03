@@ -20,7 +20,7 @@ const CANDIDATES = {
     ],
     notes: [
       { au: 'Jonas Steiner', tm: 'vor 2 Std.', tx: 'Flug bestätigt für 2. Juni, 14:30 MUC T2. Bitte Greeter so platzieren.' },
-      { au: 'NeuLand-Team',  tm: 'vor 1 Std.', tx: 'Sophie B. ist vor Ort — übernimmt die Abholung mit Schild.' },
+      { au: 'Ops-Team',  tm: 'vor 1 Std.', tx: 'Sophie B. ist vor Ort — übernimmt die Abholung mit Schild.' },
     ],
   },
   rafael: {

@@ -101,7 +101,6 @@ export default function Login() {
             </div>
             <div className="leading-tight text-left">
               <div className="font-bold text-[16px] tracking-tight" style={{ color: 'var(--ds-t1)' }}>Arrival<span className="text-gold">OS</span></div>
-              <div className="text-[9px] uppercase tracking-[0.18em] text-[var(--light)]">by NeuLand</div>
             </div>
           </div>
           <h1 className="font-serif text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-t1)' }}>Willkommen zurück</h1>
@@ -224,7 +223,7 @@ export default function Login() {
                 </button>
 
                 <p className="text-[11px] text-[var(--light)] text-center">
-                  Kein Konto? Wende dich an deinen NeuLand-Administrator.
+                  Kein Konto? Wende dich an deinen ArrivalOS-Administrator.
                 </p>
               </div>
             )}

@@ -36,7 +36,7 @@ serve(async (req) => {
         <h1 style="font-family:Georgia,serif;">Vielen Dank, ${escapeHtml(lead.name || '')}!</h1>
         <p>Wir haben deine Anfrage erhalten und melden uns innerhalb von 1 Werktag bei dir.</p>
         <p>Bei Rückfragen erreichst du uns direkt unter <a href="mailto:${SALES_INBOX}">${SALES_INBOX}</a>.</p>
-        <p style="color:#999;font-size:12px;margin-top:32px;">ArrivalOS by NeuLand · Human Arrival Platform</p>
+        <p style="color:#999;font-size:12px;margin-top:32px;">ArrivalOS · Human Arrival Platform</p>
       `,
     }));
 

@@ -92,7 +92,7 @@ serve(async (req) => {
           ${escapeHtml(milestone.message)}
         </blockquote>
         <p><a href="${APP_URL}/company" style="background:#16243F;color:#F4EFE6;padding:10px 20px;border-radius:999px;text-decoration:none;display:inline-block;">Im Portal ansehen</a></p>
-        <p style="color:#999;font-size:12px;margin-top:32px;">ArrivalOS by NeuLand · Human Arrival Platform</p>
+        <p style="color:#999;font-size:12px;margin-top:32px;">ArrivalOS · Human Arrival Platform</p>
       </body></html>
     `;
 

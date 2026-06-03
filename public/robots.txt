@@ -5,4 +5,4 @@ Disallow: /company
 Disallow: /greeter-dashboard
 Disallow: /talent
 
-Sitemap: https://arrivalos.neuland.de/sitemap.xml
+Sitemap: https://arrivalgermany.com/sitemap.xml

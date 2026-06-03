@@ -40,17 +40,17 @@ function buildPages(c) {
       meta: `AGB der ${c.legalName} für die Nutzung von ArrivalOS.`,
       body: [
         ['§1 Geltungsbereich', `Diese AGB gelten für alle Verträge zwischen ${c.legalName} und Unternehmen, die Leistungen über die Plattform ArrivalOS in Anspruch nehmen.`],
-        ['§2 Leistungsgegenstand', 'NeuLand stellt eine Plattform zur Steuerung internationaler Onboarding-Prozesse bereit, ergänzt durch lokale Greeter-Dienstleistungen.'],
+        ['§2 Leistungsgegenstand', `${c.legalName} stellt mit ArrivalOS eine Plattform zur Steuerung internationaler Onboarding-Prozesse bereit, ergänzt durch lokale Greeter-Dienstleistungen.`],
         ['§3 Preise & Zahlungsbedingungen', 'Preise pro Talent gemäß aktueller Preisliste. Rechnungsstellung erfolgt mit Mission-Start. Zahlungsfrist: 14 Tage netto.'],
         ['§4 Pflichten des Auftraggebers', 'Der Auftraggeber stellt rechtzeitig die für das Onboarding notwendigen Informationen bereit (Visa-Daten, Ankunftsdatum, Wohnungssituation).'],
-        ['§5 Haftung', 'NeuLand haftet für Vorsatz und grobe Fahrlässigkeit. Bei leichter Fahrlässigkeit nur bei Verletzung wesentlicher Vertragspflichten und begrenzt auf den vorhersehbaren Schaden.'],
+        ['§5 Haftung', `${c.legalName} haftet für Vorsatz und grobe Fahrlässigkeit. Bei leichter Fahrlässigkeit nur bei Verletzung wesentlicher Vertragspflichten und begrenzt auf den vorhersehbaren Schaden.`],
         ['§6 Vertragslaufzeit', 'Verträge laufen pro Talent für die Dauer der vereinbarten Mission, ergänzt um eine Garantiephase von 30 Tagen nach Onboarding-Abschluss.'],
         ['§7 Schlussbestimmungen', `Es gilt deutsches Recht. Gerichtsstand ist ${c.city}.`],
       ],
     },
     karriere: {
-      title: 'Karriere bei NeuLand',
-      meta: 'Offene Stellen bei NeuLand — wir bauen die Infrastruktur für menschliches Ankommen in Deutschland.',
+      title: 'Karriere bei ArrivalOS',
+      meta: 'Offene Stellen bei ArrivalOS — wir bauen die Infrastruktur für menschliches Ankommen in Deutschland.',
       intro: 'Wir bauen die Infrastruktur für menschliches Ankommen in Deutschland. Klingt das nach dir?',
       body: [
         ['Offene Positionen', `– Senior Full-Stack Engineer (Berlin / Remote)
@@ -65,12 +65,12 @@ function buildPages(c) {
     },
     presse: {
       title: 'Presse',
-      meta: 'Pressekontakt und Materialien von NeuLand / ArrivalOS.',
+      meta: 'Pressekontakt und Materialien von ArrivalOS.',
       intro: 'Materialien, Pressekontakt und letzte Meldungen.',
       body: [
         ['Pressekontakt', `${c.ceo.split(',')[0]}\n${c.pressEmail}\n${c.phone}`],
-        ['Über NeuLand', `${c.legalName} betreibt ArrivalOS — die Human Arrival Platform für internationales Talent-Onboarding. NeuLand arbeitet mit Unternehmen aus Pflege, IT, Engineering und Logistik in deutschen Städten.`],
-        ['Pressemeldungen', `– Mai 2026: NeuLand erweitert Greeter-Netzwerk
+        ['Über ArrivalOS', `${c.legalName} betreibt ArrivalOS — die Human Arrival Platform für internationales Talent-Onboarding — und arbeitet mit Unternehmen aus Pflege, IT, Engineering und Logistik in deutschen Städten.`],
+        ['Pressemeldungen', `– Mai 2026: ArrivalOS erweitert Greeter-Netzwerk
 – März 2026: ArrivalOS startet HR-Integrationen mit Personio und DATEV
 – Januar 2026: Pilotprojekt mit Klinikum NordWest erfolgreich abgeschlossen`],
         ['Bilder & Logos', `Logo-Pack, Team-Fotos und Produkt-Screenshots auf Anfrage: ${c.pressEmail}`],

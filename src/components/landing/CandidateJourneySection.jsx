@@ -23,7 +23,7 @@ export default function CandidateJourneySection() {
           Acht Momente. Vom ersten Schritt bis zum ersten Arbeitstag.
         </h2>
         <p className="text-cream/60 mt-5 max-w-2xl leading-relaxed">
-          Jede Mission folgt dem gleichen, von NeuLand operativ erprobten Pfad. Jeder Schritt ist klar definiert,
+          Jede Mission folgt dem gleichen, operativ erprobten Pfad. Jeder Schritt ist klar definiert,
           jemand ist verantwortlich, der Status ist für alle sichtbar.
         </p>
 

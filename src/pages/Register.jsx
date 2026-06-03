@@ -66,7 +66,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-cream flex items-center">
       <div className="max-w-[480px] mx-auto px-6 w-full py-20">
-        <div className="text-[11px] uppercase tracking-[0.28em] text-gold mb-8">NeuLand</div>
+        <div className="text-[11px] uppercase tracking-[0.28em] text-gold mb-8">ArrivalOS</div>
 
         {peek === null ? (
           <div className="flex items-center gap-2 text-[var(--mid)]"><Loader2 className="w-4 h-4 animate-spin" /> Einladung wird geprüft…</div>

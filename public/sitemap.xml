@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://arrivalos.neuland.de/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://arrivalos.neuland.de/impressum</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://arrivalos.neuland.de/datenschutz</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://arrivalos.neuland.de/agb</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://arrivalos.neuland.de/karriere</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://arrivalos.neuland.de/presse</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://arrivalgermany.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://arrivalgermany.com/impressum</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://arrivalgermany.com/datenschutz</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://arrivalgermany.com/agb</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://arrivalgermany.com/karriere</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://arrivalgermany.com/presse</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 </urlset>

@@ -30,7 +30,6 @@ export default function Navbar() {
           </div>
           <div className="leading-tight">
             <div className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--ds-t1)' }}>Arrival<span className="text-gold">OS</span></div>
-            <div className="text-[9px] uppercase tracking-[0.18em]" style={{ color: 'var(--ds-t3)' }}>by NeuLand</div>
           </div>
         </Link>
         <ul className="hidden lg:flex items-center gap-7 text-[13px]" style={{ color: 'var(--ds-t2)' }}>
