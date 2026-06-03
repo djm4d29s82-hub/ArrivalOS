@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import PlausibleLoader from '@/lib/PlausibleLoader';
 import PWAInstaller from '@/lib/PWAInstaller';
 import { SentryErrorBoundary } from '@/lib/sentry';
+import { Analytics } from '@vercel/analytics/react';
 import { lazy, Suspense } from 'react';
 
 // Eager — Marketing-Site, sofort sichtbar
@@ -157,6 +158,7 @@ export default function App() {
           </ToastProvider>
         </QueryClientProvider>
       </AuthProvider>
+      <Analytics />
     </SentryErrorBoundary>
     </LangProvider>
     </ThemeProvider>
