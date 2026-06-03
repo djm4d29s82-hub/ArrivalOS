@@ -9,9 +9,9 @@ export const COMPANY = {
   // they were intentionally NOT invented (no real legal entity/address provided yet).
   legalName: env.VITE_COMPANY_LEGAL_NAME || 'ArrivalOS',
   brand: env.VITE_COMPANY_BRAND || 'ArrivalOS',
-  street: env.VITE_COMPANY_STREET || 'Marienplatz 1',
-  zip: env.VITE_COMPANY_ZIP || '80331',
-  city: env.VITE_COMPANY_CITY || 'München',
+  street: env.VITE_COMPANY_STREET || 'Potsdamer Straße 63',
+  zip: env.VITE_COMPANY_ZIP || '10785',
+  city: env.VITE_COMPANY_CITY || 'Berlin',
   country: env.VITE_COMPANY_COUNTRY || 'Deutschland',
   phone: env.VITE_COMPANY_PHONE || '+49 151 24413723',
   email: env.VITE_COMPANY_EMAIL || 'support@arrivalgermany.com',
