@@ -16,6 +16,7 @@ import MissionKernel from '@/components/mission/MissionKernel';
 import { JOURNEY_STEPS, journeyProgress, resolveStepMeta, stepBringItems, localizeStep } from '@/lib/journeySteps';
 import { SERVICE_BY_KEY, SERVICE_STATUS, localizeService, serviceStatusLabel } from '@/lib/serviceCatalog';
 import GreeterReviewCard from '@/components/talent/GreeterReviewCard';
+import TalentArrivalSignal from '@/components/talent/TalentArrivalSignal';
 
 const SERVICE_ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethoscope, Languages, Calculator };
 
@@ -290,6 +291,9 @@ export default function TalentDashboard() {
           })}
         </div>
       </section>
+
+      {/* Optional "Ich bin gelandet" signal (self-hides outside the pre-meeting window) */}
+      <TalentArrivalSignal mission={mission} greeter={greeter} user={user} />
 
       {/* Post-mission greeter rating (self-hides when nothing to rate) */}
       <GreeterReviewCard candidateId={cid} createdBy={user?.email} />
