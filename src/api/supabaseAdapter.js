@@ -23,6 +23,7 @@ const TABLE_MAP = {
   SOP: 'sops',
   MissionTemplate: 'mission_templates',
   MissionService: 'mission_services',
+  Review: 'reviews',
 };
 
 export function createSupabaseClient(url, anonKey) {

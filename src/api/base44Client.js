@@ -37,6 +37,7 @@ const ENTITY_NAMES = [
   'Invite',
   'MissionTemplate',
   'MissionService',
+  'Review',
 ];
 
 function emptyDB() {

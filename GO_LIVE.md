@@ -163,7 +163,7 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       `2026-05-journey-step-bring-items.sql` · `2026-05-mission-templates.sql` ·
       `2026-05-document-step-link.sql` · `2026-06-mission-services.sql` (Services Marketplace) ·
       `2026-06-mission-service-due.sql` (Service-Fristen) · `2026-06-greeter-weekly-slots.sql`
-      (Greeter-Verfügbarkeit fürs Matching).
+      (Greeter-Verfügbarkeit fürs Matching) · `2026-06-reviews.sql` (echte Greeter-Bewertungen + Trigger).
 - [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql`.
 - [ ] **Edge Functions deployen (alle 8):**
       - **Auth:** `admin-invite` (**mit** JWT-Verify) · `accept-invite` (**`--no-verify-jwt`**).
@@ -229,7 +229,7 @@ Talent sieht Update → Abholung → Mission completed.**
 
 - [ ] Cloud-Ops-Checkliste (Abschnitt 5) vollständig abgehakt — inkl. **Backups/PITR** und **RLS-Tests grün**.
 - [ ] **`rls-verify.sql` gibt „RLS OK" aus** (Pflicht-Gate: keine offenen `auth_read_*/auth_write_*`-Policies).
-- [ ] **Alle 8 Migrationen** ausgeführt; **alle 8 Edge Functions** deployt (inkl. `ai-arrival-briefing` +
+- [ ] **Alle 9 Migrationen** ausgeführt; **alle 8 Edge Functions** deployt (inkl. `ai-arrival-briefing` +
       `ANTHROPIC_API_KEY`); **Cron** geplant (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
 - [ ] **Domain** `arrivalgermany.com` live auf Vercel; **Supabase Auth-URL** auf die Domain gesetzt.
 - [ ] 🔑 **`service_role`-Key rotiert** nach dem E2E-Seeding.

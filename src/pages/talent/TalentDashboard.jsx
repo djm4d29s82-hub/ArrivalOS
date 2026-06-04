@@ -15,6 +15,7 @@ import { relativeTime, relativeStepDate } from '@/lib/utils';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { JOURNEY_STEPS, journeyProgress, resolveStepMeta, stepBringItems, localizeStep } from '@/lib/journeySteps';
 import { SERVICE_BY_KEY, SERVICE_STATUS, localizeService, serviceStatusLabel } from '@/lib/serviceCatalog';
+import GreeterReviewCard from '@/components/talent/GreeterReviewCard';
 
 const SERVICE_ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethoscope, Languages, Calculator };
 
@@ -289,6 +290,9 @@ export default function TalentDashboard() {
           })}
         </div>
       </section>
+
+      {/* Post-mission greeter rating (self-hides when nothing to rate) */}
+      <GreeterReviewCard candidateId={cid} createdBy={user?.email} />
 
       {/* Services we're arranging */}
       {(() => {
