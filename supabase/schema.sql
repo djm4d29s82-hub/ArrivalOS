@@ -58,6 +58,7 @@ create table if not exists public.greeter_profiles (
   city text,
   languages text[] default '{}',
   availability text,
+  weekly_slots jsonb not null default '{}'::jsonb,  -- { "<Day>_<Slot>": true }; honoured by the matching engine
   status text default 'available' check (status in ('available','busy','offline')),
   rating numeric(2,1),
   completed_missions int default 0,

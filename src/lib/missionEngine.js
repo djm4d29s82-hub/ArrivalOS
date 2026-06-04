@@ -45,6 +45,27 @@ async function createNotification(userEmail, title, message, type = 'info', link
   } catch { /* notification is best-effort */ }
 }
 
+// Weekly availability grid uses keys `${Day}_${Slot}` (Day Mo..So, Slot Vormittag|Nachmittag|Abend).
+const SLOT_DAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']; // JS getDay() 0=Sun → 'So'
+export function missionSlotKey(datetime) {
+  if (!datetime) return null;
+  const d = new Date(datetime);
+  if (Number.isNaN(d.getTime())) return null;
+  const day = SLOT_DAYS[d.getDay()];
+  const h = d.getHours();
+  const slot = h < 12 ? 'Vormittag' : h < 17 ? 'Nachmittag' : 'Abend';
+  return `${day}_${slot}`;
+}
+// A greeter who hasn't filled the grid is treated as "flexible" (available); one who HAS
+// filled it is only available where the matching slot is explicitly true.
+export function greeterAvailableInSlot(greeter, slotKey) {
+  if (!slotKey) return true;
+  const slots = greeter?.weekly_slots;
+  const hasGrid = slots && typeof slots === 'object' && Object.values(slots).some(Boolean);
+  if (!hasGrid) return true;
+  return slots[slotKey] === true;
+}
+
 export async function runMatchingEngine(mission) {
   let matched = await base44.entities.GreeterProfile.filter({ city: mission.city, status: 'available' });
 
@@ -55,6 +76,14 @@ export async function runMatchingEngine(mission) {
       )
     );
     if (filtered.length > 0) matched = filtered;
+  }
+
+  // Honour the greeter's weekly availability for the mission's day/time-slot.
+  // Prefer available greeters; only fall back to the wider list if none are free (don't block ops).
+  const slotKey = missionSlotKey(mission.datetime);
+  if (slotKey) {
+    const free = matched.filter((g) => greeterAvailableInSlot(g, slotKey));
+    if (free.length > 0) matched = free;
   }
 
   matched.sort((a, b) => (b.rating || 0) - (a.rating || 0));
