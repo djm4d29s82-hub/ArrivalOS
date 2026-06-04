@@ -6,7 +6,7 @@ import {
 import { base44 } from '@/api/base44Client';
 import { Button, Pill, Select, Input, EmptyState } from '@/components/ui';
 import {
-  SERVICE_CATALOG, SERVICE_BY_KEY, SERVICE_STATUS, SERVICE_STATUS_ORDER,
+  SERVICE_CATALOG, SERVICE_BY_KEY, SERVICE_STATUS, SERVICE_STATUS_ORDER, suggestServiceKeys,
 } from '@/lib/serviceCatalog';
 
 const ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethoscope, Languages, Calculator };
@@ -20,6 +20,7 @@ const ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethosc
  */
 export default function MissionServices({ missionId, createdBy, managed = false, onChange }) {
   const [services, setServices] = useState([]);
+  const [steps, setSteps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [degraded, setDegraded] = useState(false); // table/RLS missing
   const [busy, setBusy] = useState(false);
@@ -42,20 +43,29 @@ export default function MissionServices({ missionId, createdBy, managed = false,
 
   useEffect(() => { load(); }, [load]);
 
+  // Journey steps drive the suggestions ("✓ Flug angekommen → Wohnung benötigt"). Managed view only.
+  useEffect(() => {
+    if (!managed || !missionId) return;
+    base44.entities.JourneyStep.filter({ mission_id: missionId })
+      .then((s) => setSteps(Array.isArray(s) ? s : []))
+      .catch(() => setSteps([]));
+  }, [managed, missionId]);
+
   const usedKeys = new Set(services.map((s) => s.category));
   const available = SERVICE_CATALOG.filter((c) => !usedKeys.has(c.key));
+  const suggestions = managed ? suggestServiceKeys(steps, usedKeys) : [];
 
-  const add = async () => {
-    if (!addKey || busy) return;
+  const add = async (key = addKey) => {
+    if (!key || busy) return;
     setBusy(true);
     try {
       await base44.entities.MissionService.create({
         mission_id: missionId,
-        category: addKey,
+        category: key,
         status: 'requested',
         created_by: createdBy || null,
       });
-      setAddKey('');
+      if (key === addKey) setAddKey('');
       await load();
       onChange?.();
     } catch (e) {
@@ -166,6 +176,32 @@ export default function MissionServices({ missionId, createdBy, managed = false,
         </div>
       )}
 
+      {managed && suggestions.length > 0 && (
+        <div className="rounded-lg px-3 py-2.5" style={{ background: 'var(--ds-input)', border: '1px dashed var(--ds-card-border)' }}>
+          <div className="text-[10.5px] uppercase tracking-[0.1em] font-semibold mb-2" style={{ color: 'var(--ds-t3)' }}>
+            Vorschläge aus dem Ankunftsplan
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {suggestions.map((k) => {
+              const cat = SERVICE_BY_KEY[k];
+              if (!cat) return null;
+              const Icon = ICONS[cat.iconName] || Plus;
+              return (
+                <button
+                  key={k}
+                  onClick={() => add(k)}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full transition hover:border-gold/40 disabled:opacity-50"
+                  style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)', color: 'var(--ds-t1)' }}
+                >
+                  <Icon className="w-3 h-3 text-gold" /> {cat.label} <Plus className="w-3 h-3 opacity-60" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {managed && available.length > 0 && (
         <div className="flex items-center gap-2 pt-1">
           <Select size="sm" value={addKey} onChange={(e) => setAddKey(e.target.value)} className="flex-1">
@@ -174,7 +210,7 @@ export default function MissionServices({ missionId, createdBy, managed = false,
               <option key={c.key} value={c.key}>{c.label}</option>
             ))}
           </Select>
-          <Button size="sm" variant="primary" icon={busy ? undefined : Plus} loading={busy} disabled={!addKey || busy} onClick={add}>
+          <Button size="sm" variant="primary" icon={busy ? undefined : Plus} loading={busy} disabled={!addKey || busy} onClick={() => add()}>
             Hinzufügen
           </Button>
         </div>

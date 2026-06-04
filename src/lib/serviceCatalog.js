@@ -27,6 +27,29 @@ export const SERVICE_STATUS = {
 
 export const SERVICE_STATUS_ORDER = ['requested', 'in_progress', 'active', 'done', 'skipped'];
 
+// Heuristik: welche Service-Kategorien ein Journey-Step nahelegt.
+// "✓ Flug angekommen → Wohnung & SIM benötigt" usw. Reine Vorschläge — der Admin entscheidet.
+export const SERVICE_KEYS_FOR_STEP = {
+  flug:    ['wohnung', 'sim'],
+  ankunft: ['wohnung', 'sim'],
+  wohnung: ['wohnung'],
+  sim:     ['sim'],
+  anmeld:  ['bank', 'kv'],
+  bank:    ['bank'],
+  kv:      ['kv'],
+};
+
+/** Vorschlags-Service-Keys aus den Journey-Steps einer Mission, ohne bereits aktivierte. */
+export function suggestServiceKeys(steps = [], usedKeys = new Set()) {
+  const out = [];
+  for (const s of steps) {
+    for (const k of (SERVICE_KEYS_FOR_STEP[s.key] || [])) {
+      if (!usedKeys.has(k) && !out.includes(k)) out.push(k);
+    }
+  }
+  return out;
+}
+
 /** DE default, EN by lang. Mirrors localizeStep(). */
 export function localizeService(cat, lang = 'de') {
   if (!cat) return { label: '', blurb: '' };
