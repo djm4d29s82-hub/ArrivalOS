@@ -40,6 +40,7 @@ Regeln:
 - "summary": 2–3 ruhige Sätze zum Gesamtbild (wie viele Ankünfte, wie ist die Pünktlichkeit, generelle Lage).
 - "risks": konkrete Risiken, die Aufmerksamkeit brauchen (überfällige Schritte, Ankünfte ohne Greeter, nahe Termine). Leeres Array, wenn alles im grünen Bereich.
 - "actions": konkrete, umsetzbare nächste Schritte fürs HR-Team. Kurz, im Imperativ.
+- Falls "services" je Mission vorhanden sind (Wohnung, Bankkonto, SIM, Krankenversicherung …): berücksichtige ihren Status. Hebe als Risiko hervor, wenn ein benötigter Service kurz vor der Ankunft noch "requested" (angefragt) ist, und erwähne im Summary, was bereits aktiv orchestriert wird.
 - Keine erfundenen Zahlen — nutze nur die gelieferten Daten. Keine Floskeln, keine Preise, keine Markennamen.
 - Maximal 4 Einträge je Liste.`;
 

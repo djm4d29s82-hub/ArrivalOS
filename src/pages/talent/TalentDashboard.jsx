@@ -4,6 +4,7 @@ import {
   Plane, MapPin, Home, Smartphone, FileText, Landmark, CheckCircle2, Circle, Clock,
   Phone, MessageCircle, ChevronRight, Sparkles, Navigation as NavIcon, Timer,
   Upload, Loader2, Download,
+  FileCheck, ShieldPlus, Building2, Stethoscope, Languages, Calculator, PackageOpen,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -13,6 +14,9 @@ import { uploadDocument, getDocumentUrl } from '@/lib/storage';
 import { relativeTime, relativeStepDate } from '@/lib/utils';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { JOURNEY_STEPS, journeyProgress, resolveStepMeta, stepBringItems, localizeStep } from '@/lib/journeySteps';
+import { SERVICE_BY_KEY, SERVICE_STATUS, localizeService, serviceStatusLabel } from '@/lib/serviceCatalog';
+
+const SERVICE_ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethoscope, Languages, Calculator };
 
 /**
  * TalentDashboard — emotional, warm welcome screen (DE/EN).
@@ -27,6 +31,7 @@ export default function TalentDashboard() {
   const [greeter, setGreeter] = useState(null);
   const [mission, setMission] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [services, setServices] = useState([]);
   const [docBusyStep, setDocBusyStep] = useState(null);
   const cid = user?.candidate_id || 'ca1';
 
@@ -62,6 +67,10 @@ export default function TalentDashboard() {
           const g = await base44.entities.GreeterProfile.get(active.greeter_id);
           setGreeter(g);
         }
+        try {
+          const svc = await base44.entities.MissionService.filter({ mission_id: active.id });
+          setServices(Array.isArray(svc) ? svc : []);
+        } catch { /* table/migration optional */ }
       }
       try {
         const docs = await base44.entities.Document.filter({ candidate_id: cid });
@@ -280,6 +289,39 @@ export default function TalentDashboard() {
           })}
         </div>
       </section>
+
+      {/* Services we're arranging */}
+      {(() => {
+        const visible = services.filter((s) => s.status !== 'skipped');
+        if (visible.length === 0) return null;
+        return (
+          <section>
+            <SectionHeader title={t('services.title')} count={visible.length} />
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+              {visible.map((svc, i) => {
+                const cat = SERVICE_BY_KEY[svc.category] || { label: svc.category, iconName: 'PackageOpen' };
+                const Icon = SERVICE_ICONS[cat.iconName] || PackageOpen;
+                const loc = localizeService(cat, lang);
+                const st = SERVICE_STATUS[svc.status] || { tone: 'neutral' };
+                return (
+                  <div key={svc.id} className="px-4 py-3 flex items-center gap-3" style={i > 0 ? { borderTop: '1px solid var(--ds-card-border)' } : {}}>
+                    <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0" style={{ background: 'rgba(196,146,40,0.10)' }}>
+                      <Icon className="w-3.5 h-3.5" style={{ color: '#c49228' }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-[13px] truncate" style={{ color: 'var(--ds-t1)' }}>{loc.label}</div>
+                      {svc.notes
+                        ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>
+                        : loc.blurb && <div className="text-[11px] truncate" style={{ color: 'var(--ds-t3)' }}>{loc.blurb}</div>}
+                    </div>
+                    <Pill tone={st.tone} size="xs" dot>{serviceStatusLabel(svc.status, lang)}</Pill>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Documents */}
       <section>

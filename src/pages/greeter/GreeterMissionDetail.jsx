@@ -20,6 +20,7 @@ import {
   Field, Textarea, Input, SkeletonCard,
 } from '@/components/ui';
 import MissionKernel from '@/components/mission/MissionKernel';
+import MissionServices from '@/components/mission/MissionServices';
 import { greeterKernel, greeterProgress, greeterBlockers } from '@/lib/missionKernel';
 import { useRealtimeMessages } from '@/lib/useRealtimeMessages';
 import { relativeTime, relativeStepDate } from '@/lib/utils';
@@ -381,6 +382,14 @@ export default function GreeterMissionDetail() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* SERVICES — read-only: what's being arranged for this arrival */}
+        {isMine && (
+          <div className="rounded-xl p-3 sm:p-4" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+            <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mb-2.5" style={{ color: 'var(--ds-t3)' }}>Services</div>
+            <MissionServices missionId={mission.id} />
           </div>
         )}
 

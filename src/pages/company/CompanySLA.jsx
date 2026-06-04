@@ -8,6 +8,7 @@ import { Card, StatCard, EmptyState, SectionHeader } from '@/components/ui';
 import { calculateMissionSLA, getSLAMessage, SLA_BADGE_CLASSES } from '@/lib/missionSLA';
 import { relativeStepDate } from '@/lib/utils';
 import AiBriefing from '@/components/company/AiBriefing';
+import { SERVICE_BY_KEY } from '@/lib/serviceCatalog';
 
 const TERMINAL = ['completed', 'cancelled'];
 const SLA_RANK = { critical: 0, breached: 1, at_risk: 2, ok: 3 };
@@ -24,6 +25,7 @@ export default function CompanySLA() {
   const { data: missions = [] }   = useQuery({ queryKey: ['missions'],     queryFn: () => base44.entities.Mission.list('-datetime'), refetchInterval: 12000 });
   const { data: candidates = [] } = useQuery({ queryKey: ['candidates'],   queryFn: () => base44.entities.Candidate.list() });
   const { data: allSteps = [] }   = useQuery({ queryKey: ['journeySteps'], queryFn: () => base44.entities.JourneyStep.list(), refetchInterval: 12000 });
+  const { data: allServices = [] } = useQuery({ queryKey: ['missionServices'], queryFn: () => base44.entities.MissionService.list().catch(() => []) });
 
   const myMissions = useMemo(
     () => (companyId ? missions.filter((m) => m.company_id === companyId) : missions),
@@ -32,6 +34,7 @@ export default function CompanySLA() {
   const missionIds = useMemo(() => new Set(myMissions.map((m) => m.id)), [myMissions]);
   const candidateById = useMemo(() => Object.fromEntries(candidates.map((c) => [c.id, c])), [candidates]);
   const mySteps = useMemo(() => allSteps.filter((s) => missionIds.has(s.mission_id)), [allSteps, missionIds]);
+  const myServices = useMemo(() => allServices.filter((s) => missionIds.has(s.mission_id)), [allServices, missionIds]);
 
   const titleFor = (m) => candidateById[m.candidate_id]?.full_name || m.title;
 
@@ -73,20 +76,27 @@ export default function CompanySLA() {
     [myMissions]);
 
   // Compact payload for the AI briefing — built from the same data already on screen.
-  const buildBriefingPayload = () => ({
-    counts: { active: activeCount, overdueSteps: overdueSteps.length },
-    steps: { overdue: overdueSteps.length, onTimePct, avgDays },
-    missions: myMissions
-      .filter((m) => !TERMINAL.includes(m.status))
-      .map((m) => ({
-        title: titleFor(m),
-        status: m.status,
-        city: m.city || null,
-        datetime: m.datetime || null,
-        greeter: m.greeter_id ? 'zugewiesen' : 'offen',
-        sla: calculateMissionSLA(m).level,
-      })),
-  });
+  const buildBriefingPayload = () => {
+    const labelFor = (cat) => SERVICE_BY_KEY[cat]?.label || cat;
+    const svcByStatus = myServices.reduce((acc, s) => { acc[s.status] = (acc[s.status] || 0) + 1; return acc; }, {});
+    const svcByMission = myServices.reduce((acc, s) => { (acc[s.mission_id] ||= []).push(s); return acc; }, {});
+    return {
+      counts: { active: activeCount, overdueSteps: overdueSteps.length },
+      steps: { overdue: overdueSteps.length, onTimePct, avgDays },
+      services: myServices.length ? { byStatus: svcByStatus } : undefined,
+      missions: myMissions
+        .filter((m) => !TERMINAL.includes(m.status))
+        .map((m) => ({
+          title: titleFor(m),
+          status: m.status,
+          city: m.city || null,
+          datetime: m.datetime || null,
+          greeter: m.greeter_id ? 'zugewiesen' : 'offen',
+          sla: calculateMissionSLA(m).level,
+          services: (svcByMission[m.id] || []).map((s) => ({ kategorie: labelFor(s.category), status: s.status })),
+        })),
+    };
+  };
 
   return (
     <div>
