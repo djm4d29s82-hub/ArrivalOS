@@ -141,6 +141,21 @@ create table if not exists public.mission_templates (
   updated_at timestamptz default now()
 );
 
+-- Services Marketplace: partner services activated/tracked per arrival.
+-- Mirrors migrations/2026-06-mission-services.sql. RLS policies live in rls-hardening.sql.
+create table if not exists public.mission_services (
+  id uuid primary key default uuid_generate_v4(),
+  mission_id uuid not null references public.missions(id) on delete cascade,
+  category text not null,
+  status text not null default 'requested',
+  provider text,
+  notes text,
+  created_by text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+create index if not exists idx_mission_services_mission on public.mission_services(mission_id);
+
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
   sender_id uuid references public.users(id) on delete set null,

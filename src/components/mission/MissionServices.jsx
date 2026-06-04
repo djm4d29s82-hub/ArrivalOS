@@ -1,0 +1,190 @@
+import { useState, useEffect, useCallback } from 'react';
+import {
+  FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethoscope,
+  Languages, Calculator, Plus, Trash2, PackageOpen, Loader2,
+} from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { Button, Pill, Select, Input, EmptyState } from '@/components/ui';
+import {
+  SERVICE_CATALOG, SERVICE_BY_KEY, SERVICE_STATUS, SERVICE_STATUS_ORDER,
+} from '@/lib/serviceCatalog';
+
+const ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethoscope, Languages, Calculator };
+
+/**
+ * MissionServices — Services Marketplace v1 (pro Ankunft).
+ * Admin/Company aktivieren & tracken Partner-Services (Wohnung, Konto, SIM…) direkt in der Mission.
+ * Best-effort: fehlt die Migration, bleibt die Liste leer + ein dezenter Hinweis (kein Crash).
+ *
+ * Props: missionId, createdBy?, managed (add/edit/delete), onChange?
+ */
+export default function MissionServices({ missionId, createdBy, managed = false, onChange }) {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [degraded, setDegraded] = useState(false); // table/RLS missing
+  const [busy, setBusy] = useState(false);
+  const [addKey, setAddKey] = useState('');
+
+  const load = useCallback(async () => {
+    if (!missionId) return;
+    setLoading(true);
+    try {
+      const rows = await base44.entities.MissionService.filter({ mission_id: missionId });
+      setServices(Array.isArray(rows) ? rows : []);
+      setDegraded(false);
+    } catch {
+      setServices([]);
+      setDegraded(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [missionId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const usedKeys = new Set(services.map((s) => s.category));
+  const available = SERVICE_CATALOG.filter((c) => !usedKeys.has(c.key));
+
+  const add = async () => {
+    if (!addKey || busy) return;
+    setBusy(true);
+    try {
+      await base44.entities.MissionService.create({
+        mission_id: missionId,
+        category: addKey,
+        status: 'requested',
+        created_by: createdBy || null,
+      });
+      setAddKey('');
+      await load();
+      onChange?.();
+    } catch (e) {
+      console.error(e);
+      setDegraded(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const setStatus = async (svc, status) => {
+    setServices((arr) => arr.map((s) => (s.id === svc.id ? { ...s, status } : s))); // optimistic
+    try {
+      await base44.entities.MissionService.update(svc.id, { status, updated_at: new Date().toISOString() });
+      onChange?.();
+    } catch (e) {
+      console.error(e);
+      load(); // revert from server
+    }
+  };
+
+  const setNotes = async (svc, notes) => {
+    try {
+      await base44.entities.MissionService.update(svc.id, { notes: notes || null });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const remove = async (svc) => {
+    setServices((arr) => arr.filter((s) => s.id !== svc.id)); // optimistic
+    try {
+      await base44.entities.MissionService.delete(svc.id);
+      onChange?.();
+    } catch (e) {
+      console.error(e);
+      load();
+    }
+  };
+
+  if (loading) {
+    return <div className="flex items-center gap-2 text-[13px] text-[var(--mid)] py-2"><Loader2 className="w-4 h-4 animate-spin" /> Services laden…</div>;
+  }
+
+  return (
+    <div className="space-y-3">
+      {services.length === 0 ? (
+        <EmptyState
+          icon={PackageOpen}
+          title="Noch keine Services aktiviert"
+          description={managed ? 'Aktiviere unten Partner-Services für diese Ankunft.' : 'Für diese Ankunft wurden noch keine Services aktiviert.'}
+        />
+      ) : (
+        <div className="space-y-2">
+          {services.map((svc) => {
+            const cat = SERVICE_BY_KEY[svc.category] || { label: svc.category, iconName: 'PackageOpen', blurb: '' };
+            const Icon = ICONS[cat.iconName] || PackageOpen;
+            const st = SERVICE_STATUS[svc.status] || { label: svc.status, tone: 'neutral' };
+            return (
+              <div key={svc.id} className="rounded-xl p-3.5" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-gold/10 grid place-items-center shrink-0">
+                    <Icon className="w-4 h-4 text-gold" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-[13.5px]" style={{ color: 'var(--ds-t1)' }}>{cat.label}</div>
+                    {cat.blurb && <div className="text-[11.5px] truncate" style={{ color: 'var(--ds-t3)' }}>{cat.blurb}</div>}
+                  </div>
+                  {managed ? (
+                    <Select
+                      size="sm"
+                      value={svc.status}
+                      onChange={(e) => setStatus(svc, e.target.value)}
+                      className="shrink-0"
+                    >
+                      {SERVICE_STATUS_ORDER.map((k) => (
+                        <option key={k} value={k}>{SERVICE_STATUS[k].label}</option>
+                      ))}
+                    </Select>
+                  ) : (
+                    <Pill tone={st.tone} dot>{st.label}</Pill>
+                  )}
+                  {managed && (
+                    <button
+                      onClick={() => remove(svc)}
+                      className="w-8 h-8 grid place-items-center rounded-lg text-[var(--ds-t3)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition shrink-0"
+                      aria-label="Service entfernen"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                {managed && (
+                  <Input
+                    size="sm"
+                    className="mt-2.5"
+                    defaultValue={svc.notes || ''}
+                    placeholder="Notiz (optional) — z. B. Termin, Ansprechpartner…"
+                    onBlur={(e) => { if ((e.target.value || '') !== (svc.notes || '')) setNotes(svc, e.target.value); }}
+                  />
+                )}
+                {!managed && svc.notes && (
+                  <div className="text-[12px] mt-2 pl-12" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {managed && available.length > 0 && (
+        <div className="flex items-center gap-2 pt-1">
+          <Select size="sm" value={addKey} onChange={(e) => setAddKey(e.target.value)} className="flex-1">
+            <option value="">Service hinzufügen…</option>
+            {available.map((c) => (
+              <option key={c.key} value={c.key}>{c.label}</option>
+            ))}
+          </Select>
+          <Button size="sm" variant="primary" icon={busy ? undefined : Plus} loading={busy} disabled={!addKey || busy} onClick={add}>
+            Hinzufügen
+          </Button>
+        </div>
+      )}
+
+      {degraded && (
+        <div className="text-[11.5px] rounded-lg px-3 py-2" style={{ background: 'var(--ds-input)', color: 'var(--ds-t3)' }}>
+          Migration ausstehend — Services werden erst nach dem Ausführen von <code>2026-06-mission-services.sql</code> gespeichert.
+        </div>
+      )}
+    </div>
+  );
+}

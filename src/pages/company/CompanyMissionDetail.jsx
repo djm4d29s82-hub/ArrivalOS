@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/toaster';
 import { formatDateTime, relativeTime } from '@/lib/utils';
 import { SectionHeader, Avatar, Button, Input, SkeletonCard } from '@/components/ui';
 import MissionKernel from '@/components/mission/MissionKernel';
+import MissionServices from '@/components/mission/MissionServices';
 import { companyKernel, missionProgress } from '@/lib/missionKernel';
 
 export default function CompanyMissionDetail() {
@@ -148,6 +149,13 @@ export default function CompanyMissionDetail() {
           </ul>
         </div>
       )}
+
+      <div>
+        <SectionHeader title="Services" />
+        <div className="mt-1">
+          <MissionServices missionId={mission.id} />
+        </div>
+      </div>
 
       <div>
         <SectionHeader title="Nachrichten" count={messages.length || undefined} />

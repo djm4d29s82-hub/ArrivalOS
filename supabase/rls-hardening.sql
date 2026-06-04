@@ -234,6 +234,25 @@ drop policy if exists "mission_templates_modify" on public.mission_templates;
 create policy "mission_templates_modify" on public.mission_templates for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
+-- MISSION_SERVICES — Services Marketplace. Sichtbarkeit folgt der Mission; Verwaltung Admin + eigene Company.
+-- Tabelle siehe migrations/2026-06-mission-services.sql.
+alter table if exists public.mission_services enable row level security;
+drop policy if exists "mission_services_select" on public.mission_services;
+create policy "mission_services_select" on public.mission_services for select to authenticated
+  using (exists (select 1 from public.missions m where m.id = mission_id));
+drop policy if exists "mission_services_modify" on public.mission_services;
+create policy "mission_services_modify" on public.mission_services for all to authenticated
+  using (
+    public.is_admin()
+    or exists (select 1 from public.missions m where m.id = mission_id
+      and public.current_user_role() = 'company' and m.company_id = public.current_company_id())
+  )
+  with check (
+    public.is_admin()
+    or exists (select 1 from public.missions m where m.id = mission_id
+      and public.current_user_role() = 'company' and m.company_id = public.current_company_id())
+  );
+
 -- INVITES — Admin alles; Company eigene; Accept läuft per service_role (umgeht RLS).
 -- Kein anon/talent-Zugriff: Token-Validierung passiert serverseitig in der Edge-Function.
 create policy "invites_select" on public.invites for select to authenticated

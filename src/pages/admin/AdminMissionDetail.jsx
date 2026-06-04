@@ -18,6 +18,7 @@ import {
   Modal, Field, Select, Textarea, SkeletonCard, SectionHeader,
 } from '@/components/ui';
 import MissionStepPlanner from '@/components/mission/MissionStepPlanner';
+import MissionServices from '@/components/mission/MissionServices';
 import { relativeTime } from '@/lib/utils';
 
 const STAGES = ['accepted', 'eta_sent', 'on_the_way', 'arrived', 'in_progress', 'completed'];
@@ -224,6 +225,16 @@ export default function AdminMissionDetail() {
 
           {/* Journey-step planner — plan/edit/reorder/date the onboarding steps */}
           <MissionStepPlanner missionId={mission.id} missionDatetime={mission.datetime} onStepsChange={setPlannedCount} />
+
+          {/* Services Marketplace — activate/track partner services for this arrival */}
+          <Card variant="default">
+            <CardBody>
+              <SectionHeader title="Services" />
+              <div className="mt-2">
+                <MissionServices missionId={mission.id} createdBy={mission.last_updated_by || null} managed />
+              </div>
+            </CardBody>
+          </Card>
 
           {/* Activity log */}
           <Card variant="default">
