@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button, Pill, Select, Input, EmptyState } from '@/components/ui';
+import { relativeStepDate } from '@/lib/utils';
 import {
   SERVICE_CATALOG, SERVICE_BY_KEY, SERVICE_STATUS, SERVICE_STATUS_ORDER, suggestServiceKeys,
 } from '@/lib/serviceCatalog';
@@ -95,6 +96,17 @@ export default function MissionServices({ missionId, createdBy, managed = false,
     }
   };
 
+  const setDue = async (svc, dateStr) => {
+    const due_at = dateStr ? new Date(`${dateStr}T12:00:00`).toISOString() : null;
+    setServices((arr) => arr.map((s) => (s.id === svc.id ? { ...s, due_at } : s))); // optimistic
+    try {
+      await base44.entities.MissionService.update(svc.id, { due_at });
+    } catch (e) {
+      console.error(e);
+      load();
+    }
+  };
+
   const remove = async (svc) => {
     setServices((arr) => arr.filter((s) => s.id !== svc.id)); // optimistic
     try {
@@ -124,6 +136,10 @@ export default function MissionServices({ missionId, createdBy, managed = false,
             const cat = SERVICE_BY_KEY[svc.category] || { label: svc.category, iconName: 'PackageOpen', blurb: '' };
             const Icon = ICONS[cat.iconName] || PackageOpen;
             const st = SERVICE_STATUS[svc.status] || { label: svc.status, tone: 'neutral' };
+            const openStatus = svc.status !== 'done' && svc.status !== 'skipped';
+            const overdue = openStatus && svc.due_at && new Date(svc.due_at).getTime() < Date.now();
+            const dueLabel = svc.due_at ? relativeStepDate(svc.due_at) : null;
+            const dueValue = svc.due_at ? new Date(svc.due_at).toISOString().slice(0, 10) : '';
             return (
               <div key={svc.id} className="rounded-xl p-3.5" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
                 <div className="flex items-center gap-3">
@@ -132,7 +148,9 @@ export default function MissionServices({ missionId, createdBy, managed = false,
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-[13.5px]" style={{ color: 'var(--ds-t1)' }}>{cat.label}</div>
-                    {cat.blurb && <div className="text-[11.5px] truncate" style={{ color: 'var(--ds-t3)' }}>{cat.blurb}</div>}
+                    {dueLabel
+                      ? <div className={`text-[11.5px] ${overdue ? 'text-red-600 dark:text-red-400 font-medium' : ''}`} style={overdue ? undefined : { color: 'var(--ds-t3)' }}>Frist: {dueLabel}</div>
+                      : cat.blurb && <div className="text-[11.5px] truncate" style={{ color: 'var(--ds-t3)' }}>{cat.blurb}</div>}
                   </div>
                   {managed ? (
                     <Select
@@ -159,13 +177,23 @@ export default function MissionServices({ missionId, createdBy, managed = false,
                   )}
                 </div>
                 {managed && (
-                  <Input
-                    size="sm"
-                    className="mt-2.5"
-                    defaultValue={svc.notes || ''}
-                    placeholder="Notiz (optional) — z. B. Termin, Ansprechpartner…"
-                    onBlur={(e) => { if ((e.target.value || '') !== (svc.notes || '')) setNotes(svc, e.target.value); }}
-                  />
+                  <div className="mt-2.5 flex items-center gap-2">
+                    <Input
+                      size="sm"
+                      className="flex-1"
+                      defaultValue={svc.notes || ''}
+                      placeholder="Notiz (optional) — z. B. Termin, Ansprechpartner…"
+                      onBlur={(e) => { if ((e.target.value || '') !== (svc.notes || '')) setNotes(svc, e.target.value); }}
+                    />
+                    <input
+                      type="date"
+                      value={dueValue}
+                      onChange={(e) => setDue(svc, e.target.value)}
+                      title="Frist (optional)"
+                      className="h-8 px-2.5 text-[12.5px] rounded-lg shrink-0"
+                      style={{ background: 'var(--ds-input)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-t1)' }}
+                    />
+                  </div>
                 )}
                 {!managed && svc.notes && (
                   <div className="text-[12px] mt-2 pl-12" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>

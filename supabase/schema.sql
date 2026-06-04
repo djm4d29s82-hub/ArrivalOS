@@ -150,11 +150,13 @@ create table if not exists public.mission_services (
   status text not null default 'requested',
   provider text,
   notes text,
+  due_at timestamptz,
   created_by text,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
 create index if not exists idx_mission_services_mission on public.mission_services(mission_id);
+create index if not exists idx_mission_services_due on public.mission_services(due_at);
 
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),

@@ -78,12 +78,15 @@ export default function CompanySLA() {
   // Compact payload for the AI briefing — built from the same data already on screen.
   const buildBriefingPayload = () => {
     const labelFor = (cat) => SERVICE_BY_KEY[cat]?.label || cat;
+    const isOpen = (s) => s.status !== 'done' && s.status !== 'skipped';
+    const isOverdue = (s) => isOpen(s) && s.due_at && new Date(s.due_at).getTime() < now;
     const svcByStatus = myServices.reduce((acc, s) => { acc[s.status] = (acc[s.status] || 0) + 1; return acc; }, {});
     const svcByMission = myServices.reduce((acc, s) => { (acc[s.mission_id] ||= []).push(s); return acc; }, {});
+    const overdueServiceCount = myServices.filter(isOverdue).length;
     return {
       counts: { active: activeCount, overdueSteps: overdueSteps.length },
       steps: { overdue: overdueSteps.length, onTimePct, avgDays },
-      services: myServices.length ? { byStatus: svcByStatus } : undefined,
+      services: myServices.length ? { byStatus: svcByStatus, overdue: overdueServiceCount } : undefined,
       missions: myMissions
         .filter((m) => !TERMINAL.includes(m.status))
         .map((m) => ({
@@ -93,7 +96,12 @@ export default function CompanySLA() {
           datetime: m.datetime || null,
           greeter: m.greeter_id ? 'zugewiesen' : 'offen',
           sla: calculateMissionSLA(m).level,
-          services: (svcByMission[m.id] || []).map((s) => ({ kategorie: labelFor(s.category), status: s.status })),
+          services: (svcByMission[m.id] || []).map((s) => ({
+            kategorie: labelFor(s.category),
+            status: s.status,
+            frist: s.due_at || null,
+            ueberfaellig: isOverdue(s),
+          })),
         })),
     };
   };
