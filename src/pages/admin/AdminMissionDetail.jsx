@@ -62,7 +62,12 @@ export default function AdminMissionDetail() {
 
   const onRematch = async () => {
     setBusy(true);
-    try { await runMatchingEngine(mission); toast({ title: 'Matching neu gestartet' }); refresh(); }
+    const redispatch = !!mission.greeter_id; // a greeter is assigned → re-dispatch excludes them
+    try {
+      await runMatchingEngine(mission, redispatch ? { excludeGreeterId: mission.greeter_id } : {});
+      toast({ title: redispatch ? 'Neu ausgeschrieben' : 'Matching neu gestartet', description: redispatch ? 'Der bisherige Greeter wurde ausgeschlossen.' : undefined });
+      refresh();
+    }
     catch (e) { toast({ title: 'Fehler', description: e.message, variant: 'destructive' }); }
     finally { setBusy(false); }
   };
@@ -130,6 +135,12 @@ export default function AdminMissionDetail() {
               <div className="font-semibold flex items-center gap-1.5"><ShieldAlert className="w-3.5 h-3.5" />Letztes Issue · {mission.last_issue.severity}</div>
               <div className="mt-0.5">{mission.last_issue.message}</div>
               <div className="text-[10.5px] text-red-500/70 mt-1">{relativeTime(mission.last_issue.at)} · {mission.last_issue.by}</div>
+              {mission.greeter_id && !['completed', 'cancelled'].includes(mission.status) && (
+                <Button variant="outline" size="sm" icon={RefreshCw} loading={busy} onClick={onRematch}
+                  className="mt-2 !text-red-700 hover:!bg-red-500/10 hover:!border-red-500/30">
+                  Anderen Greeter finden
+                </Button>
+              )}
             </div>
           )}
         </CardBody>
@@ -407,6 +418,7 @@ function ReassignDialog({ mission, greeters, stepsPlanned, onClose, onDone }) {
         <Select value={greeterId} onChange={(e) => setGreeterId(e.target.value)} className="w-full">
           <option value="">— bitte wählen —</option>
           {greeters
+            .filter((g) => g.id !== mission.greeter_id) // never reassign to the current greeter
             .filter((g) => !mission.matched_greeters || mission.matched_greeters.length === 0 || mission.matched_greeters.includes(g.id))
             .map((g) => <option key={g.id} value={g.id}>{g.full_name} · {g.city} · ★{g.rating?.toFixed(1) || '—'}</option>)}
         </Select>

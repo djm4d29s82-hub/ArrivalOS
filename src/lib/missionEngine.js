@@ -66,8 +66,10 @@ export function greeterAvailableInSlot(greeter, slotKey) {
   return slots[slotKey] === true;
 }
 
-export async function runMatchingEngine(mission) {
+export async function runMatchingEngine(mission, opts = {}) {
+  const excludeId = opts.excludeGreeterId || null; // re-dispatch: never re-match the dropped greeter
   let matched = await base44.entities.GreeterProfile.filter({ city: mission.city, status: 'available' });
+  if (excludeId) matched = matched.filter((g) => g.id !== excludeId);
 
   if (mission.requirements?.languages?.length > 0) {
     const filtered = matched.filter((g) =>
@@ -89,8 +91,11 @@ export async function runMatchingEngine(mission) {
   matched.sort((a, b) => (b.rating || 0) - (a.rating || 0));
   const matchedIds = matched.slice(0, 5).map((g) => g.id);
 
-  await base44.entities.Mission.update(mission.id, { status: 'matched', matched_greeters: matchedIds });
-  await logEvent('Mission', mission.id, 'mission.matched', 'open', 'matched', `Matched ${matchedIds.length} greeter(s)`, 'system');
+  // Re-dispatch (excludeId set): drop the current greeter so the mission re-opens to others.
+  const patch = { status: 'matched', matched_greeters: matchedIds };
+  if (excludeId) { patch.greeter_id = null; patch.greeter_stage = null; }
+  await base44.entities.Mission.update(mission.id, patch);
+  await logEvent('Mission', mission.id, 'mission.matched', excludeId ? 'issue' : 'open', 'matched', `${excludeId ? 'Re-dispatch' : 'Matched'} ${matchedIds.length} greeter(s)`, 'system');
 
   for (const g of matched.slice(0, 5)) {
     if (g.email) {
