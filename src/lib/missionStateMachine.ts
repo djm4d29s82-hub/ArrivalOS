@@ -320,7 +320,11 @@ export function transitionMissionState(
     );
   }
 
-  // Create new state
+  // Create new state.
+  // NOTE (P2.4): `status` is the canonical state-machine value; `greeter_stage` mirrors it here so the
+  // talent live-tracker can read it. The tracker only reacts to the greeter-journey stage keys
+  // (accepted/eta_sent/on_the_way/arrived/in_progress/wrap_up) and ignores any other value — so a manual
+  // admin jump to e.g. `matched`/`completed` does NOT teleport the tracker through intermediate stages.
   const newMission: MissionState = {
     ...currentMission,
     status: nextStatus,
