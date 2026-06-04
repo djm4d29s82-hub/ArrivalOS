@@ -5,7 +5,7 @@ import {
   BarChart3, Settings, ScrollText, UserCheck, LogOut, Bell, ChevronDown,
   CalendarClock, User as UserIcon, Activity, Receipt,
   Info, CheckCircle2, AlertTriangle, AlertOctagon, BellOff, Search,
-  Sun, Moon,
+  Sun, Moon, PackageOpen,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
@@ -27,6 +27,7 @@ const MENUS = {
     { to: '/admin', label: 'Overview', icon: Activity, end: true },
     { to: '/admin/missions', label: 'Missions', icon: Briefcase },
     { to: '/admin/execution', label: 'Execution', icon: Users },
+    { to: '/admin/services', label: 'Services', icon: PackageOpen },
     { to: '/admin/companies', label: 'Companies', icon: Building2 },
   ],
   company: [
