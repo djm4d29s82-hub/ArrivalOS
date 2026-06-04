@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { formatDate } from '@/lib/utils';
 import { useToast } from '@/components/ui/toaster';
+import { useAuth } from '@/lib/AuthContext';
 
 const STATUS = {
   paid:    'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
@@ -13,8 +14,16 @@ const LABEL = { paid: 'Bezahlt', pending: 'Offen', overdue: 'Überfällig' };
 export default function AdminInvoices() {
   const qc = useQueryClient();
   const { toast } = useToast();
-  const { data: invoices = [] } = useQuery({ queryKey: ['invoices'], queryFn: () => base44.entities.Invoice.list('-issued_at') });
+  const { user } = useAuth();
+  const { data: allInvoices = [] } = useQuery({ queryKey: ['invoices'], queryFn: () => base44.entities.Invoice.list('-issued_at') });
   const { data: companies = [] } = useQuery({ queryKey: ['companies'], queryFn: () => base44.entities.Company.list() });
+
+  // Data isolation: this component is also mounted on /company/invoices. A company only ever
+  // sees its own invoices (and never "all" when company_id is missing); admins see everything.
+  const isCompany = user?.role === 'company';
+  const invoices = isCompany
+    ? (user?.company_id ? allInvoices.filter((i) => i.company_id === user.company_id) : [])
+    : allInvoices;
 
   const markPaid = async (inv) => {
     await base44.entities.Invoice.update(inv.id, { status: 'paid' });

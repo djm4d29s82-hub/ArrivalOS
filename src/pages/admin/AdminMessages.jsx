@@ -8,13 +8,22 @@ import { Send, MessageSquare, CheckCheck } from 'lucide-react';
 
 export default function AdminMessages() {
   const { user } = useAuth();
-  const { data: missions = [] } = useQuery({
+  const { data: allMissions = [] } = useQuery({
     queryKey: ['missions'],
     queryFn: () => base44.entities.Mission.list('-created_at'),
   });
 
+  // Data isolation: also mounted on /company/messages — a company only sees its own missions' threads.
+  const isCompany = user?.role === 'company';
+  const missions = isCompany
+    ? (user?.company_id ? allMissions.filter((m) => m.company_id === user.company_id) : [])
+    : allMissions;
+
   const [selected, setSelected] = useState(null);
-  useEffect(() => { if (!selected && missions[0]) setSelected(missions[0].id); }, [missions, selected]);
+  useEffect(() => {
+    if (selected && !missions.some((m) => m.id === selected)) { setSelected(null); return; }
+    if (!selected && missions[0]) setSelected(missions[0].id);
+  }, [missions, selected]);
 
   const { thread, unreadByMission, totalUnread, markRead, send } = useRealtimeMessages({ missionId: selected });
 

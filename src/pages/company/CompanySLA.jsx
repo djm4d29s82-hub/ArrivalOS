@@ -28,7 +28,7 @@ export default function CompanySLA() {
   const { data: allServices = [] } = useQuery({ queryKey: ['missionServices'], queryFn: () => base44.entities.MissionService.list().catch(() => []) });
 
   const myMissions = useMemo(
-    () => (companyId ? missions.filter((m) => m.company_id === companyId) : missions),
+    () => (companyId ? missions.filter((m) => m.company_id === companyId) : []),
     [missions, companyId],
   );
   const missionIds = useMemo(() => new Set(myMissions.map((m) => m.id)), [myMissions]);

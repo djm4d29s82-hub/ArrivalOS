@@ -51,8 +51,9 @@ export default function CompanyDashboard() {
     return map;
   }, [allSteps]);
 
-  const myMissions   = companyId ? missions.filter((m) => m.company_id === companyId) : missions;
-  const myCandidates = companyId ? candidates.filter((c) => c.company_id === companyId) : candidates;
+  // Data isolation: never fall back to "all rows" — a company without a company_id sees nothing.
+  const myMissions   = companyId ? missions.filter((m) => m.company_id === companyId) : [];
+  const myCandidates = companyId ? candidates.filter((c) => c.company_id === companyId) : [];
   const active    = myMissions.filter((m) => ACTIVE_STATUSES.includes(m.status));
   const planned   = myMissions.filter((m) => m.status === 'created');
   const completed = myMissions.filter((m) => m.status === 'completed');
