@@ -40,6 +40,7 @@ const MENUS = {
     { to: '/greeter-dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/greeter-dashboard/missions', label: 'Meine Einsätze', icon: Briefcase },
     { to: '/greeter-dashboard/availability', label: 'Verfügbarkeit', icon: CalendarClock },
+    { to: '/greeter-dashboard/earnings', label: 'Verdienst', icon: Receipt },
     { to: '/greeter-dashboard/profile', label: 'Profil', icon: UserIcon },
   ],
   talent: [

@@ -36,6 +36,7 @@ const AdminSOPs = lazy(() => import('@/pages/admin/AdminSOPs'));
 const AdminTemplates = lazy(() => import('@/pages/admin/AdminTemplates'));
 const AdminServices = lazy(() => import('@/pages/admin/AdminServices'));
 const AdminQuality = lazy(() => import('@/pages/admin/AdminQuality'));
+const AdminPayouts = lazy(() => import('@/pages/admin/AdminPayouts'));
 const CompanyDashboard = lazy(() => import('@/pages/company/CompanyDashboard'));
 const CompanyMissionDetail = lazy(() => import('@/pages/company/CompanyMissionDetail'));
 const CompanyDocuments = lazy(() => import('@/pages/company/CompanyDocuments'));
@@ -46,6 +47,7 @@ const GreeterMissionDetail = lazy(() => import('@/pages/greeter/GreeterMissionDe
 const GreeterProfile = lazy(() => import('@/pages/greeter/GreeterProfile'));
 const GreeterAvailability = lazy(() => import('@/pages/greeter/GreeterAvailability'));
 const GreeterSOP = lazy(() => import('@/pages/greeter/GreeterSOP'));
+const GreeterEarnings = lazy(() => import('@/pages/greeter/GreeterEarnings'));
 const TalentDashboard = lazy(() => import('@/pages/talent/TalentDashboard'));
 const TalentDocuments = lazy(() => import('@/pages/talent/TalentDocuments'));
 const TalentGreeter = lazy(() => import('@/pages/talent/TalentGreeter'));
@@ -88,6 +90,7 @@ const AuthenticatedApp = () => {
           <Route path="/admin/sops" element={<AdminSOPs />} />
           <Route path="/admin/templates" element={<AdminTemplates />} />
           <Route path="/admin/services" element={<AdminServices />} />
+          <Route path="/admin/payouts" element={<AdminPayouts />} />
           <Route path="/admin/quality" element={<AdminQuality />} />
           <Route path="/admin/team" element={<AdminTeam />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
@@ -109,6 +112,7 @@ const AuthenticatedApp = () => {
           <Route path="/greeter-dashboard/missions/:id" element={<GreeterMissionDetail />} />
           <Route path="/greeter-dashboard/profile" element={<GreeterProfile />} />
           <Route path="/greeter-dashboard/availability" element={<GreeterAvailability />} />
+          <Route path="/greeter-dashboard/earnings" element={<GreeterEarnings />} />
           <Route path="/greeter-dashboard/sop" element={<GreeterSOP />} />
           <Route path="/greeter-dashboard/messages" element={<AdminMessages />} />
           <Route path="/greeter-dashboard/settings" element={<AdminSettings />} />

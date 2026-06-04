@@ -2,13 +2,43 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toaster';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Database, Bell, User, Users, BarChart3, Receipt, ScrollText, ChevronRight, SlidersHorizontal, ListChecks } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, Database, Bell, User, Users, BarChart3, Receipt, ScrollText, ChevronRight, SlidersHorizontal, ListChecks, Wallet, Euro } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+
+const PRICE_ID = 'package_price_eur';
 
 export default function AdminSettings() {
   const { toast } = useToast();
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [price, setPrice] = useState('');
+  const [priceSaving, setPriceSaving] = useState(false);
+
+  useEffect(() => {
+    if (user?.role !== 'admin') return;
+    base44.entities.Settings.get(PRICE_ID)
+      .then((row) => { const v = row?.value; setPrice(v == null ? '' : String(v)); })
+      .catch(() => {});
+  }, [user?.role]);
+
+  const savePrice = async () => {
+    const num = Number(price);
+    if (Number.isNaN(num) || num < 0) { toast({ title: 'Ungültiger Preis', variant: 'destructive' }); return; }
+    setPriceSaving(true);
+    try {
+      try {
+        await base44.entities.Settings.update(PRICE_ID, { value: num });
+      } catch {
+        await base44.entities.Settings.create({ id: PRICE_ID, key: PRICE_ID, value: num });
+      }
+      toast({ title: 'Paketpreis gespeichert', description: `${num} € pro Ankunft` });
+    } catch (e) {
+      toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
+    } finally {
+      setPriceSaving(false);
+    }
+  };
 
   const resetDB = () => {
     if (!confirm('Beispieldaten neu laden? Aktuelle Einträge gehen verloren.')) return;
@@ -39,11 +69,35 @@ export default function AdminSettings() {
       </Section>
 
       {user?.role === 'admin' && (
+        <Section icon={Euro} title="Abrechnung" desc="Paketpreis pro Ankunft — wird bei Mission-Abschluss automatisch in Rechnung gestellt">
+          <div className="flex items-end gap-3">
+            <div className="flex-1 max-w-[220px]">
+              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--ds-t2)' }}>Paketpreis pro Ankunft (€)</label>
+              <input
+                type="number" min="0" step="1" value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="z. B. 690"
+                className="w-full px-3 py-2.5 text-[13px] rounded-lg"
+                style={{ background: 'var(--ds-input)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-t1)' }}
+              />
+            </div>
+            <button onClick={savePrice} disabled={priceSaving} className="px-4 py-2.5 bg-navy text-cream rounded-md text-xs font-semibold hover:bg-navy/90 transition disabled:opacity-50">
+              Speichern
+            </button>
+          </div>
+          <p className="text-[11.5px]" style={{ color: 'var(--ds-t3)' }}>
+            Solange 0 gesetzt ist, werden Rechnungen mit 0 € erstellt (zur Erinnerung, den echten Preis zu hinterlegen).
+          </p>
+        </Section>
+      )}
+
+      {user?.role === 'admin' && (
         <Section icon={SlidersHorizontal} title="System & Kontrolle" desc="Team, Reporting, Abrechnung und Betriebsprotokolle">
           <ControlRow to="/admin/team" icon={Users} label="Team & Einladungen" desc="Nutzer einladen, Rollen vergeben" />
           <ControlRow to="/admin/analytics" icon={BarChart3} label="Analytics" desc="Kennzahlen & Trends" />
           <ControlRow to="/admin/quality" icon={BarChart3} label="Quality" desc="Qualitäts-Auswertung" />
           <ControlRow to="/admin/invoices" icon={Receipt} label="Rechnungen" desc="Abrechnung & Belege" />
+          <ControlRow to="/admin/payouts" icon={Wallet} label="Greeter-Auszahlungen" desc="Honorare pro Einsatz, als ausgezahlt markieren" />
           <ControlRow to="/admin/logs" icon={ScrollText} label="Activity Log" desc="Audit-Verlauf" />
           <ControlRow to="/admin/sops" icon={ScrollText} label="SOPs" desc="Standard-Abläufe" />
           <ControlRow to="/admin/templates" icon={ListChecks} label="Schritt-Vorlagen" desc="Onboarding-Abläufe ohne Deploy" />

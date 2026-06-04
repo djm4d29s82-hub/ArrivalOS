@@ -62,6 +62,10 @@ create table if not exists public.greeter_profiles (
   status text default 'available' check (status in ('available','busy','offline')),
   rating numeric(2,1),
   completed_missions int default 0,
+  iban text,
+  tax_id text,
+  payout_address text,
+  contract_status text default 'pending',   -- freelancer agreement: pending|accepted
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -220,6 +224,19 @@ create table if not exists public.settings (
   value jsonb not null,
   updated_at timestamptz default now()
 );
+
+-- Mission-based greeter payouts (one per completed mission). Mirrors migrations/2026-06-billing-payout.sql.
+create table if not exists public.payouts (
+  id uuid primary key default uuid_generate_v4(),
+  mission_id uuid references public.missions(id) on delete cascade,
+  greeter_id uuid references public.greeter_profiles(id) on delete cascade,
+  amount numeric(10,2),
+  status text not null default 'pending' check (status in ('pending','paid','cancelled')),
+  paid_at timestamptz,
+  created_at timestamptz default now()
+);
+create unique index if not exists uq_payouts_mission on public.payouts(mission_id);
+create index if not exists idx_payouts_greeter on public.payouts(greeter_id);
 
 create table if not exists public.leads (
   id uuid primary key default uuid_generate_v4(),
