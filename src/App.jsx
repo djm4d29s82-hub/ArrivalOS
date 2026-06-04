@@ -37,6 +37,7 @@ const AdminTemplates = lazy(() => import('@/pages/admin/AdminTemplates'));
 const AdminServices = lazy(() => import('@/pages/admin/AdminServices'));
 const AdminQuality = lazy(() => import('@/pages/admin/AdminQuality'));
 const AdminPayouts = lazy(() => import('@/pages/admin/AdminPayouts'));
+const AdminPartners = lazy(() => import('@/pages/admin/AdminPartners'));
 const CompanyDashboard = lazy(() => import('@/pages/company/CompanyDashboard'));
 const CompanyMissionDetail = lazy(() => import('@/pages/company/CompanyMissionDetail'));
 const CompanyDocuments = lazy(() => import('@/pages/company/CompanyDocuments'));
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
           <Route path="/admin/templates" element={<AdminTemplates />} />
           <Route path="/admin/services" element={<AdminServices />} />
           <Route path="/admin/payouts" element={<AdminPayouts />} />
+          <Route path="/admin/partners" element={<AdminPartners />} />
           <Route path="/admin/quality" element={<AdminQuality />} />
           <Route path="/admin/team" element={<AdminTeam />} />
           <Route path="/admin/settings" element={<AdminSettings />} />

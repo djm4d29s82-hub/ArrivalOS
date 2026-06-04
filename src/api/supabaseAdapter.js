@@ -25,6 +25,7 @@ const TABLE_MAP = {
   MissionService: 'mission_services',
   Review: 'reviews',
   Payout: 'payouts',
+  Partner: 'partners',
 };
 
 export function createSupabaseClient(url, anonKey) {

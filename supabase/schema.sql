@@ -168,12 +168,36 @@ create table if not exists public.mission_services (
   provider text,
   notes text,
   due_at timestamptz,
+  partner_id uuid,                         -- → partners.id (Phase A); mirrors migrations/2026-06-partners.sql
+  provider_type text default 'ag_partner', -- ag_partner|company_provided|self
+  consent_at timestamptz,
+  booking_ref text,
+  commission_amount numeric(10,2),
   created_by text,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
 create index if not exists idx_mission_services_mission on public.mission_services(mission_id);
 create index if not exists idx_mission_services_due on public.mission_services(due_at);
+
+-- Partner directory (real signed partners). Mirrors migrations/2026-06-partners.sql. RLS: admin-only.
+create table if not exists public.partners (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  category text not null,
+  contact_email text,
+  contact_phone text,
+  website text,
+  regions text[] default '{}',
+  commission_pct numeric(5,2),
+  commission_flat numeric(10,2),
+  status text not null default 'active' check (status in ('active','inactive')),
+  notes text,
+  created_by text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+create index if not exists idx_partners_category on public.partners(category);
 
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
