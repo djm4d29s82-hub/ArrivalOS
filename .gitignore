@@ -26,6 +26,10 @@ logs/
 # Throwaway local scripts (e.g. E2E seed using a service-role key — never commit)
 scripts/seed-e2e.mjs
 
+# Local-only throwaway brand assets (not deployed; kept on disk for reference)
+public/brand-arrival-germany.html
+public/logo.png
+
 # Editor / OS
 .DS_Store
 .vscode/*

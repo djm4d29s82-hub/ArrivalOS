@@ -150,7 +150,13 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
 - [ ] **Projekt** in Region **Frankfurt (EU Central)** anlegen, DB-Passwort sicher ablegen.
       Project-Ref (bestehend): `jtaegmuftgxzjddfevbs`.
 - [ ] **Basis-SQL in dieser Reihenfolge** im SQL-Editor ausführen:
-      `schema.sql` → `rls-hardening.sql` → `audit-triggers.sql` → `rate-limit.sql` → `storage-policies.sql`.
+      `schema.sql` → **`rls-hardening.sql` (PFLICHT)** → `audit-triggers.sql` → `rate-limit.sql` →
+      `storage-policies.sql`.
+      ⚠️ **`schema.sql` allein lässt die DB OFFEN** (Pilot-Policies `using(true)`). `rls-hardening.sql` ist
+      **nicht optional** — ohne diesen Schritt kann jeder eingeloggte User alle Daten lesen/schreiben.
+- [ ] **RLS-Gate ausführen:** `rls-verify.sql` im SQL-Editor → muss **„RLS OK"** ausgeben. Wirft eine
+      `exception`, falls noch offene `auth_read_*/auth_write_*`-Policies existieren (= Hardening vergessen).
+      Erst weitermachen, wenn dieser Check grün ist.
 - [ ] **Migrationen** aus `supabase/migrations/` ausführen (idempotent, `… if not exists`; auf einer
       bestehenden DB der sichere, explizite Weg — `schema.sql` spiegelt die meisten bereits):
       `2026-05-mission-flight-number.sql` · `2026-05-journey-step-scheduled-at.sql` ·
@@ -221,6 +227,7 @@ Talent sieht Update → Abholung → Mission completed.**
 ## 7. Definition of „launch-ready"
 
 - [ ] Cloud-Ops-Checkliste (Abschnitt 5) vollständig abgehakt — inkl. **Backups/PITR** und **RLS-Tests grün**.
+- [ ] **`rls-verify.sql` gibt „RLS OK" aus** (Pflicht-Gate: keine offenen `auth_read_*/auth_write_*`-Policies).
 - [ ] **Alle 7 Migrationen** ausgeführt; **alle 8 Edge Functions** deployt (inkl. `ai-arrival-briefing` +
       `ANTHROPIC_API_KEY`); **Cron** geplant (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
 - [ ] **Domain** `arrivalgermany.com` live auf Vercel; **Supabase Auth-URL** auf die Domain gesetzt.

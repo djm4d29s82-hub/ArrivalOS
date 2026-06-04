@@ -1,6 +1,15 @@
 -- ArrivalOS / NeuLand — Supabase Schema
 -- Run in: Supabase SQL Editor (https://app.supabase.com → SQL → New Query)
 --
+-- ┌──────────────────────────────────────────────────────────────────────────────┐
+-- │ ⚠️  SECURITY — THIS SCRIPT SHIPS AN *OPEN* DATABASE (Pilot-RLS).               │
+-- │ The policy loop near the bottom grants every authenticated user read+write on  │
+-- │ every table (using(true)). You MUST run, IN ORDER, immediately after this:     │
+-- │   1) rls-hardening.sql   (role-based isolation — replaces the open policies)    │
+-- │   2) rls-verify.sql      (hard-fails if any open policy survived)               │
+-- │ Never expose the database publicly between step 0 and step 2. See GO_LIVE.md.  │
+-- └──────────────────────────────────────────────────────────────────────────────┘
+--
 -- Reihenfolge:
 --   1. Extensions
 --   2. Tabellen (ohne RLS)
@@ -332,7 +341,9 @@ alter table public.invites enable row level security;
 -- invites bewusst NICHT in der permissiven Pilot-Schleife (per Default gesperrt;
 -- echte Policies in rls-hardening.sql, Accept läuft über service_role).
 
--- Authenticated users dürfen lesen (Pilot-Phase)
+-- ⚠️ PILOT-ONLY OPEN POLICIES — every authenticated user can read+write every row.
+-- This is NOT safe for production. rls-hardening.sql DROPS these and installs role-based
+-- isolation; rls-verify.sql fails the deploy if these survive. Do not stop here.
 do $$
 declare t text;
 begin
