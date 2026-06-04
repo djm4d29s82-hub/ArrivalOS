@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Card, StatCard, EmptyState, SectionHeader } from '@/components/ui';
 import { calculateMissionSLA, getSLAMessage, SLA_BADGE_CLASSES } from '@/lib/missionSLA';
 import { relativeStepDate } from '@/lib/utils';
+import AiBriefing from '@/components/company/AiBriefing';
 
 const TERMINAL = ['completed', 'cancelled'];
 const SLA_RANK = { critical: 0, breached: 1, at_risk: 2, ok: 3 };
@@ -71,6 +72,22 @@ export default function CompanySLA() {
     .sort((a, b) => SLA_RANK[a.sla.level] - SLA_RANK[b.sla.level]),
     [myMissions]);
 
+  // Compact payload for the AI briefing — built from the same data already on screen.
+  const buildBriefingPayload = () => ({
+    counts: { active: activeCount, overdueSteps: overdueSteps.length },
+    steps: { overdue: overdueSteps.length, onTimePct, avgDays },
+    missions: myMissions
+      .filter((m) => !TERMINAL.includes(m.status))
+      .map((m) => ({
+        title: titleFor(m),
+        status: m.status,
+        city: m.city || null,
+        datetime: m.datetime || null,
+        greeter: m.greeter_id ? 'zugewiesen' : 'offen',
+        sla: calculateMissionSLA(m).level,
+      })),
+  });
+
   return (
     <div>
       <div className="mb-2 text-[11px] uppercase tracking-widest text-gold font-bold">Unternehmen · Kennzahlen</div>
@@ -91,6 +108,11 @@ export default function CompanySLA() {
         />
         <StatCard label="Überfällige Schritte" value={overdueSteps.length} icon={AlertTriangle} tone={overdueSteps.length ? 'red' : 'navy'} />
         <StatCard label="Ø Tage bis Abschluss" value={avgDays == null ? '—' : avgDays} icon={Timer} tone="navy" />
+      </div>
+
+      {/* KI-Briefing */}
+      <div className="mt-8">
+        <AiBriefing getPayload={buildBriefingPayload} disabled={activeCount === 0} />
       </div>
 
       {/* Attention */}

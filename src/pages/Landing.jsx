@@ -1,14 +1,17 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import AboutSection from '@/components/landing/AboutSection';
+import ArrivalJourneySection from '@/components/landing/ArrivalJourneySection';
+import ValuePropSection from '@/components/landing/ValuePropSection';
+import AiCompanySection from '@/components/landing/AiCompanySection';
 import ContactSection from '@/components/landing/ContactSection';
 import useScrollReveal from '@/lib/useScrollReveal';
 import { usePublicTheme } from '@/lib/usePublicTheme';
 
 /**
- * Ruhige Single-Page-Landing im Calm-Canvas-Stil.
- * Strikt vom Produkt getrennt: nur Bedeutung & Vertrauen — kein Showcase, keine Panels,
- * keine Feature-Sektionen. Das System lebt ausschließlich hinter dem Login.
- * Vier Sektionen: Hero · Manifest · Zwei Pfade · Kontakt.
+ * Single-Page-Landing im Calm-Canvas-Stil — erzählt die Ökosystem-Vision.
+ * Hero · Manifest · Wer wir sind · Arrival Journey · Für Unternehmen ·
+ * KI fürs Unternehmen · Greeter · Kontakt.
  */
 export default function Landing() {
   usePublicTheme();
@@ -31,8 +34,8 @@ export default function Landing() {
               <span className="text-gold italic">menschlich</span> gemacht.
             </h1>
             <p className="mt-10 max-w-xl text-lg text-[var(--mid)] leading-relaxed">
-              Arrival Germany begleitet internationale Fachkräfte in den ersten Wochen in einer neuen Stadt —
-              mit echten Menschen vor Ort, nicht mit einer App, die sie alleine lässt.
+              Arrival Germany ist die Betriebsschicht für internationale Ankunft — von der Einreise bis in
+              den Alltag. Eine Plattform, echte Menschen vor Ort, ein Ansprechpartner für den ganzen Prozess.
             </p>
             <div className="mt-12 flex items-center gap-8 flex-wrap">
               <a href="#unternehmen" className="group inline-flex items-center gap-3 text-sm text-navy">
@@ -60,22 +63,22 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ── ZWEI PFADE ── */}
+        {/* ── WER WIR SIND ── */}
+        <AboutSection />
+
+        {/* ── ARRIVAL JOURNEY (5-Phasen-Ökosystem) ── */}
+        <ArrivalJourneySection />
+
+        {/* ── FÜR UNTERNEHMEN — Risiko-Reduktion ── */}
+        <ValuePropSection />
+
+        {/* ── KI FÜRS UNTERNEHMEN ── */}
+        <AiCompanySection />
+
+        {/* ── GREETER ── */}
         <section className="border-t border-[var(--border)]">
-          <div className="max-w-[1180px] mx-auto px-6 md:px-10 py-28 md:py-32 grid md:grid-cols-2 gap-16 md:gap-20">
-            <div id="unternehmen" className="scroll-mt-24 reveal-on-scroll group">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[var(--mid)] mb-6">Für Unternehmen</p>
-              <h2 className="font-serif text-4xl text-navy group-hover:text-gold transition-colors">Talente, die bleiben.</h2>
-              <p className="mt-4 text-[var(--mid)] leading-relaxed max-w-md">
-                Wir kümmern uns um die menschliche Seite der Relocation — damit Ihre Fachkräfte
-                ankommen, nicht nur umziehen.
-              </p>
-              <a href="#kontakt" className="group/l mt-6 inline-flex items-center gap-2 text-sm text-navy">
-                <span className="border-b border-navy pb-1 transition-colors group-hover/l:border-gold group-hover/l:text-gold">Gespräch anfragen</span>
-                <span className="transition-transform group-hover/l:translate-x-1">→</span>
-              </a>
-            </div>
-            <div id="greeter" className="scroll-mt-24 reveal-on-scroll group">
+          <div className="max-w-[1180px] mx-auto px-6 md:px-10 py-28 md:py-32">
+            <div id="greeter" className="scroll-mt-24 reveal-on-scroll group max-w-xl">
               <p className="text-[11px] uppercase tracking-[0.28em] text-[var(--mid)] mb-6">Für Greeter</p>
               <h2 className="font-serif text-4xl text-navy group-hover:text-gold transition-colors">Sei das erste Gesicht.</h2>
               <p className="mt-4 text-[var(--mid)] leading-relaxed max-w-md">

@@ -157,15 +157,19 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       `2026-05-journey-step-bring-items.sql` · `2026-05-mission-templates.sql` ·
       `2026-05-document-step-link.sql`.
 - [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql`.
-- [ ] **Edge Functions deployen (alle 7):**
+- [ ] **Edge Functions deployen (alle 8):**
       - **Auth:** `admin-invite` (**mit** JWT-Verify) · `accept-invite` (**`--no-verify-jwt`**).
       - **Transaktional (E-Mail):** `notify-on-message` · `notify-on-lead` · `notify-on-mission-status`
         (alle `--no-verify-jwt`).
       - **Cron (täglich):** `step-reminders` · `flight-tracker` (alle `--no-verify-jwt`).
+      - **KI:** `ai-arrival-briefing` (**mit** JWT-Verify — wird vom angemeldeten Company-Portal aufgerufen):
+        `supabase functions deploy ai-arrival-briefing`.
 - [ ] **Secrets setzen:** `APP_URL` (`https://arrivalgermany.com`), `RESEND_API_KEY`,
       `RESEND_FROM` (`ArrivalOS <support@arrivalgermany.com>`), `SALES_INBOX` (`support@arrivalgermany.com`),
-      `AVIATIONSTACK_API_KEY` (flight-tracker), `ADMIN_EMAIL` (step-reminders Eskalation), optional
-      `CRM_FORWARD_URL`. *(Die Code-Defaults zeigen bereits auf arrivalgermany.com — Secrets überschreiben sie.)*
+      `AVIATIONSTACK_API_KEY` (flight-tracker), `ADMIN_EMAIL` (step-reminders Eskalation),
+      **`ANTHROPIC_API_KEY`** (ai-arrival-briefing — KI-Briefing fürs Unternehmen; ohne Key zeigt das UI
+      ruhig „KI nicht konfiguriert"), optional `CRM_FORWARD_URL`.
+      *(Die Code-Defaults zeigen bereits auf arrivalgermany.com — Secrets überschreiben sie.)*
 - [ ] **Database → Webhooks:** `messages` INSERT → `notify-on-message`; `leads` INSERT → `notify-on-lead`;
       **`missions` UPDATE → `notify-on-mission-status`** (Company-Status-Mails bei Meilensteinen).
 - [ ] **Cron einrichten:** Extensions **`pg_cron` + `pg_net`** aktivieren (Database → Extensions), dann
@@ -216,8 +220,8 @@ Talent sieht Update → Abholung → Mission completed.**
 ## 7. Definition of „launch-ready"
 
 - [ ] Cloud-Ops-Checkliste (Abschnitt 5) vollständig abgehakt — inkl. **Backups/PITR** und **RLS-Tests grün**.
-- [ ] **Alle 5 Migrationen** ausgeführt; **alle 7 Edge Functions** deployt; **Cron** geplant
-      (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
+- [ ] **Alle 5 Migrationen** ausgeführt; **alle 8 Edge Functions** deployt (inkl. `ai-arrival-briefing` +
+      `ANTHROPIC_API_KEY`); **Cron** geplant (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
 - [ ] **Domain** `arrivalgermany.com` live auf Vercel; **Supabase Auth-URL** auf die Domain gesetzt.
 - [ ] 🔑 **`service_role`-Key rotiert** nach dem E2E-Seeding.
 - [ ] **Impressum-Pflichtfelder** (`VITE_COMPANY_*`: Rechtsname, Adresse, HRB/USt-ID, Registergericht) gesetzt.
