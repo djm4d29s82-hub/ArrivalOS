@@ -32,7 +32,9 @@ Deno.serve(async () => {
     .gte('datetime', dayStart)
     .lte('datetime', dayEnd);
 
+  const DELAY_THRESHOLD_MIN = 30;
   let landed = 0;
+  let delayed = 0;
   for (const m of missions ?? []) {
     if (!m.flight_number) continue;
     const res = await fetch(
@@ -40,30 +42,54 @@ Deno.serve(async () => {
     );
     const json = await res.json().catch(() => null);
     const flight = json?.data?.[0];
-    if (!flight || flight.flight_status !== 'landed') continue;
+    if (!flight) continue;
+
+    const delayMin = Number(flight.departure?.delay ?? flight.arrival?.delay ?? 0) || 0;
+    const isLanded = flight.flight_status === 'landed';
+    const isDelayed = !isLanded && delayMin >= DELAY_THRESHOLD_MIN;
+    if (!isLanded && !isDelayed) continue;
 
     const { data: g } = await supabase
       .from('greeter_profiles')
       .select('email')
       .eq('id', m.greeter_id)
       .maybeSingle();
-    if (!g?.email) continue;
 
-    const airport = flight.arrival?.airport ?? '';
-    const terminal = flight.arrival?.terminal ? ` T${flight.arrival.terminal}` : '';
-    await supabase.from('notifications').insert({
-      user_email: g.email,
-      title: `${m.flight_number} gelandet`,
-      message: `${m.flight_number} ist gelandet${airport ? ` — ${airport}${terminal}` : ''}.`,
-      type: 'success',
-      link: `/greeter-dashboard/missions/${m.id}`,
-      read: false,
-    });
-    landed++;
+    if (isLanded) {
+      await supabase.from('missions').update({ flight_status: 'landed' }).eq('id', m.id);
+      const airport = flight.arrival?.airport ?? '';
+      const terminal = flight.arrival?.terminal ? ` T${flight.arrival.terminal}` : '';
+      if (g?.email) {
+        await supabase.from('notifications').insert({
+          user_email: g.email,
+          title: `${m.flight_number} gelandet`,
+          message: `${m.flight_number} ist gelandet${airport ? ` — ${airport}${terminal}` : ''}.`,
+          type: 'success',
+          link: `/greeter-dashboard/missions/${m.id}`,
+          read: false,
+        });
+      }
+      landed++;
+    } else {
+      // delayed — only act on a change to avoid repeat notifications
+      const note = `${delayMin} Min Verspätung (automatisch erkannt)`;
+      await supabase.from('missions').update({ flight_status: 'delayed', flight_delay_note: note }).eq('id', m.id);
+      if (g?.email) {
+        await supabase.from('notifications').insert({
+          user_email: g.email,
+          title: `${m.flight_number} verspätet`,
+          message: `${m.flight_number}: ${note}.`,
+          type: 'warning',
+          link: `/greeter-dashboard/missions/${m.id}`,
+          read: false,
+        });
+      }
+      delayed++;
+    }
   }
 
   return new Response(
-    JSON.stringify({ checked: missions?.length ?? 0, landed }),
+    JSON.stringify({ checked: missions?.length ?? 0, landed, delayed }),
     { headers: { 'Content-Type': 'application/json' } },
   );
 });

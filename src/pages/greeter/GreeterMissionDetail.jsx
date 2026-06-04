@@ -21,6 +21,7 @@ import {
 } from '@/components/ui';
 import MissionKernel from '@/components/mission/MissionKernel';
 import MissionServices from '@/components/mission/MissionServices';
+import FlightStatusControl from '@/components/mission/FlightStatusControl';
 import { greeterKernel, greeterProgress, greeterBlockers } from '@/lib/missionKernel';
 import { useRealtimeMessages } from '@/lib/useRealtimeMessages';
 import { relativeTime, relativeStepDate } from '@/lib/utils';
@@ -456,6 +457,9 @@ export default function GreeterMissionDetail() {
           <DetailRow icon={Clock} label="Treffpunkt" value={formatDateTimeShort(mission.datetime)} accent />
           {(mission.flight_number || candidate?.flight_no) && (
             <DetailRow icon={Plane} label="Flug" value={`${mission.flight_number || candidate.flight_no}${candidate?.arrival_time ? ' · ' + formatTime(candidate.arrival_time) : ''}`} />
+          )}
+          {(mission.flight_number || candidate?.flight_no) && (
+            <FlightStatusControl mission={mission} canEdit={isMine} />
           )}
           {mission.eta_at && (
             <DetailRow icon={Timer} label="Deine ETA" value={formatTime(mission.eta_at)} accent />

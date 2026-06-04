@@ -292,6 +292,17 @@ export default function TalentDashboard() {
         </div>
       </section>
 
+      {/* Flight delay banner */}
+      {mission?.flight_status === 'delayed' && (
+        <div className="rounded-2xl px-5 py-4 flex items-start gap-3" style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)' }}>
+          <Plane className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+          <div className="min-w-0">
+            <div className="font-semibold text-[14px]" style={{ color: 'var(--ds-t1)' }}>{t('flight.delayed')}</div>
+            <div className="text-[12.5px] mt-0.5" style={{ color: 'var(--ds-t2)' }}>{mission.flight_delay_note || t('flight.delayedSub')}</div>
+          </div>
+        </div>
+      )}
+
       {/* Optional "Ich bin gelandet" signal (self-hides outside the pre-meeting window) */}
       <TalentArrivalSignal mission={mission} greeter={greeter} user={user} />
 

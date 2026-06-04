@@ -123,6 +123,9 @@ create table if not exists public.missions (
 -- Idempotent: ensure flight_number exists on databases created before 2026-05
 -- (flight-tracker edge function). Mirrors migrations/2026-05-mission-flight-number.sql.
 alter table public.missions add column if not exists flight_number text;
+-- Flight delay awareness. Mirrors migrations/2026-06-flight-status.sql.
+alter table public.missions add column if not exists flight_status text;       -- null|on_time|delayed|landed
+alter table public.missions add column if not exists flight_delay_note text;
 
 create table if not exists public.journey_steps (
   id uuid primary key default uuid_generate_v4(),
