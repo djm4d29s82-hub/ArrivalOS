@@ -167,9 +167,10 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       `2026-06-billing-payout.sql` (Auto-Rechnung + Greeter-Auszahlung bei Abschluss) ·
       `2026-06-flight-status.sql` (Flugverspätung) · `2026-06-partners.sql` (Partner-Verzeichnis + Service-Verknüpfung) ·
       `2026-06-service-consents.sql` (Talent-Einwilligung für Partner-Weitergabe) ·
-      `2026-06-push-subscriptions.sql` (Web-Push-Abos).
-- [ ] **Paketpreis setzen:** Admin → Einstellungen → **Abrechnung** → „Paketpreis pro Ankunft" (sonst werden
-      Rechnungen mit 0 € erstellt). Alternativ SQL: `settings` Zeile `package_price_eur`.
+      `2026-06-push-subscriptions.sql` (Web-Push-Abos) · `2026-06-package-tiers.sql` (Preis-Tiers je Unternehmen).
+- [ ] **Paketpreise & Tiers setzen:** Admin → Einstellungen → **Abrechnung** → Tier-Preise (Standard
+      490/690/900); pro Unternehmen unter „Unternehmen" das **Paket-Tier** wählen (Standard Professional).
+      Die Auto-Rechnung bei Abschluss nutzt den Tier-Preis des Unternehmens.
 - [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql`.
 - [ ] **Edge Functions deployen (alle 8):**
       - **Auth:** `admin-invite` (**mit** JWT-Verify) · `accept-invite` (**`--no-verify-jwt`**).
@@ -243,7 +244,7 @@ Talent sieht Update → Abholung → Mission completed.**
 
 - [ ] Cloud-Ops-Checkliste (Abschnitt 5) vollständig abgehakt — inkl. **Backups/PITR** und **RLS-Tests grün**.
 - [ ] **`rls-verify.sql` gibt „RLS OK" aus** (Pflicht-Gate: keine offenen `auth_read_*/auth_write_*`-Policies).
-- [ ] **Alle 14 Migrationen** ausgeführt; **alle 10 Edge Functions** deployt (inkl. `ai-arrival-briefing`, `partner-referral`, `send-push` + VAPID-Secrets +
+- [ ] **Alle 15 Migrationen** ausgeführt; **alle 10 Edge Functions** deployt (inkl. `ai-arrival-briefing`, `partner-referral`, `send-push` + VAPID-Secrets +
       `ANTHROPIC_API_KEY`); **Cron** geplant (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
 - [ ] **Domain** `arrivalgermany.com` live auf Vercel; **Supabase Auth-URL** auf die Domain gesetzt.
 - [ ] 🔑 **`service_role`-Key rotiert** nach dem E2E-Seeding.

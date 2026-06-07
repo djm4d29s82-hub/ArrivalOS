@@ -45,6 +45,7 @@ create table if not exists public.companies (
   email text,
   industry text,
   city text,
+  package_tier text default 'professional',   -- starter|professional|enterprise (per-candidate price tier)
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );

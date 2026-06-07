@@ -7,33 +7,42 @@ import { AlertTriangle, Database, Bell, User, Users, BarChart3, Receipt, ScrollT
 import { useAuth } from '@/lib/AuthContext';
 import { usePush } from '@/lib/usePush';
 
-const PRICE_ID = 'package_price_eur';
+const TIERS_ID = 'package_tiers';
+const TIER_KEYS = [
+  { k: 'starter', label: 'Starter' },
+  { k: 'professional', label: 'Professional' },
+  { k: 'enterprise', label: 'Enterprise' },
+];
 
 export default function AdminSettings() {
   const { toast } = useToast();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [price, setPrice] = useState('');
+  const [tiers, setTiers] = useState({ starter: '490', professional: '690', enterprise: '900' });
   const [priceSaving, setPriceSaving] = useState(false);
 
   useEffect(() => {
     if (user?.role !== 'admin') return;
-    base44.entities.Settings.get(PRICE_ID)
-      .then((row) => { const v = row?.value; setPrice(v == null ? '' : String(v)); })
+    base44.entities.Settings.get(TIERS_ID)
+      .then((row) => { const v = row?.value; if (v && typeof v === 'object') setTiers({ starter: String(v.starter ?? ''), professional: String(v.professional ?? ''), enterprise: String(v.enterprise ?? '') }); })
       .catch(() => {});
   }, [user?.role]);
 
-  const savePrice = async () => {
-    const num = Number(price);
-    if (Number.isNaN(num) || num < 0) { toast({ title: 'Ungültiger Preis', variant: 'destructive' }); return; }
+  const saveTiers = async () => {
+    const value = {};
+    for (const { k } of TIER_KEYS) {
+      const num = Number(tiers[k]);
+      if (Number.isNaN(num) || num < 0) { toast({ title: 'Ungültiger Preis', variant: 'destructive' }); return; }
+      value[k] = num;
+    }
     setPriceSaving(true);
     try {
       try {
-        await base44.entities.Settings.update(PRICE_ID, { value: num });
+        await base44.entities.Settings.update(TIERS_ID, { value });
       } catch {
-        await base44.entities.Settings.create({ id: PRICE_ID, key: PRICE_ID, value: num });
+        await base44.entities.Settings.create({ id: TIERS_ID, key: TIERS_ID, value });
       }
-      toast({ title: 'Paketpreis gespeichert', description: `${num} € pro Ankunft` });
+      toast({ title: 'Paketpreise gespeichert', description: `Starter ${value.starter} € · Professional ${value.professional} € · Enterprise ${value.enterprise} €` });
     } catch (e) {
       toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
     } finally {
@@ -67,25 +76,28 @@ export default function AdminSettings() {
       </Section>
 
       {user?.role === 'admin' && (
-        <Section icon={Euro} title="Abrechnung" desc="Paketpreis pro Ankunft — wird bei Mission-Abschluss automatisch in Rechnung gestellt">
-          <div className="flex items-end gap-3">
-            <div className="flex-1 max-w-[220px]">
-              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--ds-t2)' }}>Paketpreis pro Ankunft (€)</label>
-              <input
-                type="number" min="0" step="1" value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="z. B. 690"
-                className="w-full px-3 py-2.5 text-[13px] rounded-lg"
-                style={{ background: 'var(--ds-input)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-t1)' }}
-              />
-            </div>
-            <button onClick={savePrice} disabled={priceSaving} className="px-4 py-2.5 bg-navy text-cream rounded-md text-xs font-semibold hover:bg-navy/90 transition disabled:opacity-50">
+        <Section icon={Euro} title="Abrechnung" desc="Paketpreise pro Ankunft (je Tier) — bei Mission-Abschluss wird der Tier-Preis des Unternehmens berechnet">
+          <div className="grid sm:grid-cols-3 gap-3">
+            {TIER_KEYS.map(({ k, label }) => (
+              <div key={k}>
+                <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--ds-t2)' }}>{label} (€)</label>
+                <input
+                  type="number" min="0" step="1" value={tiers[k]}
+                  onChange={(e) => setTiers((t) => ({ ...t, [k]: e.target.value }))}
+                  className="w-full px-3 py-2.5 text-[13px] rounded-lg"
+                  style={{ background: 'var(--ds-input)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-t1)' }}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-3 mt-1">
+            <p className="text-[11.5px]" style={{ color: 'var(--ds-t3)' }}>
+              Das Tier eines Unternehmens wird unter „Unternehmen" gesetzt (Standard: Professional).
+            </p>
+            <button onClick={saveTiers} disabled={priceSaving} className="px-4 py-2.5 bg-navy text-cream rounded-md text-xs font-semibold hover:bg-navy/90 transition disabled:opacity-50 shrink-0">
               Speichern
             </button>
           </div>
-          <p className="text-[11.5px]" style={{ color: 'var(--ds-t3)' }}>
-            Solange 0 gesetzt ist, werden Rechnungen mit 0 € erstellt (zur Erinnerung, den echten Preis zu hinterlegen).
-          </p>
         </Section>
       )}
 

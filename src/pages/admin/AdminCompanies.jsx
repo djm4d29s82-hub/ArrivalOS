@@ -1,13 +1,28 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, Mail, MapPin, Briefcase } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useToast } from '@/components/ui/toaster';
 import {
   PageHeader, Card, Pill, EmptyState, SearchInput, SkeletonCard,
 } from '@/components/ui';
 
+const TIERS = ['starter', 'professional', 'enterprise'];
+const TIER_LABEL = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
+
 export default function AdminCompanies() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
   const { data: companies = [], isLoading } = useQuery({ queryKey: ['companies'], queryFn: () => base44.entities.Company.list() });
+
+  const setTier = async (c, tier) => {
+    try {
+      await base44.entities.Company.update(c.id, { package_tier: tier });
+      qc.invalidateQueries({ queryKey: ['companies'] });
+    } catch (e) {
+      toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
+    }
+  };
   const { data: missions = [] } = useQuery({ queryKey: ['missions'], queryFn: () => base44.entities.Company.list ? base44.entities.Mission.list() : [] });
 
   const [search, setSearch] = useState('');
@@ -63,6 +78,18 @@ export default function AdminCompanies() {
                     <span><span className="font-semibold tabular-nums" style={{ color: 'var(--ds-t1)' }}>{myMissions.length}</span> Missionen</span>
                   </span>
                   {active > 0 && <Pill tone="gold" size="xs">{active} aktiv</Pill>}
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <span className="text-[10.5px] uppercase tracking-widest font-semibold" style={{ color: 'var(--ds-t3)' }}>Paket-Tier</span>
+                  <select
+                    value={c.package_tier || 'professional'}
+                    onChange={(e) => setTier(c, e.target.value)}
+                    className="h-8 px-2.5 text-[12px] rounded-lg cursor-pointer"
+                    style={{ background: 'var(--ds-input)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-t1)' }}
+                  >
+                    {TIERS.map((t) => <option key={t} value={t}>{TIER_LABEL[t]}</option>)}
+                  </select>
                 </div>
               </Card>
             );
