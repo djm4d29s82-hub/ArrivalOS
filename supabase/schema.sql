@@ -268,6 +268,26 @@ create table if not exists public.invoices (
   created_at timestamptz default now()
 );
 
+-- Greeter pass-through expenses (Spesen/Tickets) forwarded onto the company invoice.
+-- Policies + triggers live in migration 2026-06-mission-expenses.sql.
+alter table public.invoices add column if not exists base_amount numeric(10,2);
+alter table public.invoices add column if not exists expenses_amount numeric(10,2) default 0;
+create table if not exists public.mission_expenses (
+  id uuid primary key default uuid_generate_v4(),
+  mission_id uuid not null references public.missions(id) on delete cascade,
+  greeter_id uuid references public.greeter_profiles(id) on delete set null,
+  category text not null default 'other',
+  amount numeric(10,2) not null,
+  note text,
+  receipt_url text,
+  status text not null default 'submitted' check (status in ('submitted','approved','rejected')),
+  submitted_at timestamptz default now(),
+  decided_at timestamptz,
+  decided_by text,
+  created_by text,
+  created_at timestamptz default now()
+);
+
 create table if not exists public.settings (
   id text primary key,
   key text not null,

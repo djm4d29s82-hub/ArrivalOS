@@ -42,6 +42,7 @@ const ENTITY_NAMES = [
   'Partner',
   'ServiceConsent',
   'PushSubscription',
+  'MissionExpense',
 ];
 
 function emptyDB() {

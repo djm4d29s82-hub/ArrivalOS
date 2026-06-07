@@ -68,7 +68,14 @@ export default function AdminInvoices() {
                   <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--ds-t1)' }}>{co?.name || '—'}</td>
                   <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--ds-t2)' }}>{formatDate(inv.issued_at)}</td>
                   <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--ds-t2)' }}>{formatDate(inv.due_at)}</td>
-                  <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: 'var(--ds-t1)' }}>{inv.amount} {inv.currency || 'EUR'}</td>
+                  <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: 'var(--ds-t1)' }}>
+                    {inv.amount} {inv.currency || 'EUR'}
+                    {inv.expenses_amount > 0 && (
+                      <div className="text-[10.5px] font-normal mt-0.5" style={{ color: 'var(--ds-t3)' }}>
+                        Paket {inv.base_amount ?? (inv.amount - inv.expenses_amount)} € + Auslagen {inv.expenses_amount} €
+                      </div>
+                    )}
+                  </td>
                   <td className="px-5 py-3.5"><span className={`badge ${STATUS[inv.status]}`}>{LABEL[inv.status]}</span></td>
                   <td className="px-5 py-3.5 text-right">
                     {inv.status !== 'paid' && <button onClick={() => markPaid(inv)} className="btn-ghost text-xs">Als bezahlt markieren</button>}

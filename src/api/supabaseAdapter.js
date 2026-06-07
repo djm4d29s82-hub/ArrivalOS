@@ -28,6 +28,7 @@ const TABLE_MAP = {
   Partner: 'partners',
   ServiceConsent: 'service_consents',
   PushSubscription: 'push_subscriptions',
+  MissionExpense: 'mission_expenses',
 };
 
 export function createSupabaseClient(url, anonKey) {

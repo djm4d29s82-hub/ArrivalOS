@@ -21,6 +21,7 @@ import {
 } from '@/components/ui';
 import MissionKernel from '@/components/mission/MissionKernel';
 import MissionServices from '@/components/mission/MissionServices';
+import MissionExpenses from '@/components/mission/MissionExpenses';
 import FlightStatusControl from '@/components/mission/FlightStatusControl';
 import { greeterKernel, greeterProgress, greeterBlockers } from '@/lib/missionKernel';
 import { useRealtimeMessages } from '@/lib/useRealtimeMessages';
@@ -391,6 +392,13 @@ export default function GreeterMissionDetail() {
           <div className="rounded-xl p-3 sm:p-4" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
             <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mb-2.5" style={{ color: 'var(--ds-t3)' }}>Services</div>
             <MissionServices missionId={mission.id} />
+          </div>
+        )}
+
+        {/* AUSLAGEN / SPESEN — greeter submits fronted costs (tickets/transport); admin approves → company invoice */}
+        {isMine && (
+          <div className="rounded-xl p-3 sm:p-4" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+            <MissionExpenses missionId={mission.id} greeterId={profile?.id} />
           </div>
         )}
 

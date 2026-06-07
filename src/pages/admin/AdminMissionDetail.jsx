@@ -19,6 +19,7 @@ import {
 } from '@/components/ui';
 import MissionStepPlanner from '@/components/mission/MissionStepPlanner';
 import MissionServices from '@/components/mission/MissionServices';
+import MissionExpenses from '@/components/mission/MissionExpenses';
 import { relativeTime } from '@/lib/utils';
 
 const STAGES = ['accepted', 'eta_sent', 'on_the_way', 'arrived', 'in_progress', 'completed'];
@@ -243,6 +244,16 @@ export default function AdminMissionDetail() {
               <SectionHeader title="Services" />
               <div className="mt-2">
                 <MissionServices missionId={mission.id} createdBy={mission.last_updated_by || null} managed />
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Auslagen / Spesen — approve greeter-fronted costs; approved totals flow onto the company invoice */}
+          <Card variant="default">
+            <CardBody>
+              <SectionHeader title="Auslagen / Spesen" />
+              <div className="mt-2">
+                <MissionExpenses missionId={mission.id} managed />
               </div>
             </CardBody>
           </Card>
