@@ -166,7 +166,8 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       (Greeter-Verfügbarkeit fürs Matching) · `2026-06-reviews.sql` (echte Greeter-Bewertungen + Trigger) ·
       `2026-06-billing-payout.sql` (Auto-Rechnung + Greeter-Auszahlung bei Abschluss) ·
       `2026-06-flight-status.sql` (Flugverspätung) · `2026-06-partners.sql` (Partner-Verzeichnis + Service-Verknüpfung) ·
-      `2026-06-service-consents.sql` (Talent-Einwilligung für Partner-Weitergabe).
+      `2026-06-service-consents.sql` (Talent-Einwilligung für Partner-Weitergabe) ·
+      `2026-06-push-subscriptions.sql` (Web-Push-Abos).
 - [ ] **Paketpreis setzen:** Admin → Einstellungen → **Abrechnung** → „Paketpreis pro Ankunft" (sonst werden
       Rechnungen mit 0 € erstellt). Alternativ SQL: `settings` Zeile `package_price_eur`.
 - [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql`.
@@ -179,6 +180,11 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
         `supabase functions deploy ai-arrival-briefing`.
       - **Partner:** `partner-referral` (**mit** JWT-Verify — vom Talent bei Einwilligung aufgerufen;
         nutzt RESEND): `supabase functions deploy partner-referral`.
+      - **Push:** `send-push` (**`--no-verify-jwt`** — per Webhook ausgelöst):
+        `supabase functions deploy send-push --no-verify-jwt`. Secrets:
+        `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (aus `scripts/gen-vapid.mjs` / `.vapid.local`),
+        `VAPID_SUBJECT=mailto:support@arrivalgermany.com`. Frontend: `VITE_VAPID_PUBLIC_KEY` (öffentlich) =
+        derselbe Public Key (Default im Code bereits hinterlegt). Webhook: `notifications` INSERT → `send-push`.
 - [ ] **Secrets setzen:** `APP_URL` (`https://arrivalgermany.com`), `RESEND_API_KEY`,
       `RESEND_FROM` (`ArrivalOS <support@arrivalgermany.com>`), `SALES_INBOX` (`support@arrivalgermany.com`),
       `AVIATIONSTACK_API_KEY` (flight-tracker), `ADMIN_EMAIL` (step-reminders Eskalation),
@@ -186,7 +192,8 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       ruhig „KI nicht konfiguriert"), optional `CRM_FORWARD_URL`.
       *(Die Code-Defaults zeigen bereits auf arrivalgermany.com — Secrets überschreiben sie.)*
 - [ ] **Database → Webhooks:** `messages` INSERT → `notify-on-message`; `leads` INSERT → `notify-on-lead`;
-      **`missions` UPDATE → `notify-on-mission-status`** (Company-Status-Mails bei Meilensteinen).
+      **`missions` UPDATE → `notify-on-mission-status`** (Company-Status-Mails bei Meilensteinen);
+      **`notifications` INSERT → `send-push`** (jede In-App-Notification wird zusätzlich Web-Push).
 - [ ] **Cron einrichten:** Extensions **`pg_cron` + `pg_net`** aktivieren (Database → Extensions), dann
       `supabase/functions/CRON_SETUP.sql` mit `<PROJECT_REF>=jtaegmuftgxzjddfevbs` ausführen
       *(Alternative: Dashboard → Edge Functions → Schedules)*. Test ohne Warten:
@@ -236,7 +243,7 @@ Talent sieht Update → Abholung → Mission completed.**
 
 - [ ] Cloud-Ops-Checkliste (Abschnitt 5) vollständig abgehakt — inkl. **Backups/PITR** und **RLS-Tests grün**.
 - [ ] **`rls-verify.sql` gibt „RLS OK" aus** (Pflicht-Gate: keine offenen `auth_read_*/auth_write_*`-Policies).
-- [ ] **Alle 13 Migrationen** ausgeführt; **alle 9 Edge Functions** deployt (inkl. `ai-arrival-briefing`, `partner-referral` +
+- [ ] **Alle 14 Migrationen** ausgeführt; **alle 10 Edge Functions** deployt (inkl. `ai-arrival-briefing`, `partner-referral`, `send-push` + VAPID-Secrets +
       `ANTHROPIC_API_KEY`); **Cron** geplant (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
 - [ ] **Domain** `arrivalgermany.com` live auf Vercel; **Supabase Auth-URL** auf die Domain gesetzt.
 - [ ] 🔑 **`service_role`-Key rotiert** nach dem E2E-Seeding.

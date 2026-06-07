@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Database, Bell, User, Users, BarChart3, Receipt, ScrollText, ChevronRight, SlidersHorizontal, ListChecks, Wallet, Euro, Building2 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import { usePush } from '@/lib/usePush';
 
 const PRICE_ID = 'package_price_eur';
 
@@ -61,11 +62,8 @@ export default function AdminSettings() {
         <Row label="Rolle" value={user?.role || '—'} />
       </Section>
 
-      <Section icon={Bell} title="Benachrichtigungen" desc="Wann möchtest du benachrichtigt werden?">
-        <Toggle label="Neue Mission verfügbar" defaultChecked />
-        <Toggle label="Mission abgeschlossen" defaultChecked />
-        <Toggle label="Neue Nachricht" defaultChecked />
-        <Toggle label="Wöchentliche Zusammenfassung" />
+      <Section icon={Bell} title="Benachrichtigungen" desc="Push-Mitteilungen auf dieses Gerät">
+        <PushToggle />
       </Section>
 
       {user?.role === 'admin' && (
@@ -166,6 +164,30 @@ function Row({ label, value }) {
   );
 }
 
+function PushToggle() {
+  const { supported, status, enable, disable } = usePush();
+  if (!supported) return <div className="text-[12.5px]" style={{ color: 'var(--ds-t3)' }}>Dieses Gerät unterstützt keine Push-Mitteilungen.</div>;
+  if (status === 'denied') return <div className="text-[12.5px]" style={{ color: 'var(--ds-t3)' }}>Benachrichtigungen sind im Browser blockiert. Bitte in den Browser-Einstellungen erlauben.</div>;
+  const on = status === 'on';
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <div className="text-sm font-medium" style={{ color: 'var(--ds-t1)' }}>Push-Benachrichtigungen</div>
+        <div className="text-[11.5px]" style={{ color: 'var(--ds-t3)' }}>Neue Mission, Flug-Updates, Nachrichten — auch wenn die App geschlossen ist.</div>
+      </div>
+      <button
+        onClick={on ? disable : enable}
+        disabled={status === 'busy'}
+        className={`px-4 py-2 rounded-md text-xs font-semibold transition disabled:opacity-50 ${on ? '' : 'bg-navy text-cream hover:bg-navy/90'}`}
+        style={on ? { background: 'var(--ds-card-border)', color: 'var(--ds-t1)' } : undefined}
+      >
+        {status === 'busy' ? '…' : on ? 'Deaktivieren' : 'Aktivieren'}
+      </button>
+    </div>
+  );
+}
+
+// eslint-disable-next-line no-unused-vars
 function Toggle({ label, defaultChecked = false }) {
   return (
     <label className="flex items-center justify-between gap-3 py-1 cursor-pointer">

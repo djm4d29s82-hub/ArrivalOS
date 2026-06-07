@@ -211,6 +211,16 @@ create table if not exists public.service_consents (
 );
 create index if not exists idx_service_consents_service on public.service_consents(mission_service_id);
 
+-- Web Push subscriptions. Mirrors migrations/2026-06-push-subscriptions.sql.
+create table if not exists public.push_subscriptions (
+  id uuid primary key default uuid_generate_v4(),
+  user_email text not null,
+  endpoint text not null unique,
+  subscription jsonb not null,
+  created_at timestamptz default now()
+);
+create index if not exists idx_push_subscriptions_email on public.push_subscriptions(user_email);
+
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
   sender_id uuid references public.users(id) on delete set null,

@@ -41,6 +41,7 @@ const ENTITY_NAMES = [
   'Payout',
   'Partner',
   'ServiceConsent',
+  'PushSubscription',
 ];
 
 function emptyDB() {

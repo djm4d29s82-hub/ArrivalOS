@@ -27,6 +27,7 @@ const TABLE_MAP = {
   Payout: 'payouts',
   Partner: 'partners',
   ServiceConsent: 'service_consents',
+  PushSubscription: 'push_subscriptions',
 };
 
 export function createSupabaseClient(url, anonKey) {
