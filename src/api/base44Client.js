@@ -40,6 +40,7 @@ const ENTITY_NAMES = [
   'Review',
   'Payout',
   'Partner',
+  'ServiceConsent',
 ];
 
 function emptyDB() {

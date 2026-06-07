@@ -84,6 +84,18 @@ export default function TalentDashboard() {
     return () => clearInterval(interval);
   }, [user]);
 
+  // Talent consents to share data with a partner → records consent + fires the referral handoff (best-effort).
+  const consentService = async (svc) => {
+    setServices((arr) => arr.map((s) => (s.id === svc.id ? { ...s, consent_at: new Date().toISOString() } : s))); // optimistic
+    try {
+      await base44.entities.ServiceConsent.create({ mission_service_id: svc.id, candidate_id: cid, created_by: user?.email || null });
+      try { await base44.raw?.functions?.invoke?.('partner-referral', { body: { missionServiceId: svc.id } }); } catch { /* referral best-effort */ }
+    } catch (e) {
+      console.error(e);
+      setServices((arr) => arr.map((s) => (s.id === svc.id ? { ...s, consent_at: null } : s))); // revert
+    }
+  };
+
   // Single source of truth for journey position (replaces dual progress model)
   const jp = journeyProgress(steps);
   const progressPct = steps.length ? Math.round((jp.completed / jp.total) * 100) : (candidate?.progress ?? 0);
@@ -322,20 +334,31 @@ export default function TalentDashboard() {
                 const Icon = SERVICE_ICONS[cat.iconName] || PackageOpen;
                 const loc = localizeService(cat, lang);
                 const st = SERVICE_STATUS[svc.status] || { tone: 'neutral' };
+                const needsConsent = svc.provider_type === 'ag_partner' && svc.partner_id && !svc.consent_at;
                 return (
-                  <div key={svc.id} className="px-4 py-3 flex items-center gap-3" style={i > 0 ? { borderTop: '1px solid var(--ds-card-border)' } : {}}>
-                    <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0" style={{ background: 'rgba(196,146,40,0.10)' }}>
-                      <Icon className="w-3.5 h-3.5" style={{ color: '#c49228' }} />
+                  <div key={svc.id} className="px-4 py-3" style={i > 0 ? { borderTop: '1px solid var(--ds-card-border)' } : {}}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0" style={{ background: 'rgba(196,146,40,0.10)' }}>
+                        <Icon className="w-3.5 h-3.5" style={{ color: '#c49228' }} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-[13px] truncate" style={{ color: 'var(--ds-t1)' }}>{loc.label}</div>
+                        {svc.provider
+                          ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{lang === 'en' ? 'via' : 'über'} {svc.provider}</div>
+                          : svc.notes
+                            ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>
+                            : loc.blurb && <div className="text-[11px] truncate" style={{ color: 'var(--ds-t3)' }}>{loc.blurb}</div>}
+                      </div>
+                      <Pill tone={st.tone} size="xs" dot>{serviceStatusLabel(svc.status, lang)}</Pill>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-[13px] truncate" style={{ color: 'var(--ds-t1)' }}>{loc.label}</div>
-                      {svc.provider
-                        ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{lang === 'en' ? 'via' : 'über'} {svc.provider}</div>
-                        : svc.notes
-                          ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>
-                          : loc.blurb && <div className="text-[11px] truncate" style={{ color: 'var(--ds-t3)' }}>{loc.blurb}</div>}
-                    </div>
-                    <Pill tone={st.tone} size="xs" dot>{serviceStatusLabel(svc.status, lang)}</Pill>
+                    {needsConsent && (
+                      <div className="mt-2 pl-11">
+                        <div className="text-[11px] mb-1.5" style={{ color: 'var(--ds-t3)' }}>{t('consent.sub')}</div>
+                        <Button size="xs" variant="outline" onClick={() => consentService(svc)}>
+                          {t('consent.share', { provider: svc.provider })}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 );
               })}

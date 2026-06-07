@@ -23,6 +23,7 @@ export default function AdminServices() {
   const { data: services = [] }   = useQuery({ queryKey: ['missionServices'], queryFn: () => base44.entities.MissionService.list().catch(() => []), refetchInterval: 15000 });
   const { data: missions = [] }   = useQuery({ queryKey: ['missions'],        queryFn: () => base44.entities.Mission.list('-datetime') });
   const { data: candidates = [] } = useQuery({ queryKey: ['candidates'],      queryFn: () => base44.entities.Candidate.list() });
+  const { data: partners = [] }   = useQuery({ queryKey: ['partners'],        queryFn: () => base44.entities.Partner.list().catch(() => []) });
 
   const missionById = useMemo(() => Object.fromEntries(missions.map((m) => [m.id, m])), [missions]);
   const candidateById = useMemo(() => Object.fromEntries(candidates.map((c) => [c.id, c])), [candidates]);
@@ -56,6 +57,24 @@ export default function AdminServices() {
     }
     return map;
   }, [live, now]);
+
+  // Revenue-share: sum recorded commission_amount across ALL services, grouped by partner.
+  const partnerById = useMemo(() => Object.fromEntries(partners.map((p) => [p.id, p])), [partners]);
+  const commission = useMemo(() => {
+    let total = 0;
+    const byPartner = {};
+    for (const s of services) {
+      const amt = Number(s.commission_amount) || 0;
+      if (!amt) continue;
+      total += amt;
+      const key = s.partner_id || 'unbekannt';
+      byPartner[key] = (byPartner[key] || 0) + amt;
+    }
+    const rows = Object.entries(byPartner)
+      .map(([id, amt]) => ({ name: partnerById[id]?.name || 'Unbekannt', amt }))
+      .sort((a, b) => b.amt - a.amt);
+    return { total, rows };
+  }, [services, partnerById]);
 
   return (
     <div>
@@ -139,6 +158,31 @@ export default function AdminServices() {
               );
             })}
           </div>
+        )}
+      </div>
+
+      {/* Revenue-share */}
+      <div className="mt-8">
+        <SectionHeader title="Revenue-Share" />
+        {commission.total === 0 ? (
+          <EmptyState icon={CheckCircle2} title="Noch keine Provisionen" description="Sobald Partner-Services mit hinterlegter Provision aktiviert werden, summiert sich hier der Revenue-Share." />
+        ) : (
+          <Card variant="default">
+            <div className="p-4">
+              <div className="flex items-baseline gap-2 mb-3">
+                <span className="font-serif text-2xl font-bold text-gold">{commission.total.toLocaleString('de-DE')} €</span>
+                <span className="text-[11.5px]" style={{ color: 'var(--ds-t3)' }}>Gesamt-Revenue-Share</span>
+              </div>
+              <ul className="divide-y" style={{ borderColor: 'var(--ds-card-border)' }}>
+                {commission.rows.map((r) => (
+                  <li key={r.name} className="flex items-center justify-between py-2 text-[13px]">
+                    <span style={{ color: 'var(--ds-t1)' }}>{r.name}</span>
+                    <span className="font-semibold tabular-nums" style={{ color: 'var(--ds-t1)' }}>{r.amt.toLocaleString('de-DE')} €</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Card>
         )}
       </div>
     </div>

@@ -173,6 +173,7 @@ create table if not exists public.mission_services (
   consent_at timestamptz,
   booking_ref text,
   commission_amount numeric(10,2),
+  referral_sent_at timestamptz,
   created_by text,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -198,6 +199,17 @@ create table if not exists public.partners (
   updated_at timestamptz default now()
 );
 create index if not exists idx_partners_category on public.partners(category);
+
+-- Talent consent to share data with a partner. Mirrors migrations/2026-06-service-consents.sql.
+create table if not exists public.service_consents (
+  id uuid primary key default uuid_generate_v4(),
+  mission_service_id uuid not null references public.mission_services(id) on delete cascade,
+  candidate_id uuid references public.candidates(id) on delete set null,
+  consent_at timestamptz default now(),
+  created_by text,
+  created_at timestamptz default now()
+);
+create index if not exists idx_service_consents_service on public.service_consents(mission_service_id);
 
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
