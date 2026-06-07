@@ -100,10 +100,11 @@ export default function CompanyMissionDetail() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-3 gap-3 text-[12.5px]">
+      {/* Keine Greeter-Vergütung (mission.pay) für den Kunden — das ist unsere Kostenseite.
+          Der Kunde sieht seine Kosten als Paketpreis unter „Rechnungen". */}
+      <div className="grid md:grid-cols-2 gap-3 text-[12.5px]">
         <Info label="Ort" value={`${mission.location || '—'}, ${mission.city}`} />
         <Info label="Termin" value={formatDateTime(mission.datetime)} />
-        <Info label="Vergütung" value={`${mission.pay} €`} />
       </div>
 
       {greeter && (

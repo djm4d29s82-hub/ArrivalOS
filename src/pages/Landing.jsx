@@ -9,9 +9,10 @@ import useScrollReveal from '@/lib/useScrollReveal';
 import { usePublicTheme } from '@/lib/usePublicTheme';
 
 /**
- * Single-Page-Landing im Calm-Canvas-Stil — erzählt die Ökosystem-Vision.
- * Hero · Manifest · Wer wir sind · Arrival Journey · Für Unternehmen ·
- * KI fürs Unternehmen · Greeter · Kontakt.
+ * Single-Page-Landing im Calm-Canvas-Stil — aus Unternehmer-Sicht geordnet:
+ * der kommerzielle Pitch steht vorne, die Haltung folgt.
+ * Hero · Für Unternehmen · Arrival Journey · KI fürs Unternehmen ·
+ * Wer wir sind (inkl. Manifest) · Greeter · Kontakt.
  */
 export default function Landing() {
   usePublicTheme();
@@ -34,46 +35,36 @@ export default function Landing() {
               <span className="text-gold italic">menschlich</span> gemacht.
             </h1>
             <p className="mt-10 max-w-xl text-lg text-[var(--mid)] leading-relaxed">
-              Arrival Germany ist die Betriebsschicht für internationale Ankunft — von der Einreise bis in
-              den Alltag. Eine Plattform, echte Menschen vor Ort, ein Ansprechpartner für den ganzen Prozess.
+              Arrival Germany ist die Betriebsschicht für Unternehmen, die internationale Fachkräfte
+              einstellen — von der Einreise bis in den Alltag. Ein Ansprechpartner, eine Plattform,
+              echte Menschen vor Ort.
             </p>
-            <div className="mt-12 flex items-center gap-8 flex-wrap">
-              <a href="#unternehmen" className="group inline-flex items-center gap-3 text-sm text-navy">
-                <span className="border-b border-navy pb-1 transition-colors group-hover:border-gold group-hover:text-gold">
-                  Für Unternehmen
-                </span>
+            <div className="mt-12 flex items-center gap-x-8 gap-y-4 flex-wrap">
+              <a href="#kontakt" className="group inline-flex items-center gap-3 rounded-full bg-navy px-7 py-3.5 text-sm font-medium text-cream transition-colors hover:bg-gold hover:text-navy">
+                Für Unternehmen: Gespräch anfragen
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </a>
+              <a href="#unternehmen" className="text-sm text-navy border-b border-transparent pb-0.5 hover:border-navy transition-colors">
+                So funktioniert's
+              </a>
               <a href="#greeter" className="text-sm text-[var(--mid)] hover:text-navy transition-colors">
-                Greeter werden
+                Du willst Greeter werden?
               </a>
             </div>
           </div>
         </section>
 
-        {/* ── MANIFEST ── */}
-        <section className="border-t border-[var(--border)]">
-          <div className="max-w-[980px] mx-auto px-6 md:px-10 py-28 md:py-40 reveal-on-scroll">
-            <p className="text-[11px] uppercase tracking-[0.28em] text-gold mb-10">Was wir glauben</p>
-            <p className="font-serif text-navy text-[clamp(26px,3.6vw,46px)] leading-[1.28]">
-              Niemand sollte in einer neuen Stadt ankommen und sich verloren fühlen.
-              <span className="text-[var(--mid)]"> Eine gute Ankunft ist kein Onboarding-Ticket.
-              Sie ist ein Mensch, der die Tür öffnet — und sagt: schön, dass du da bist.</span>
-            </p>
-          </div>
-        </section>
-
-        {/* ── WER WIR SIND ── */}
-        <AboutSection />
+        {/* ── FÜR UNTERNEHMEN — Risiko-Reduktion (Pitch zuerst) ── */}
+        <ValuePropSection />
 
         {/* ── ARRIVAL JOURNEY (5-Phasen-Ökosystem) ── */}
         <ArrivalJourneySection />
 
-        {/* ── FÜR UNTERNEHMEN — Risiko-Reduktion ── */}
-        <ValuePropSection />
-
         {/* ── KI FÜRS UNTERNEHMEN ── */}
         <AiCompanySection />
+
+        {/* ── WER WIR SIND (inkl. Manifest) ── */}
+        <AboutSection />
 
         {/* ── GREETER ── */}
         <section className="border-t border-[var(--border)]">

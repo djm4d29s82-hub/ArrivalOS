@@ -5,7 +5,8 @@ import {
   BarChart3, Settings, ScrollText, UserCheck, LogOut, Bell, ChevronDown,
   CalendarClock, User as UserIcon, Activity, Receipt,
   Info, CheckCircle2, AlertTriangle, AlertOctagon, BellOff, Search,
-  Sun, Moon, PackageOpen,
+  Sun, Moon, PackageOpen, Wallet, Handshake, LayoutTemplate, BookOpen,
+  ShieldCheck, UserCog,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
@@ -19,16 +20,37 @@ import { useLang } from '@/lib/LangContext';
 
 const IS_SUPABASE = !!base44.raw;
 
-// Sidebar = Entscheidungen. Max 5 operative Kerne pro Rolle (flach, keine Gruppen).
-// Sekundäres (Nachrichten) lebt in der Topbar; Kontrolle (Settings, Analytics,
-// Rechnungen, Logs, SOPs) lebt in den Einstellungen.
+// Sidebar = Navigation. Operative Rollen (company/greeter/talent) bleiben flach
+// (max 5 Kerne). Admin = wir, der Betreiber, mit vielen Kontrollflächen → in
+// beschriftete Sektionen gruppiert, damit jede Seite per Klick erreichbar ist.
+// Nachrichten leben in der Topbar; Einstellungen in der Sektion „Verwaltung".
 const MENUS = {
   admin: [
-    { to: '/admin', label: 'Overview', icon: Activity, end: true },
-    { to: '/admin/missions', label: 'Missions', icon: Briefcase },
-    { to: '/admin/execution', label: 'Execution', icon: Users },
-    { to: '/admin/services', label: 'Services', icon: PackageOpen },
-    { to: '/admin/companies', label: 'Companies', icon: Building2 },
+    { section: 'Betrieb', items: [
+      { to: '/admin', label: 'Übersicht', icon: Activity, end: true },
+      { to: '/admin/missions', label: 'Missionen', icon: Briefcase },
+      { to: '/admin/execution', label: 'Execution', icon: Users },
+      { to: '/admin/services', label: 'Services', icon: PackageOpen },
+    ] },
+    { section: 'Kunden & Abrechnung', items: [
+      { to: '/admin/companies', label: 'Unternehmen', icon: Building2 },
+      { to: '/admin/invoices', label: 'Rechnungen', icon: Receipt },
+      { to: '/admin/payouts', label: 'Auszahlungen', icon: Wallet },
+    ] },
+    { section: 'Partner & Vorlagen', items: [
+      { to: '/admin/partners', label: 'Partner', icon: Handshake },
+      { to: '/admin/templates', label: 'Service-Vorlagen', icon: LayoutTemplate },
+      { to: '/admin/sops', label: 'SOPs', icon: BookOpen },
+    ] },
+    { section: 'Auswertung', items: [
+      { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/admin/quality', label: 'Qualität', icon: ShieldCheck },
+      { to: '/admin/logs', label: 'Aktivitätslog', icon: ScrollText },
+    ] },
+    { section: 'Verwaltung', items: [
+      { to: '/admin/team', label: 'Team', icon: UserCog },
+      { to: '/admin/settings', label: 'Einstellungen', icon: Settings },
+    ] },
   ],
   company: [
     { to: '/company', label: 'Übersicht', icon: LayoutDashboard, end: true },
@@ -53,7 +75,7 @@ const MENUS = {
 const SETTINGS_ROUTE = { admin: '/admin/settings', company: '/company/settings', greeter: '/greeter-dashboard/settings', talent: '/talent/settings' };
 const MESSAGES_ROUTE = { admin: '/admin/messages', company: '/company/messages', greeter: '/greeter-dashboard/messages', talent: '/talent/messages' };
 
-const ROLE_LABELS = { admin: 'Admin', company: 'Unternehmen', greeter: 'Greeter', talent: 'Talent' };
+const ROLE_LABELS = { admin: 'Operations', company: 'Unternehmen', greeter: 'Greeter', talent: 'Talent' };
 // Talent nav labels are translatable (DE/EN); other roles stay German.
 const TALENT_NAV_KEY = { '/talent': 'nav.journey', '/talent/documents': 'nav.documents', '/talent/greeter': 'nav.greeter' };
 
@@ -61,6 +83,8 @@ export default function DashboardLayout({ role }) {
   const { user, switchRole, logout } = useAuth();
   const nav = useNavigate();
   const menu = MENUS[role] || [];
+  // Admin ist in Sektionen gruppiert ({section, items}); andere Rollen sind flach.
+  const sections = menu.length && menu[0]?.items ? menu : [{ section: null, items: menu }];
   const { isDark, toggle } = useTheme();
   const { lang, setLang, t } = useLang();
   const isTalent = role === 'talent';
@@ -136,29 +160,40 @@ export default function DashboardLayout({ role }) {
           </div>
         </Link>
 
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {menu.map((m) => {
-            const Icon = m.icon;
-            return (
-              <NavLink
-                key={m.to}
-                to={m.to}
-                end={m.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-colors ${
-                    isActive ? 'border-l-2 border-gold pl-[10px]' : 'hover:text-white'
-                  }`
-                }
-                style={({ isActive }) => isActive
-                  ? { background: 'rgba(196,146,40,0.12)', color: '#f0ebe0' }
-                  : { color: 'rgba(255,255,255,0.45)' }
-                }
-              >
-                <Icon className="w-4 h-4 shrink-0" strokeWidth={2} />
-                <span className="flex-1">{navLabel(m)}</span>
-              </NavLink>
-            );
-          })}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          {sections.map((sec) => (
+            <div key={sec.section || 'main'} className="mb-3 last:mb-0">
+              {sec.section && (
+                <div className="px-3 pt-1.5 pb-1 text-[10px] uppercase tracking-[0.14em] font-semibold" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                  {sec.section}
+                </div>
+              )}
+              <div className="space-y-0.5">
+                {sec.items.map((m) => {
+                  const Icon = m.icon;
+                  return (
+                    <NavLink
+                      key={m.to}
+                      to={m.to}
+                      end={m.end}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-colors ${
+                          isActive ? 'border-l-2 border-gold pl-[10px]' : 'hover:text-white'
+                        }`
+                      }
+                      style={({ isActive }) => isActive
+                        ? { background: 'rgba(196,146,40,0.12)', color: '#f0ebe0' }
+                        : { color: 'rgba(255,255,255,0.45)' }
+                      }
+                    >
+                      <Icon className="w-4 h-4 shrink-0" strokeWidth={2} />
+                      <span className="flex-1">{navLabel(m)}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <div className="p-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
@@ -166,16 +201,18 @@ export default function DashboardLayout({ role }) {
             <div className="text-xs font-semibold text-white">{user?.full_name || 'User'}</div>
             <div className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.35)' }}>{user?.email}</div>
           </div>
-          {/* Settings = Kontrolle: tertiär, nicht in der primären Nav */}
-          <Link
-            to={SETTINGS_ROUTE[role]}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition"
-            style={{ color: 'rgba(255,255,255,0.45)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; }}
-          >
-            <Settings className="w-4 h-4" /> {isTalent ? t('nav.settings') : 'Einstellungen'}
-          </Link>
+          {/* Settings = Kontrolle: tertiär. Für Admin lebt es in der Sektion „Verwaltung". */}
+          {role !== 'admin' && (
+            <Link
+              to={SETTINGS_ROUTE[role]}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition"
+              style={{ color: 'rgba(255,255,255,0.45)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; }}
+            >
+              <Settings className="w-4 h-4" /> {isTalent ? t('nav.settings') : 'Einstellungen'}
+            </Link>
+          )}
           <button
             onClick={logout}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition"

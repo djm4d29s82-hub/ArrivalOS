@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { Menu, X, ArrowRight } from 'lucide-react';
 
 const LINKS = [
-  { href: '#journey', label: 'Journey' },
   { href: '#unternehmen', label: 'Für Unternehmen' },
+  { href: '#journey', label: 'Journey' },
   { href: '#ki', label: 'KI' },
   { href: '#greeter', label: 'Greeter' },
   { href: '#kontakt', label: 'Kontakt' },

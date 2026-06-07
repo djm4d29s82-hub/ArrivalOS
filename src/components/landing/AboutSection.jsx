@@ -20,6 +20,12 @@ export default function AboutSection() {
       <div className="max-w-[1180px] mx-auto px-6 md:px-10 py-28 md:py-36 reveal-on-scroll">
         <p className="text-[11px] uppercase tracking-[0.28em] text-gold mb-10">Wer wir sind</p>
 
+        <p className="font-serif text-navy text-[clamp(22px,3vw,38px)] leading-[1.3] max-w-[24ch] mb-16">
+          Niemand sollte in einer neuen Stadt ankommen und sich verloren fühlen.
+          <span className="text-[var(--mid)]"> Eine gute Ankunft ist kein Onboarding-Ticket — sie ist
+          ein Mensch, der die Tür öffnet.</span>
+        </p>
+
         <div className="grid md:grid-cols-[1.4fr_1fr] gap-16 md:gap-20 items-start">
           <div>
             <h2 className="font-serif text-navy text-[clamp(28px,4vw,52px)] leading-[1.1] max-w-[16ch]">
