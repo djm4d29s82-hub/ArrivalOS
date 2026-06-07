@@ -85,6 +85,45 @@ export async function getDocumentUrl(doc) {
 }
 
 /**
+ * Lädt einen Spesen-Beleg hoch (Greeter) → gibt den Storage-Pfad zurück (für mission_expenses.receipt_url).
+ * Pfad-Konvention: receipts/<mission_id>/<timestamp>_<file> — eigene Storage-Policy (Greeter der Mission
+ * + Admin dürfen schreiben/lesen; das Unternehmen sieht den Beleg nie, nur den Rechnungsbetrag).
+ * @returns {Promise<string>} storage path
+ */
+export async function uploadReceipt({ file, missionId }) {
+  if (!file || !missionId) throw new Error('file und missionId erforderlich');
+  const path = `receipts/${missionId}/${Date.now()}_${sanitize(file.name)}`;
+  if (isSupabase) {
+    const { error } = await base44.raw.storage
+      .from(BUCKET)
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (error) throw error;
+    return path;
+  }
+  // Demo: Base64 in localStorage (max ~5 MB).
+  if (file.size > 5 * 1024 * 1024) throw new Error('Im Demo-Modus max. 5 MB pro Datei.');
+  const dataUrl = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+  try { localStorage.setItem(`receipt-blob:${path}`, dataUrl); } catch {}
+  return path;
+}
+
+/** Signed URL (10 min) für einen Spesen-Beleg; Demo: Base64 aus localStorage. */
+export async function getReceiptUrl(path) {
+  if (!path) return null;
+  if (isSupabase) {
+    const { data, error } = await base44.raw.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_TTL_S);
+    if (error) throw error;
+    return data.signedUrl;
+  }
+  try { return localStorage.getItem(`receipt-blob:${path}`); } catch { return null; }
+}
+
+/**
  * Löscht Dokument inkl. Storage-Objekt.
  */
 export async function deleteDocument(doc) {

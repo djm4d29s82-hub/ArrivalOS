@@ -173,7 +173,8 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
 - [ ] **Paketpreise & Tiers setzen:** Admin → Einstellungen → **Abrechnung** → Tier-Preise (Standard
       490/690/900); pro Unternehmen unter „Unternehmen" das **Paket-Tier** wählen (Standard Professional).
       Die Auto-Rechnung bei Abschluss nutzt den Tier-Preis des Unternehmens.
-- [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql`.
+- [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql` (idempotent; enthält jetzt
+      auch die `receipts/<mission_id>/`-Policies für Greeter-Spesenbelege — bei Bestandssystem erneut ausführen).
 - [ ] **Edge Functions deployen (alle 8):**
       - **Auth:** `admin-invite` (**mit** JWT-Verify) · `accept-invite` (**`--no-verify-jwt`**).
       - **Transaktional (E-Mail):** `notify-on-message` · `notify-on-lead` · `notify-on-mission-status`

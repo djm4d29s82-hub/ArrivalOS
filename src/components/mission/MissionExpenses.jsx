@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/toaster';
-import { Receipt, Plus, Check, X, Trash2 } from 'lucide-react';
+import { uploadReceipt, getReceiptUrl } from '@/lib/storage';
+import { Receipt, Plus, Check, X, Trash2, Paperclip } from 'lucide-react';
 
 /**
  * Greeter pass-through expenses (Spesen/Tickets) per mission.
@@ -39,6 +40,7 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
   const [cat, setCat] = useState('ticket');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [file, setFile] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const load = () =>
@@ -52,22 +54,35 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
     if (!val || val <= 0) { toast({ title: 'Betrag fehlt', description: 'Bitte einen gültigen Betrag eingeben.', variant: 'destructive' }); return; }
     setBusy(true);
     try {
+      // Best-effort receipt upload — never block the expense if the upload fails (e.g. storage policy
+      // not deployed yet); the greeter can still submit amount + note.
+      let receipt_url = null;
+      if (file) {
+        try { receipt_url = await uploadReceipt({ file, missionId }); }
+        catch { toast({ title: 'Beleg nicht hochgeladen', description: 'Auslage wird ohne Beleg gespeichert.', variant: 'destructive' }); }
+      }
       await base44.entities.MissionExpense.create({
         mission_id: missionId,
         greeter_id: greeterId || null,
         category: cat,
         amount: val,
         note: note.trim() || null,
+        receipt_url,
         status: 'submitted',
         submitted_at: new Date().toISOString(),
         created_by: user?.email || null,
       });
-      setAmount(''); setNote(''); setCat('ticket'); setAdding(false);
+      setAmount(''); setNote(''); setCat('ticket'); setFile(null); setAdding(false);
       toast({ title: '✓ Auslage eingereicht' });
       load();
     } catch (e) {
       toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
     } finally { setBusy(false); }
+  };
+
+  const openReceipt = async (row) => {
+    try { const url = await getReceiptUrl(row.receipt_url); if (url) window.open(url, '_blank', 'noopener'); }
+    catch (e) { toast({ title: 'Beleg nicht verfügbar', description: e?.message || String(e), variant: 'destructive' }); }
   };
 
   const decide = async (row, status) => {
@@ -121,6 +136,9 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
                   <span className="inline-block mt-0.5 text-[9.5px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded" style={{ background: st.bg, color: st.color }}>{st.label}</span>
                 </div>
                 <div className="text-[12.5px] font-semibold tabular-nums shrink-0" style={{ color: 'var(--ds-t1)' }}>{eur(r.amount)}</div>
+                {r.receipt_url && (
+                  <button onClick={() => openReceipt(r)} title="Beleg ansehen" className="w-7 h-7 grid place-items-center rounded-md shrink-0" style={{ background: 'rgba(196,146,40,0.10)', color: '#c49228' }}><Paperclip className="w-3.5 h-3.5" /></button>
+                )}
                 {managed && r.status === 'submitted' && (
                   <div className="flex items-center gap-1 shrink-0">
                     <button onClick={() => decide(r, 'approved')} title="Freigeben" className="w-7 h-7 grid place-items-center rounded-md" style={{ background: 'rgba(34,197,94,0.12)', color: '#16a34a' }}><Check className="w-3.5 h-3.5" /></button>
@@ -152,9 +170,15 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
             </div>
             <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Notiz (optional) — z. B. Bahnticket DUS→Stadt"
               className="w-full px-2.5 py-2 rounded-lg text-[13px]" style={{ background: 'var(--ds-input, var(--ds-card))', border: '1px solid var(--ds-input-border, var(--ds-card-border))', color: 'var(--ds-t1)' }} />
+            <label className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[12.5px] cursor-pointer" style={{ background: 'var(--ds-input, var(--ds-card))', border: '1px solid var(--ds-input-border, var(--ds-card-border))', color: 'var(--ds-t2)' }}>
+              <Paperclip className="w-3.5 h-3.5 shrink-0" style={{ color: '#c49228' }} />
+              <span className="truncate">{file ? file.name : 'Beleg / Foto anhängen (optional)'}</span>
+              <input type="file" accept="image/*,application/pdf" capture="environment" className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            </label>
             <div className="flex gap-2">
               <button onClick={add} disabled={busy} className="flex-1 h-10 rounded-lg text-[13px] font-semibold" style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}>Einreichen</button>
-              <button onClick={() => { setAdding(false); setAmount(''); setNote(''); }} className="px-4 h-10 rounded-lg text-[13px]" style={{ color: 'var(--ds-t3)' }}>Abbrechen</button>
+              <button onClick={() => { setAdding(false); setAmount(''); setNote(''); setFile(null); }} className="px-4 h-10 rounded-lg text-[13px]" style={{ color: 'var(--ds-t3)' }}>Abbrechen</button>
             </div>
           </div>
         ) : (

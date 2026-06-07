@@ -89,3 +89,49 @@ using (
         and (storage.foldername(name))[2] = public.current_candidate_id()::text)
   )
 );
+
+-- ── Spesen-Belege: Pfad "receipts/<mission_id>/<file>" ──────────────────────────────────────────────
+-- Der Greeter der Mission (und Admin) darf hochladen + lesen; das Unternehmen sieht den Beleg NIE
+-- (es sieht nur den Rechnungsbetrag). Eigene Policies, additiv zu den candidates/-Policies (OR-Semantik).
+drop policy if exists "documents_bucket_insert_receipts" on storage.objects;
+create policy "documents_bucket_insert_receipts"
+on storage.objects for insert to authenticated
+with check (
+  bucket_id = 'documents'
+  and (storage.foldername(name))[1] = 'receipts'
+  and (
+    public.is_admin()
+    or (public.current_user_role() = 'greeter'
+        and exists (
+          select 1 from public.missions m
+          where m.id::text = (storage.foldername(name))[2]
+            and m.greeter_id = public.current_greeter_id()
+        ))
+  )
+);
+
+drop policy if exists "documents_bucket_select_receipts" on storage.objects;
+create policy "documents_bucket_select_receipts"
+on storage.objects for select to authenticated
+using (
+  bucket_id = 'documents'
+  and (storage.foldername(name))[1] = 'receipts'
+  and (
+    public.is_admin()
+    or (public.current_user_role() = 'greeter'
+        and exists (
+          select 1 from public.missions m
+          where m.id::text = (storage.foldername(name))[2]
+            and m.greeter_id = public.current_greeter_id()
+        ))
+  )
+);
+
+drop policy if exists "documents_bucket_delete_receipts" on storage.objects;
+create policy "documents_bucket_delete_receipts"
+on storage.objects for delete to authenticated
+using (
+  bucket_id = 'documents'
+  and (storage.foldername(name))[1] = 'receipts'
+  and public.is_admin()
+);
