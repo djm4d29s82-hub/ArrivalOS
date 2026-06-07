@@ -4,9 +4,8 @@ import { Menu, X, ArrowRight } from 'lucide-react';
 
 const LINKS = [
   { href: '#unternehmen', label: 'Für Unternehmen' },
-  { href: '#journey', label: 'Journey' },
-  { href: '#ki', label: 'KI' },
   { href: '#greeter', label: 'Greeter' },
+  { href: '#ueber-uns', label: 'Über uns' },
   { href: '#kontakt', label: 'Kontakt' },
 ];
 

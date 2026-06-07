@@ -1,18 +1,14 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import AboutSection from '@/components/landing/AboutSection';
-import ArrivalJourneySection from '@/components/landing/ArrivalJourneySection';
 import ValuePropSection from '@/components/landing/ValuePropSection';
-import AiCompanySection from '@/components/landing/AiCompanySection';
 import ContactSection from '@/components/landing/ContactSection';
 import useScrollReveal from '@/lib/useScrollReveal';
 import { usePublicTheme } from '@/lib/usePublicTheme';
 
 /**
- * Single-Page-Landing im Calm-Canvas-Stil — aus Unternehmer-Sicht geordnet:
- * der kommerzielle Pitch steht vorne, die Haltung folgt.
- * Hero · Für Unternehmen · Arrival Journey · KI fürs Unternehmen ·
- * Wer wir sind (inkl. Manifest) · Greeter · Kontakt.
+ * Single-Page-Landing im Calm-Canvas-Stil — schlank & kunden-fokussiert:
+ * Hero · Für Unternehmen (Wert + Angebot) · Greeter werden · Über uns (nur Anton) · Kontakt.
  */
 export default function Landing() {
   usePublicTheme();
@@ -41,32 +37,20 @@ export default function Landing() {
             </p>
             <div className="mt-12 flex items-center gap-x-8 gap-y-4 flex-wrap">
               <a href="#kontakt" className="group inline-flex items-center gap-3 rounded-full bg-navy px-7 py-3.5 text-sm font-medium text-cream transition-colors hover:bg-gold hover:text-navy">
-                Für Unternehmen: Gespräch anfragen
+                Gespräch anfragen
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </a>
-              <a href="#unternehmen" className="text-sm text-navy border-b border-transparent pb-0.5 hover:border-navy transition-colors">
-                So funktioniert's
-              </a>
               <a href="#greeter" className="text-sm text-[var(--mid)] hover:text-navy transition-colors">
-                Du willst Greeter werden?
+                Greeter werden
               </a>
             </div>
           </div>
         </section>
 
-        {/* ── FÜR UNTERNEHMEN — Risiko-Reduktion (Pitch zuerst) ── */}
+        {/* ── FÜR UNTERNEHMEN — Wert (Risiko-Reduktion) + Angebot (Arrival Package) ── */}
         <ValuePropSection />
 
-        {/* ── ARRIVAL JOURNEY (5-Phasen-Ökosystem) ── */}
-        <ArrivalJourneySection />
-
-        {/* ── KI FÜRS UNTERNEHMEN ── */}
-        <AiCompanySection />
-
-        {/* ── WER WIR SIND (inkl. Manifest) ── */}
-        <AboutSection />
-
-        {/* ── GREETER ── */}
+        {/* ── GREETER WERDEN ── */}
         <section className="border-t border-[var(--border)]">
           <div className="max-w-[1180px] mx-auto px-6 md:px-10 py-28 md:py-32">
             <div id="greeter" className="scroll-mt-24 reveal-on-scroll group max-w-xl">
@@ -83,6 +67,9 @@ export default function Landing() {
             </div>
           </div>
         </section>
+
+        {/* ── ÜBER UNS (nur Anton, mit Foto) ── */}
+        <AboutSection />
 
         {/* ── KONTAKT ── */}
         <ContactSection />

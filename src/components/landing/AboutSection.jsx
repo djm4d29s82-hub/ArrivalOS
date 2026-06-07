@@ -1,20 +1,9 @@
-import { COMPANY } from '@/lib/siteConfig';
-
 /**
  * "Wer wir sind" — ruhige Cream-Editorial-Sektion. Gründer-geführte Story + Mission.
  * Positionierung: Arrival Germany als Operating-System-Layer für internationale Relocation.
- * Bewusst zurückhaltend: keine Stockfotos, nur Initialen-Kacheln.
+ * Öffentlich wird bewusst nur ein Co-Founder gezeigt (Anton Rauschenbach, mit Porträt).
  */
 export default function AboutSection() {
-  const founders = (COMPANY.ceo || '')
-    .split(',')
-    .map((n) => n.trim())
-    .filter(Boolean)
-    .map((name) => ({
-      name,
-      initials: name.split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase(),
-    }));
-
   return (
     <section id="ueber-uns" className="border-t border-[var(--border)] scroll-mt-24">
       <div className="max-w-[1180px] mx-auto px-6 md:px-10 py-28 md:py-36 reveal-on-scroll">
@@ -45,18 +34,18 @@ export default function AboutSection() {
 
           <div className="rounded-2xl p-8" style={{ background: 'var(--ds-card)', border: '1px solid var(--border)' }}>
             <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--light)] mb-6">Gegründet von</p>
-            <div className="space-y-5">
-              {founders.map((f) => (
-                <div key={f.name} className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-full bg-navy text-cream grid place-items-center font-serif text-[15px] font-bold shrink-0">
-                    {f.initials}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-[15px] text-navy">{f.name}</div>
-                    <div className="text-[12px] text-[var(--light)]">Mitgründer</div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center gap-4">
+              <img
+                src="/anton-rauschenbach.png"
+                alt="Anton Rauschenbach"
+                loading="lazy"
+                className="w-16 h-16 rounded-full shrink-0 object-cover"
+                style={{ background: 'var(--cream, #f5f1e8)', border: '1px solid var(--border)' }}
+              />
+              <div>
+                <div className="font-semibold text-[16px] text-navy">Anton Rauschenbach</div>
+                <div className="text-[12px] text-[var(--light)]">Mitgründer</div>
+              </div>
             </div>
             <p className="mt-7 pt-6 border-t border-[var(--border)] font-serif italic text-[14px] text-[var(--mid)] leading-relaxed">
               „Ankunft beginnt mit Menschen — Struktur macht sie verlässlich."
