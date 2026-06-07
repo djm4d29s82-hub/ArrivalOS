@@ -329,9 +329,11 @@ export default function TalentDashboard() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-[13px] truncate" style={{ color: 'var(--ds-t1)' }}>{loc.label}</div>
-                      {svc.notes
-                        ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>
-                        : loc.blurb && <div className="text-[11px] truncate" style={{ color: 'var(--ds-t3)' }}>{loc.blurb}</div>}
+                      {svc.provider
+                        ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{lang === 'en' ? 'via' : 'über'} {svc.provider}</div>
+                        : svc.notes
+                          ? <div className="text-[11px] truncate" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>
+                          : loc.blurb && <div className="text-[11px] truncate" style={{ color: 'var(--ds-t3)' }}>{loc.blurb}</div>}
                     </div>
                     <Pill tone={st.tone} size="xs" dot>{serviceStatusLabel(svc.status, lang)}</Pill>
                   </div>

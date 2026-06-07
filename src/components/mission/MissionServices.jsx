@@ -8,6 +8,7 @@ import { Button, Pill, Select, Input, EmptyState } from '@/components/ui';
 import { relativeStepDate } from '@/lib/utils';
 import {
   SERVICE_CATALOG, SERVICE_BY_KEY, SERVICE_STATUS, SERVICE_STATUS_ORDER, suggestServiceKeys,
+  PROVIDER_TYPES, PROVIDER_TYPE_ORDER,
 } from '@/lib/serviceCatalog';
 
 const ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethoscope, Languages, Calculator };
@@ -22,6 +23,7 @@ const ICONS = { FileCheck, ShieldPlus, Building2, Landmark, Smartphone, Stethosc
 export default function MissionServices({ missionId, createdBy, managed = false, onChange }) {
   const [services, setServices] = useState([]);
   const [steps, setSteps] = useState([]);
+  const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [degraded, setDegraded] = useState(false); // table/RLS missing
   const [busy, setBusy] = useState(false);
@@ -50,7 +52,28 @@ export default function MissionServices({ missionId, createdBy, managed = false,
     base44.entities.JourneyStep.filter({ mission_id: missionId })
       .then((s) => setSteps(Array.isArray(s) ? s : []))
       .catch(() => setSteps([]));
+    // Active partners for the partner picker (admin-only table per RLS).
+    base44.entities.Partner.filter({ status: 'active' })
+      .then((p) => setPartners(Array.isArray(p) ? p : []))
+      .catch(() => setPartners([]));
   }, [managed, missionId]);
+
+  const setProviderType = async (svc, providerType) => {
+    const patch = providerType === 'ag_partner'
+      ? { provider_type: providerType }
+      : { provider_type: providerType, partner_id: null, provider: providerType === 'company_provided' ? 'Vom Unternehmen gestellt' : null, commission_amount: null };
+    setServices((arr) => arr.map((s) => (s.id === svc.id ? { ...s, ...patch } : s)));
+    try { await base44.entities.MissionService.update(svc.id, patch); onChange?.(); }
+    catch (e) { console.error(e); load(); }
+  };
+
+  const setPartner = async (svc, partnerId) => {
+    const p = partners.find((x) => x.id === partnerId) || null;
+    const patch = { partner_id: partnerId || null, provider: p?.name || null, commission_amount: p?.commission_flat ?? null };
+    setServices((arr) => arr.map((s) => (s.id === svc.id ? { ...s, ...patch } : s)));
+    try { await base44.entities.MissionService.update(svc.id, patch); onChange?.(); }
+    catch (e) { console.error(e); load(); }
+  };
 
   const usedKeys = new Set(services.map((s) => s.category));
   const available = SERVICE_CATALOG.filter((c) => !usedKeys.has(c.key));
@@ -148,9 +171,14 @@ export default function MissionServices({ missionId, createdBy, managed = false,
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-[13.5px]" style={{ color: 'var(--ds-t1)' }}>{cat.label}</div>
-                    {dueLabel
-                      ? <div className={`text-[11.5px] ${overdue ? 'text-red-600 dark:text-red-400 font-medium' : ''}`} style={overdue ? undefined : { color: 'var(--ds-t3)' }}>Frist: {dueLabel}</div>
-                      : cat.blurb && <div className="text-[11.5px] truncate" style={{ color: 'var(--ds-t3)' }}>{cat.blurb}</div>}
+                    {svc.provider
+                      ? <div className="text-[11.5px] truncate" style={{ color: 'var(--ds-t2)' }}>über {svc.provider}</div>
+                      : dueLabel
+                        ? <div className={`text-[11.5px] ${overdue ? 'text-red-600 dark:text-red-400 font-medium' : ''}`} style={overdue ? undefined : { color: 'var(--ds-t3)' }}>Frist: {dueLabel}</div>
+                        : cat.blurb && <div className="text-[11.5px] truncate" style={{ color: 'var(--ds-t3)' }}>{cat.blurb}</div>}
+                    {svc.provider && dueLabel && (
+                      <div className={`text-[11px] ${overdue ? 'text-red-600 dark:text-red-400 font-medium' : ''}`} style={overdue ? undefined : { color: 'var(--ds-t3)' }}>Frist: {dueLabel}</div>
+                    )}
                   </div>
                   {managed ? (
                     <Select
@@ -176,25 +204,46 @@ export default function MissionServices({ missionId, createdBy, managed = false,
                     </button>
                   )}
                 </div>
-                {managed && (
-                  <div className="mt-2.5 flex items-center gap-2">
-                    <Input
-                      size="sm"
-                      className="flex-1"
-                      defaultValue={svc.notes || ''}
-                      placeholder="Notiz (optional) — z. B. Termin, Ansprechpartner…"
-                      onBlur={(e) => { if ((e.target.value || '') !== (svc.notes || '')) setNotes(svc, e.target.value); }}
-                    />
-                    <input
-                      type="date"
-                      value={dueValue}
-                      onChange={(e) => setDue(svc, e.target.value)}
-                      title="Frist (optional)"
-                      className="h-8 px-2.5 text-[12.5px] rounded-lg shrink-0"
-                      style={{ background: 'var(--ds-input)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-t1)' }}
-                    />
-                  </div>
-                )}
+                {managed && (() => {
+                  const pt = svc.provider_type || 'ag_partner';
+                  const catPartners = partners.filter((p) => p.category === svc.category);
+                  return (
+                    <>
+                      <div className="mt-2.5 flex items-center gap-2">
+                        <Select size="sm" value={pt} onChange={(e) => setProviderType(svc, e.target.value)} className="shrink-0">
+                          {PROVIDER_TYPE_ORDER.map((k) => <option key={k} value={k}>{PROVIDER_TYPES[k].label}</option>)}
+                        </Select>
+                        {pt === 'ag_partner' && (
+                          catPartners.length > 0 ? (
+                            <Select size="sm" value={svc.partner_id || ''} onChange={(e) => setPartner(svc, e.target.value)} className="flex-1">
+                              <option value="">— Partner wählen —</option>
+                              {catPartners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            </Select>
+                          ) : (
+                            <span className="text-[11.5px] flex-1" style={{ color: 'var(--ds-t3)' }}>Netzwerk im Aufbau — kein Partner in dieser Kategorie.</span>
+                          )
+                        )}
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <Input
+                          size="sm"
+                          className="flex-1"
+                          defaultValue={svc.notes || ''}
+                          placeholder={pt === 'company_provided' ? 'Adresse · Schlüssel · Kontakt (für den Greeter sichtbar)' : 'Notiz (optional) — z. B. Termin, Ansprechpartner…'}
+                          onBlur={(e) => { if ((e.target.value || '') !== (svc.notes || '')) setNotes(svc, e.target.value); }}
+                        />
+                        <input
+                          type="date"
+                          value={dueValue}
+                          onChange={(e) => setDue(svc, e.target.value)}
+                          title="Frist (optional)"
+                          className="h-8 px-2.5 text-[12.5px] rounded-lg shrink-0"
+                          style={{ background: 'var(--ds-input)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-t1)' }}
+                        />
+                      </div>
+                    </>
+                  );
+                })()}
                 {!managed && svc.notes && (
                   <div className="text-[12px] mt-2 pl-12" style={{ color: 'var(--ds-t2)' }}>{svc.notes}</div>
                 )}

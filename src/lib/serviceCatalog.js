@@ -50,6 +50,20 @@ export function suggestServiceKeys(steps = [], usedKeys = new Set()) {
   return out;
 }
 
+// Who delivers a service for an arrival.
+export const PROVIDER_TYPES = {
+  ag_partner:       { label: 'Arrival-Partner',    label_en: 'Arrival partner' },
+  company_provided: { label: 'Vom Unternehmen',    label_en: 'Provided by employer' },
+  self:             { label: 'Selbst organisiert', label_en: 'Self-arranged' },
+};
+export const PROVIDER_TYPE_ORDER = ['ag_partner', 'company_provided', 'self'];
+
+export function providerTypeLabel(pt, lang = 'de') {
+  const p = PROVIDER_TYPES[pt];
+  if (!p) return '';
+  return lang === 'en' ? (p.label_en || p.label) : p.label;
+}
+
 /** DE default, EN by lang. Mirrors localizeStep(). */
 export function localizeService(cat, lang = 'de') {
   if (!cat) return { label: '', blurb: '' };
