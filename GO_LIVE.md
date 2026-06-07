@@ -168,7 +168,8 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       `2026-06-flight-status.sql` (Flugverspätung) · `2026-06-partners.sql` (Partner-Verzeichnis + Service-Verknüpfung) ·
       `2026-06-service-consents.sql` (Talent-Einwilligung für Partner-Weitergabe) ·
       `2026-06-push-subscriptions.sql` (Web-Push-Abos) · `2026-06-package-tiers.sql` (Preis-Tiers je Unternehmen) ·
-      `2026-06-mission-expenses.sql` (Greeter-Spesen/Tickets → Durchreichung auf die Unternehmens-Rechnung).
+      `2026-06-mission-expenses.sql` (Greeter-Spesen/Tickets → Durchreichung auf die Unternehmens-Rechnung) ·
+      `2026-06-invoice-review-gate.sql` (Rechnung entsteht als Entwurf; Admin prüft Spesen & sendet ans Unternehmen).
 - [ ] **Paketpreise & Tiers setzen:** Admin → Einstellungen → **Abrechnung** → Tier-Preise (Standard
       490/690/900); pro Unternehmen unter „Unternehmen" das **Paket-Tier** wählen (Standard Professional).
       Die Auto-Rechnung bei Abschluss nutzt den Tier-Preis des Unternehmens.

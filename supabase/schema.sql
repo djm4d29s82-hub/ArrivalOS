@@ -262,7 +262,7 @@ create table if not exists public.invoices (
   mission_id uuid references public.missions(id) on delete set null,
   amount numeric(10,2) not null,
   currency text default 'EUR',
-  status text default 'pending' check (status in ('pending','paid','overdue','cancelled')),
+  status text default 'pending' check (status in ('draft','pending','paid','overdue','cancelled')),
   issued_at timestamptz default now(),
   due_at timestamptz,
   created_at timestamptz default now()
