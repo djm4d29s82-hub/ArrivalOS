@@ -1193,8 +1193,8 @@ export default function OperationsCenterDashboard() {
       {/* ALERT STRIP */}
       <AlertStrip slaStatus={slaStatus} onMissionClick={openMission} />
 
-      {/* MISSION COLUMNS + ACTIVITY FEED */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      {/* MISSION PIPELINE — 3 breite Spalten */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
 
         <div>
           <div className="flex items-center gap-1.5 mb-2.5">
@@ -1258,64 +1258,71 @@ export default function OperationsCenterDashboard() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center gap-1.5 mb-2.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-              <span className="text-[10.5px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ds-t2)' }}>Abgeschlossen</span>
-              <span className="text-[10px]" style={{ color: 'var(--ds-t3)' }}>({completedMissions.length})</span>
-            </div>
-            <div className="space-y-2 max-h-[240px] overflow-y-auto">
-              {completedMissions.length === 0 ? (
-                <div className="text-center py-4 text-[12px]" style={{ color: 'var(--ds-t3)' }}>Noch keine</div>
-              ) : (
-                completedMissions.slice(0, 5).map(m => (
-                  <MissionCard key={m.id} mission={m} greetersMap={greetersMap} candidatesMap={candidatesMap}
-                    onClick={() => openMission(m.id)} onHover={onCardHover} onLeave={onCardLeave} />
-                ))
-              )}
-            </div>
+        <div>
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+            <span className="text-[10.5px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ds-t2)' }}>Abgeschlossen</span>
+            <span className="text-[10px]" style={{ color: 'var(--ds-t3)' }}>({completedMissions.length})</span>
           </div>
-
-          <div className="px-4 py-4 rounded-2xl" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
-            <div className="flex items-center gap-2 mb-3">
-              <Users className="w-3.5 h-3.5" style={{ color: 'var(--ds-t3)' }} />
-              <span className="text-[10.5px] uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--ds-t3)' }}>Greeter Status</span>
-            </div>
-            <div className="space-y-2.5">
-              {[
-                { label: 'Verfügbar', count: stats.greetersAvailable, dot: 'bg-green-500' },
-                { label: 'Im Einsatz', count: stats.greetersBusy, dot: 'bg-blue-500' },
-                { label: 'Pause', count: stats.greetersBreak, dot: 'bg-amber-400' },
-              ].map(({ label, count, dot }) => (
-                <div key={label} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-                    <span className="text-[12px]" style={{ color: 'var(--ds-t2)' }}>{label}</span>
-                  </div>
-                  <span className="text-[13px] font-semibold" style={{ color: 'var(--ds-t1)' }}>{count}</span>
-                </div>
-              ))}
-              {slaStatus.idleGreeterCount > 0 && (
-                <div className="pt-2 flex items-center justify-between" style={{ borderTop: '1px solid rgba(245,158,11,0.25)' }}>
-                  <span className="text-[11px] text-amber-500 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                    Untätig
-                  </span>
-                  <span className="text-[12px] font-semibold text-amber-500">{slaStatus.idleGreeterCount}</span>
-                </div>
-              )}
-            </div>
+          <div className="space-y-2 max-h-[520px] overflow-y-auto">
+            {completedMissions.length === 0 ? (
+              <div className="text-center py-10 text-[12px]" style={{ color: 'var(--ds-t3)' }}>Noch keine</div>
+            ) : (
+              completedMissions.slice(0, 8).map(m => (
+                <MissionCard key={m.id} mission={m} greetersMap={greetersMap} candidatesMap={candidatesMap}
+                  onClick={() => openMission(m.id)} onHover={onCardHover} onLeave={onCardLeave} />
+              ))
+            )}
           </div>
         </div>
 
+      </div>
+
+      {/* BODEN-BAND — Heatmap · Greeter-Status · Live-Feed (füllt die Breite, kein leerer Spalt) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
+
+        <GermanyHeatmap missions={missions} selectedCity={cityFilter} onCitySelect={setCityFilter} />
+
+        {/* Greeter Status */}
+        <div className="px-4 py-4 rounded-2xl" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-3.5 h-3.5" style={{ color: 'var(--ds-t3)' }} />
+            <span className="text-[10.5px] uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--ds-t3)' }}>Greeter Status</span>
+          </div>
+          <div className="space-y-2.5">
+            {[
+              { label: 'Verfügbar', count: stats.greetersAvailable, dot: 'bg-green-500' },
+              { label: 'Im Einsatz', count: stats.greetersBusy, dot: 'bg-blue-500' },
+              { label: 'Pause', count: stats.greetersBreak, dot: 'bg-amber-400' },
+            ].map(({ label, count, dot }) => (
+              <div key={label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+                  <span className="text-[12px]" style={{ color: 'var(--ds-t2)' }}>{label}</span>
+                </div>
+                <span className="text-[13px] font-semibold" style={{ color: 'var(--ds-t1)' }}>{count}</span>
+              </div>
+            ))}
+            {slaStatus.idleGreeterCount > 0 && (
+              <div className="pt-2 flex items-center justify-between" style={{ borderTop: '1px solid rgba(245,158,11,0.25)' }}>
+                <span className="text-[11px] text-amber-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  Untätig
+                </span>
+                <span className="text-[12px] font-semibold text-amber-500">{slaStatus.idleGreeterCount}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Live Feed */}
         <div>
           <div className="flex items-center gap-1.5 mb-2.5">
             <Zap className="w-3.5 h-3.5 text-violet-500" />
             <span className="text-[10.5px] font-semibold uppercase tracking-wide" style={{ color: 'var(--ds-t2)' }}>Live Feed</span>
             {connectionStatus === 'connected' && <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse ml-0.5" />}
           </div>
-          <div className="px-3 py-1 max-h-[560px] overflow-y-auto rounded-2xl" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
+          <div className="px-3 py-1 max-h-[300px] overflow-y-auto rounded-2xl" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
             {activityFeed.length === 0 ? (
               <div className="text-center py-10 text-[12px]" style={{ color: 'var(--ds-t3)' }}>
                 <Activity className="w-6 h-6 mx-auto mb-1.5 opacity-30" />
@@ -1328,11 +1335,6 @@ export default function OperationsCenterDashboard() {
         </div>
 
       </div>
-
-      {/* GERMANY HEATMAP */}
-      <section>
-        <GermanyHeatmap missions={missions} selectedCity={cityFilter} onCitySelect={setCityFilter} />
-      </section>
 
       {/* QUICK HOVER PREVIEW — kurzer Status-Blick; Klick auf die Karte öffnet die Mission */}
       <MissionHoverPreview data={hoverData} greetersMap={greetersMap} candidatesMap={candidatesMap} activityFeed={activityFeed} />
