@@ -14,6 +14,8 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { base44, BACKEND_MODE } from '@/api/base44Client';
+import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { getMultiMissionManager } from '@/lib/missionRealtimeSync';
 import {
   missionEventEmitter,
@@ -180,7 +182,7 @@ function MissionTimeline({ status }) {
 
 // ─── MissionCard ─────────────────────────────────────────────────────────────
 
-function MissionCard({ mission, greetersMap, candidatesMap, onClick, isSelected }) {
+function MissionCard({ mission, greetersMap, candidatesMap, onClick, onHover, onLeave }) {
   const priority = getMissionPriority(mission);
   const sla = calculateMissionSLA(mission);
   const greeter = greetersMap.get(mission.greeter_id);
@@ -199,7 +201,9 @@ function MissionCard({ mission, greetersMap, candidatesMap, onClick, isSelected 
   return (
     <div
       onClick={onClick}
-      className={`rounded-xl p-4 transition-all cursor-pointer ${borderClass} ${isSelected ? 'ring-2 ring-navy/30' : ''}`}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(196,146,40,0.45)'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.10)'; onHover?.(mission, e.currentTarget.getBoundingClientRect()); }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--ds-card-border)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; onLeave?.(); }}
+      className={`rounded-xl p-4 transition-all cursor-pointer ${borderClass}`}
       style={{ background: 'var(--ds-card)', border: `1px solid var(--ds-card-border)` }}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -876,6 +880,50 @@ function MissionDetailDrawer({ missionId, missions, greetersMap, candidatesMap, 
   );
 }
 
+// ─── MissionHoverPreview — kleiner Schnellblick beim Hover (ersetzt das große Panel) ──
+function MissionHoverPreview({ data, greetersMap, candidatesMap }) {
+  if (!data) return null;
+  const { mission, rect } = data;
+  const greeter = greetersMap.get(mission.greeter_id);
+  const candidate = candidatesMap.get(mission.candidate_id);
+  const greeterName = greeter ? greeter.full_name.split(' ')[0] : (mission.greeter_id ? 'Unbekannt' : 'Nicht zugewiesen');
+  const candidateName = candidate ? candidate.full_name.split(' ')[0] : 'Talent';
+  const sla = calculateMissionSLA(mission);
+  const slaMessage = getSLAMessage(sla);
+
+  const W = 268;
+  let left = rect.right + 10;
+  if (left + W > window.innerWidth - 8) left = rect.left - W - 10;
+  if (left < 8) left = 8;
+  let top = rect.top;
+  if (top + 172 > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 172 - 8);
+
+  return createPortal(
+    <div className="fixed z-[60] rounded-xl p-3.5 pointer-events-none animate-fade-in"
+      style={{ left, top, width: W, background: 'var(--ds-popup, var(--ds-card))', border: '1px solid var(--ds-card-border)', boxShadow: '0 18px 48px rgba(0,0,0,0.28)' }}>
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <div className="font-serif text-[13px] font-bold leading-snug" style={{ color: 'var(--ds-t1)' }}>{mission.title}</div>
+        <Pill tone={STATUS_TONE[mission.status] || 'neutral'} size="xs" dot>{STATUS_LABEL[mission.status] || mission.status}</Pill>
+      </div>
+      <div className="text-[11.5px] mb-1.5" style={{ color: 'var(--ds-t2)' }}>{greeterName} → {candidateName}</div>
+      <div className="flex items-center gap-2 text-[11px] mb-1.5" style={{ color: 'var(--ds-t3)' }}>
+        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{mission.city || '—'}</span>
+        {mission.datetime && <CountdownBadge iso={mission.datetime} />}
+      </div>
+      {hasIssue(mission) && mission.issue_message ? (
+        <div className="text-[11px] rounded-lg px-2 py-1 mb-1.5 bg-red-500/15 text-red-400 truncate">{mission.issue_message}</div>
+      ) : slaMessage ? (
+        <div className={`text-[11px] rounded-lg px-2 py-1 mb-1.5 ${SLA_BADGE_CLASSES[sla.level]}`}>{slaMessage}</div>
+      ) : null}
+      <div className="text-[10.5px] tabular-nums pt-1.5" style={{ color: 'var(--ds-t3)', borderTop: '1px solid var(--ds-card-border)' }}>
+        Zuletzt aktualisiert {timeAgo(mission.last_status_change || mission.created_at)}
+      </div>
+      <div className="text-[10px] mt-1 font-semibold" style={{ color: '#c49228' }}>Klick → volle Mission</div>
+    </div>,
+    document.body
+  );
+}
+
 // ─── Main Dashboard ──────────────────────────────────────────────────────────
 
 export default function OperationsCenterDashboard() {
@@ -890,7 +938,12 @@ export default function OperationsCenterDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
   const [lastRefreshed, setLastRefreshed] = useState(null);
-  const [selectedMissionId, setSelectedMissionId] = useState(null);
+  const [hoverData, setHoverData] = useState(null);
+  const hoverTimerRef = useRef(null);
+  const navigate = useNavigate();
+  const openMission = (id) => navigate(`/admin/missions/${id}`);
+  const onCardHover = (mission, rect) => { clearTimeout(hoverTimerRef.current); setHoverData({ mission, rect }); };
+  const onCardLeave = () => { hoverTimerRef.current = setTimeout(() => setHoverData(null), 80); };
   const [cityFilter, setCityFilter] = useState(null);
   const pollIntervalRef = useRef(null);
   const queryClient = useQueryClient();
@@ -1072,7 +1125,7 @@ export default function OperationsCenterDashboard() {
               connectionStatus === 'connected' ? (BACKEND_MODE === 'supabase' ? 'live' : 'polling') :
               connectionStatus === 'connecting' ? 'polling' : 'disconnected'
             } />
-            <button onClick={handleRefresh} disabled={refreshing} className="ml-auto p-1 rounded hover:bg-white/10 disabled:opacity-40 transition">
+            <button onClick={handleRefresh} disabled={refreshing} title="Aktualisieren" aria-label="Aktualisieren" className="ml-auto p-1 rounded hover:bg-white/10 disabled:opacity-40 transition">
               <RefreshCw className={`w-3 h-3 text-cream/50 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>
@@ -1103,7 +1156,7 @@ export default function OperationsCenterDashboard() {
       </div>
 
       {/* ALERT STRIP */}
-      <AlertStrip slaStatus={slaStatus} onMissionClick={setSelectedMissionId} />
+      <AlertStrip slaStatus={slaStatus} onMissionClick={openMission} />
 
       {/* MISSION COLUMNS + ACTIVITY FEED */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -1127,7 +1180,7 @@ export default function OperationsCenterDashboard() {
                 </div>
                 {incomingMissions.map(m => (
                   <MissionCard key={m.id} mission={m} greetersMap={greetersMap} candidatesMap={candidatesMap}
-                    onClick={() => setSelectedMissionId(m.id)} isSelected={selectedMissionId === m.id} />
+                    onClick={() => openMission(m.id)} onHover={onCardHover} onLeave={onCardLeave} />
                 ))}
                 {priorityMissions.length > 0 && (
                   <div className="pt-1" style={{ borderTop: '1px solid var(--ds-card-border)' }}>
@@ -1146,7 +1199,7 @@ export default function OperationsCenterDashboard() {
             ) : (
               priorityMissions.map(m => (
                 <MissionCard key={m.id} mission={m} greetersMap={greetersMap} candidatesMap={candidatesMap}
-                  onClick={() => setSelectedMissionId(m.id)} isSelected={selectedMissionId === m.id} />
+                  onClick={() => openMission(m.id)} onHover={onCardHover} onLeave={onCardLeave} />
               ))
             )}
           </div>
@@ -1164,7 +1217,7 @@ export default function OperationsCenterDashboard() {
             ) : (
               activeMissions.map(m => (
                 <MissionCard key={m.id} mission={m} greetersMap={greetersMap} candidatesMap={candidatesMap}
-                  onClick={() => setSelectedMissionId(m.id)} isSelected={selectedMissionId === m.id} />
+                  onClick={() => openMission(m.id)} onHover={onCardHover} onLeave={onCardLeave} />
               ))
             )}
           </div>
@@ -1183,7 +1236,7 @@ export default function OperationsCenterDashboard() {
               ) : (
                 completedMissions.slice(0, 5).map(m => (
                   <MissionCard key={m.id} mission={m} greetersMap={greetersMap} candidatesMap={candidatesMap}
-                    onClick={() => setSelectedMissionId(m.id)} isSelected={selectedMissionId === m.id} />
+                    onClick={() => openMission(m.id)} onHover={onCardHover} onLeave={onCardLeave} />
                 ))
               )}
             </div>
@@ -1246,18 +1299,8 @@ export default function OperationsCenterDashboard() {
         <GermanyHeatmap missions={missions} selectedCity={cityFilter} onCitySelect={setCityFilter} />
       </section>
 
-      {/* MISSION DETAIL DRAWER */}
-      {selectedMissionId && (
-        <MissionDetailDrawer
-          missionId={selectedMissionId}
-          missions={missions}
-          greetersMap={greetersMap}
-          candidatesMap={candidatesMap}
-          currentUserEmail={currentUserEmail}
-          onClose={() => setSelectedMissionId(null)}
-          onMissionUpdated={handleMissionUpdated}
-        />
-      )}
+      {/* QUICK HOVER PREVIEW — kurzer Status-Blick; Klick auf die Karte öffnet die Mission */}
+      <MissionHoverPreview data={hoverData} greetersMap={greetersMap} candidatesMap={candidatesMap} />
 
     </div>
   );
