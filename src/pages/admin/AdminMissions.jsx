@@ -117,7 +117,7 @@ export default function AdminMissions() {
                   <h2 className="font-semibold text-[14px]" style={{ color: 'var(--ds-t1)' }}>{b.label}</h2>
                   <div className="text-[11px] font-medium text-[var(--mid)] ml-auto">{b.items.length} {b.items.length === 1 ? 'Einsatz' : 'Einsätze'}</div>
                 </div>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
                   {b.items.map((m) => (
                     <MissionCard
                       key={m.id}
@@ -155,58 +155,66 @@ function MissionCard({ mission, company, candidate, greeter, onRematch, onReopen
     }
   };
   
+  const hasAction = [MissionStatus.ASSIGNED, MissionStatus.ACCEPTED, MissionStatus.ON_THE_WAY, MissionStatus.ARRIVED, MissionStatus.COMPLETED, MissionStatus.CANCELLED].includes(mission.status)
+    || ![MissionStatus.COMPLETED, MissionStatus.CANCELLED, MissionStatus.ISSUE_REPORTED].includes(mission.status);
+
   return (
-    <div className="rounded-xl transition flex items-center gap-3 px-3 py-2.5"
+    <div className="rounded-xl transition flex flex-col"
       style={{ background: 'var(--ds-card)', border: isPriority ? '1px solid rgba(239,68,68,0.25)' : '1px solid var(--ds-card-border)' }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,146,40,0.04)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-card)'; }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(196,146,40,0.30)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = isPriority ? 'rgba(239,68,68,0.25)' : 'var(--ds-card-border)'; }}
     >
-      {/* Clickable body — date + title + meta on one row */}
-      <Link to={`/admin/missions/${mission.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="text-center w-12 shrink-0 rounded-lg py-1.5" style={{ background: 'var(--ds-card-border)' }}>
-          <div className="text-[8.5px] uppercase tracking-widest font-semibold" style={{ color: 'var(--ds-t3)' }}>{dayShort(mission.datetime)}</div>
-          <div className="font-serif text-[17px] font-bold tabular-nums leading-none" style={{ color: '#c49228' }}>{dayOf(mission.datetime)}</div>
-          <div className="text-[9px] text-[var(--mid)] tabular-nums">{timeOf(mission.datetime)}</div>
+      {/* Clickable body */}
+      <Link to={`/admin/missions/${mission.id}`} className="block flex-1 p-3">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-[11px] font-semibold tabular-nums" style={{ color: 'var(--ds-t3)' }}>
+            {dayOf(mission.datetime)} {dayShort(mission.datetime)} · {timeOf(mission.datetime)}
+          </span>
+          <StatusPill status={mission.status} />
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-semibold text-[14px] truncate" style={{ color: 'var(--ds-t1)' }}>{mission.title}</span>
-            <StatusPill status={mission.status} />
-          </div>
-          <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-[11.5px] mt-1" style={{ color: 'var(--mid)' }}>
-            <span className="inline-flex items-center gap-1 min-w-0"><MapPin className="w-3 h-3 text-gold shrink-0" /><span className="truncate">{mission.location || mission.city}</span></span>
-            {company && <><span className="text-[var(--light)]">·</span><span className="truncate">{company.name}</span></>}
-            {candidate && <span style={{ color: 'var(--ds-t2)' }}>· {candidate.full_name}</span>}
-            {greeter && <Pill tone="navy" size="xs">{greeter.full_name?.split(' ')[0]}</Pill>}
-            {stage && stage !== 'completed' && <Pill tone="gold" size="xs">{STAGE_LABELS_DE[stage]}</Pill>}
-            {mission.has_issue && <Pill tone="red" size="xs">⚠ Issue</Pill>}
-          </div>
+        <div className="font-semibold text-[14px] leading-snug truncate" style={{ color: 'var(--ds-t1)' }}>{mission.title}</div>
+
+        <div className="flex items-center gap-1.5 text-[11.5px] mt-1.5 min-w-0" style={{ color: 'var(--mid)' }}>
+          <MapPin className="w-3 h-3 text-gold shrink-0" />
+          <span className="truncate">{mission.location || mission.city}</span>
+          {company && <><span className="text-[var(--light)] shrink-0">·</span><span className="truncate">{company.name}</span></>}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          {candidate && <Pill tone="neutral" size="xs">{candidate.full_name}</Pill>}
+          {greeter && <Pill tone="navy" size="xs">{greeter.full_name?.split(' ')[0]}</Pill>}
+          {stage && stage !== 'completed' && <Pill tone="gold" size="xs">{STAGE_LABELS_DE[stage]}</Pill>}
+          {mission.has_issue && <Pill tone="red" size="xs">⚠ Issue</Pill>}
         </div>
       </Link>
 
-      {/* Pay + actions inline (no separate bar) */}
-      <div className="flex items-center gap-2 shrink-0">
-        {mission.pay ? <span className="font-semibold text-[13px] tabular-nums" style={{ color: '#c49228' }}>{mission.pay} €</span> : null}
-        {mission.status === MissionStatus.ASSIGNED && (
-          <Button variant="outline" size="xs" icon={Sparkles} onClick={() => onRematch(mission)}>Matching</Button>
-        )}
-        {mission.status === MissionStatus.ACCEPTED && (
-          <Button variant="primary" size="xs" disabled={!canTransitionTo(MissionStatus.ON_THE_WAY) || isBusy} loading={isBusy} onClick={() => onAdvance(MissionStatus.ON_THE_WAY)}>Unterwegs</Button>
-        )}
-        {mission.status === MissionStatus.ON_THE_WAY && (
-          <Button variant="primary" size="xs" disabled={!canTransitionTo(MissionStatus.ARRIVED) || isBusy} loading={isBusy} onClick={() => onAdvance(MissionStatus.ARRIVED)}>Vor Ort</Button>
-        )}
-        {mission.status === MissionStatus.ARRIVED && (
-          <Button variant="success" size="xs" disabled={!canTransitionTo(MissionStatus.COMPLETED) || isBusy} loading={isBusy} onClick={() => onAdvance(MissionStatus.COMPLETED)}>Abschließen</Button>
-        )}
-        {![MissionStatus.COMPLETED, MissionStatus.CANCELLED, MissionStatus.ISSUE_REPORTED].includes(mission.status) && (
-          <Button variant="ghost" size="xs" className="!text-red-600 hover:!bg-red-500/10" disabled={isBusy} onClick={() => onAdvance(MissionStatus.CANCELLED)}>Stornieren</Button>
-        )}
-        {[MissionStatus.COMPLETED, MissionStatus.CANCELLED].includes(mission.status) && (
-          <Button variant="outline" size="xs" icon={RefreshCw} onClick={() => onReopen(mission)}>Wieder öffnen</Button>
-        )}
-      </div>
+      {/* Footer: pay + actions */}
+      {(mission.pay || hasAction) && (
+        <div className="px-3 py-2 flex items-center justify-between gap-2" style={{ borderTop: '1px solid var(--ds-card-border)' }}>
+          <span className="font-semibold text-[13px] tabular-nums" style={{ color: '#c49228' }}>{mission.pay ? `${mission.pay} €` : ''}</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {mission.status === MissionStatus.ASSIGNED && (
+              <Button variant="outline" size="xs" icon={Sparkles} onClick={() => onRematch(mission)}>Matching</Button>
+            )}
+            {mission.status === MissionStatus.ACCEPTED && (
+              <Button variant="primary" size="xs" disabled={!canTransitionTo(MissionStatus.ON_THE_WAY) || isBusy} loading={isBusy} onClick={() => onAdvance(MissionStatus.ON_THE_WAY)}>Unterwegs</Button>
+            )}
+            {mission.status === MissionStatus.ON_THE_WAY && (
+              <Button variant="primary" size="xs" disabled={!canTransitionTo(MissionStatus.ARRIVED) || isBusy} loading={isBusy} onClick={() => onAdvance(MissionStatus.ARRIVED)}>Vor Ort</Button>
+            )}
+            {mission.status === MissionStatus.ARRIVED && (
+              <Button variant="success" size="xs" disabled={!canTransitionTo(MissionStatus.COMPLETED) || isBusy} loading={isBusy} onClick={() => onAdvance(MissionStatus.COMPLETED)}>Abschließen</Button>
+            )}
+            {![MissionStatus.COMPLETED, MissionStatus.CANCELLED, MissionStatus.ISSUE_REPORTED].includes(mission.status) && (
+              <Button variant="ghost" size="xs" className="!text-red-600 hover:!bg-red-500/10" disabled={isBusy} onClick={() => onAdvance(MissionStatus.CANCELLED)}>Stornieren</Button>
+            )}
+            {[MissionStatus.COMPLETED, MissionStatus.CANCELLED].includes(mission.status) && (
+              <Button variant="outline" size="xs" icon={RefreshCw} onClick={() => onReopen(mission)}>Wieder öffnen</Button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
