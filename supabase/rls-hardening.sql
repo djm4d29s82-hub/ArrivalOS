@@ -175,9 +175,9 @@ create policy "activity_logs_insert" on public.activity_logs for insert to authe
   with check (true);
 -- kein UPDATE/DELETE (immutable)
 
--- INVOICES — Company sieht eigene; Admin alles
+-- INVOICES — Company sieht eigene (außer Entwürfe); Admin alles
 create policy "invoices_select" on public.invoices for select to authenticated
-  using (public.is_admin() or (public.current_user_role() = 'company' and company_id = public.current_company_id()));
+  using (public.is_admin() or (public.current_user_role() = 'company' and company_id = public.current_company_id() and status is distinct from 'draft'));
 create policy "invoices_modify_admin" on public.invoices for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
