@@ -34,6 +34,8 @@ import {
   SLA_BADGE_CLASSES,
 } from '@/lib/missionSLA';
 import { useAuth } from '@/lib/AuthContext';
+import { missionProgress } from '@/lib/missionKernel';
+import { STAGE_LABELS_DE } from '@/lib/missionEngine';
 import { Card, Pill } from '@/components/ui';
 import {
   AlertCircle, CheckCircle2, Users, Radio,
@@ -880,43 +882,76 @@ function MissionDetailDrawer({ missionId, missions, greetersMap, candidatesMap, 
   );
 }
 
-// ─── MissionHoverPreview — kleiner Schnellblick beim Hover (ersetzt das große Panel) ──
-function MissionHoverPreview({ data, greetersMap, candidatesMap }) {
+// ─── MissionHoverPreview — Schnellblick beim Hover: Fortschritt + tiefere Infos (nicht das Karten-Duplikat) ──
+function opsStatement(mission, gname, cand) {
+  if (mission.has_issue) return mission.issue_message || 'Problem gemeldet.';
+  return ({
+    created:     'Geplant, Greeter wird zugewiesen.',
+    open:        'Matching läuft.',
+    matched:     'Matching läuft.',
+    assigned:    gname ? `${gname} zugewiesen, wartet auf Bestätigung.` : 'Greeter zugewiesen.',
+    accepted:    gname ? `${gname} hat angenommen.` : 'Angenommen.',
+    on_the_way:  gname ? `${gname} ist unterwegs zu ${cand}.` : `Unterwegs zu ${cand}.`,
+    arrived:     gname ? `${gname} ist am Treffpunkt.` : 'Am Treffpunkt.',
+    in_progress: `Ankunft läuft mit ${cand}.`,
+    met_talent:  `Ankunft läuft mit ${cand}.`,
+    completed:   `${cand} ist erfolgreich angekommen.`,
+    cancelled:   'Mission storniert.',
+  }[mission.status]) || (STAGE_LABELS_DE[mission.greeter_stage] || STATUS_LABEL[mission.status] || mission.status);
+}
+
+function MissionHoverPreview({ data, greetersMap, candidatesMap, activityFeed }) {
   if (!data) return null;
   const { mission, rect } = data;
   const greeter = greetersMap.get(mission.greeter_id);
   const candidate = candidatesMap.get(mission.candidate_id);
-  const greeterName = greeter ? greeter.full_name.split(' ')[0] : (mission.greeter_id ? 'Unbekannt' : 'Nicht zugewiesen');
-  const candidateName = candidate ? candidate.full_name.split(' ')[0] : 'Talent';
-  const sla = calculateMissionSLA(mission);
-  const slaMessage = getSLAMessage(sla);
+  const gname = greeter ? greeter.full_name.split(' ')[0] : null;
+  const cand = candidate ? candidate.full_name.split(' ')[0] : 'Talent';
+  const stageLabel = STAGE_LABELS_DE[mission.greeter_stage] || STATUS_LABEL[mission.status] || mission.status;
+  const pct = missionProgress(mission).pct;
+  const statement = opsStatement(mission, gname, cand);
+  const lastEvent = (activityFeed || []).find(e => e.missionId === mission.id);
+  const etaStr = mission.eta_at ? new Date(mission.eta_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : null;
 
-  const W = 268;
+  const W = 272;
   let left = rect.right + 10;
   if (left + W > window.innerWidth - 8) left = rect.left - W - 10;
   if (left < 8) left = 8;
   let top = rect.top;
-  if (top + 172 > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 172 - 8);
+  if (top + 210 > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 210 - 8);
 
   return createPortal(
     <div className="fixed z-[60] rounded-xl p-3.5 pointer-events-none animate-fade-in"
       style={{ left, top, width: W, background: 'var(--ds-popup, var(--ds-card))', border: '1px solid var(--ds-card-border)', boxShadow: '0 18px 48px rgba(0,0,0,0.28)' }}>
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <div className="font-serif text-[13px] font-bold leading-snug" style={{ color: 'var(--ds-t1)' }}>{mission.title}</div>
-        <Pill tone={STATUS_TONE[mission.status] || 'neutral'} size="xs" dot>{STATUS_LABEL[mission.status] || mission.status}</Pill>
+      <div className="flex items-center justify-between gap-2 mb-2.5">
+        <div className="font-serif text-[13px] font-bold truncate" style={{ color: 'var(--ds-t1)' }}>{mission.title}</div>
+        <span className="text-[9.5px] font-bold uppercase tracking-wide shrink-0" style={{ color: '#c49228' }}>{stageLabel}</span>
       </div>
-      <div className="text-[11.5px] mb-1.5" style={{ color: 'var(--ds-t2)' }}>{greeterName} → {candidateName}</div>
-      <div className="flex items-center gap-2 text-[11px] mb-1.5" style={{ color: 'var(--ds-t3)' }}>
-        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{mission.city || '—'}</span>
-        {mission.datetime && <CountdownBadge iso={mission.datetime} />}
+
+      {/* Fortschritt */}
+      <div className="flex items-center justify-between text-[9.5px] uppercase tracking-[0.12em] font-semibold mb-1" style={{ color: 'var(--ds-t3)' }}>
+        <span>Fortschritt</span><span className="tabular-nums">{pct}%</span>
       </div>
-      {hasIssue(mission) && mission.issue_message ? (
-        <div className="text-[11px] rounded-lg px-2 py-1 mb-1.5 bg-red-500/15 text-red-400 truncate">{mission.issue_message}</div>
-      ) : slaMessage ? (
-        <div className={`text-[11px] rounded-lg px-2 py-1 mb-1.5 ${SLA_BADGE_CLASSES[sla.level]}`}>{slaMessage}</div>
-      ) : null}
-      <div className="text-[10.5px] tabular-nums pt-1.5" style={{ color: 'var(--ds-t3)', borderTop: '1px solid var(--ds-card-border)' }}>
-        Zuletzt aktualisiert {timeAgo(mission.last_status_change || mission.created_at)}
+      <div className="h-1.5 rounded-full overflow-hidden mb-2.5" style={{ background: 'var(--ds-card-border)' }}>
+        <div className="h-full transition-all" style={{ width: `${pct}%`, background: mission.has_issue ? '#ef4444' : 'linear-gradient(90deg,#c49228,#d4a83a)' }} />
+      </div>
+
+      {/* Aktueller Schritt */}
+      <div className="text-[12px] leading-snug mb-2" style={{ color: mission.has_issue ? '#f87171' : 'var(--ds-t1)' }}>
+        {statement}
+      </div>
+
+      {/* Extras */}
+      {etaStr && <div className="text-[11px] mb-1" style={{ color: 'var(--ds-t2)' }}>ETA {etaStr}</div>}
+      {mission.flight_status === 'delayed' && (
+        <div className="text-[11px] mb-1 text-amber-500">✈ Flug verspätet{mission.flight_delay_note ? ` · ${mission.flight_delay_note}` : ''}</div>
+      )}
+
+      {/* Letzte Aktivität (echt, aus dem Feed) */}
+      <div className="text-[10.5px] pt-1.5" style={{ color: 'var(--ds-t3)', borderTop: '1px solid var(--ds-card-border)' }}>
+        {lastEvent
+          ? <>Zuletzt: {lastEvent.description || STATUS_LABEL[lastEvent.newStatus || lastEvent.new_value] || 'Update'} · {timeAgo(lastEvent.timestamp)}</>
+          : <>Zuletzt aktualisiert {timeAgo(mission.last_status_change || mission.created_at)}</>}
       </div>
       <div className="text-[10px] mt-1 font-semibold" style={{ color: '#c49228' }}>Klick → volle Mission</div>
     </div>,
@@ -1300,7 +1335,7 @@ export default function OperationsCenterDashboard() {
       </section>
 
       {/* QUICK HOVER PREVIEW — kurzer Status-Blick; Klick auf die Karte öffnet die Mission */}
-      <MissionHoverPreview data={hoverData} greetersMap={greetersMap} candidatesMap={candidatesMap} />
+      <MissionHoverPreview data={hoverData} greetersMap={greetersMap} candidatesMap={candidatesMap} activityFeed={activityFeed} />
 
     </div>
   );
