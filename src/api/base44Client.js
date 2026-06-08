@@ -17,7 +17,9 @@ const ENV_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const SUPABASE_KEY = ENV_KEY && !ENV_KEY.startsWith('sb_secret_') ? ENV_KEY : PUBLISHABLE_KEY;
 const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_KEY);
 
-const LS_KEY = 'neuland-base44-db-v1';
+// Bump this when the seed demo data changes so dev clients re-seed automatically
+// (a new key = empty store on next load → seedDB runs; no manual localStorage clearing).
+const LS_KEY = 'neuland-base44-db-v2';
 
 const ENTITY_NAMES = [
   'User',
