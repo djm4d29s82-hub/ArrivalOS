@@ -21,14 +21,9 @@ export default function AboutSection() {
               Wir bauen die <span className="text-gold italic">Betriebsschicht</span> für internationale Ankunft.
             </h2>
             <p className="mt-8 text-[var(--mid)] leading-relaxed max-w-xl">
-              Arrival Germany ist kein weiteres HR-Tool. Wir orchestrieren den gesamten Ankunftsprozess
-              internationaler Fachkräfte — von der Einreise über die ersten 30 Tage bis zur Integration in
-              den Alltag. Ein Ansprechpartner, eine Plattform, ein Reporting.
-            </p>
-            <p className="mt-5 text-[var(--mid)] leading-relaxed max-w-xl">
-              Wir haben zuerst die Operations gebaut — die echte Wegbegleitung vor Ort — und dann die
-              Software. Deshalb verstehen wir Ankunft nicht als Prozess, sondern als Moment, in dem ein
-              Mensch sich entscheidet, ob er bleibt.
+              Arrival Germany ist kein weiteres HR-Tool. Wir haben zuerst die Operations gebaut — die echte
+              Wegbegleitung vor Ort — und dann die Software. Deshalb verstehen wir Ankunft nicht als Prozess,
+              sondern als Moment, in dem ein Mensch sich entscheidet, ob er bleibt.
             </p>
           </div>
 
