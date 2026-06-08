@@ -124,7 +124,7 @@ export function createSupabaseClient(url, anonKey) {
       return profile || { id: user.id, email: user.email, role: 'talent' };
     },
     async switchRole() {
-      throw new Error('Role-switching is dev-mode only — not available in Supabase mode.');
+      throw new Error('Role-switching is dev-mode only, not available in Supabase mode.');
     },
     async logout() {
       await sb.auth.signOut();

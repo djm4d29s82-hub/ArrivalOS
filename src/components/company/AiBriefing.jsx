@@ -58,7 +58,7 @@ export default function AiBriefing({ getPayload, disabled }) {
           <div>
             <div className="font-semibold text-[14.5px]" style={{ color: 'var(--ds-t1)' }}>KI-Ankunfts-Briefing</div>
             <div className="text-[12.5px] mt-0.5" style={{ color: 'var(--ds-t2)' }}>
-              Status, Risiken und nächste Schritte deiner laufenden Ankünfte — in Sekunden.
+              Status, Risiken und nächste Schritte deiner laufenden Ankünfte, in Sekunden.
             </div>
           </div>
         </div>

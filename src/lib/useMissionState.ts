@@ -46,7 +46,7 @@ export interface UseMissionStateResult {
   isDirty: boolean; // Has unsync'd optimistic updates (pending sync)
   lastSyncTime: string | null;
   isSyncing: boolean;
-  isOnline: boolean; // Network status — drives offline/pending UI
+  isOnline: boolean; // Network status, drives offline/pending UI
 }
 
 /**

@@ -272,7 +272,7 @@ export default function GreeterMissionDetail() {
         {!isOnline ? (
           <div className="rounded-xl px-4 py-2.5 flex items-center gap-2 text-[12.5px]" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.28)', color: '#b45309' }}>
             <WifiOff className="w-4 h-4 shrink-0" />
-            Offline — deine Aktionen werden gespeichert und automatisch synchronisiert, sobald du wieder online bist.
+            Offline, deine Aktionen werden gespeichert und automatisch synchronisiert, sobald du wieder online bist.
           </div>
         ) : (isDirty || isSyncing) ? (
           <div className="rounded-xl px-4 py-2.5 flex items-center gap-2 text-[12.5px]" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)', color: 'var(--ds-t2)' }}>
@@ -601,7 +601,7 @@ export default function GreeterMissionDetail() {
             </div>
             <div className="rounded-xl p-3 max-h-72 overflow-y-auto space-y-3 bg-black/[0.05] dark:bg-white/[0.04]">
               {thread.length === 0 && (
-                <div className="text-center text-[12px] py-4" style={{ color: 'var(--ds-t2)' }}>Noch keine Nachrichten — schreib die erste!</div>
+                <div className="text-center text-[12px] py-4" style={{ color: 'var(--ds-t2)' }}>Noch keine Nachrichten, schreib die erste!</div>
               )}
               {thread.map((m) => {
                 const mine = m.sender_id === user?.id;
@@ -805,7 +805,7 @@ function PrimaryActionBar({ mission, stage, isMine, isMatched, canTransitionTo, 
           onClick={() => onTransition(MissionStatus.ARRIVED, '✓ Check-in')}
           className="!h-12"
         >
-          ✓ Vor Ort — Check-in
+          ✓ Vor Ort, Check-in
         </Button>
       );
       secondaryActions.push(
@@ -829,7 +829,7 @@ function PrimaryActionBar({ mission, stage, isMine, isMatched, canTransitionTo, 
           onClick={() => onTransition(MissionStatus.IN_PROGRESS, '✓ Onboarding gestartet')}
           className="!h-12"
         >
-          ✓ Talent ist da — Onboarding starten
+          ✓ Talent ist da, Onboarding starten
         </Button>
       );
       secondaryActions.push(

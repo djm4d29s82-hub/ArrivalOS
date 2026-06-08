@@ -46,7 +46,7 @@ export default function CompanyDocuments() {
     <div>
       <div className="mb-2 text-[11px] uppercase tracking-widest text-gold font-bold">Unternehmen · Dokumente</div>
       <h1 className="font-serif text-3xl font-bold" style={{ color: 'var(--ds-t1)' }}>Dokumenten-Vault</h1>
-      <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>Verträge, Visa, Anmeldungen — verschlüsselt gespeichert, DSGVO-konform.</p>
+      <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>Verträge, Visa, Anmeldungen, verschlüsselt gespeichert, DSGVO-konform.</p>
 
       <div className="mt-8 rounded-2xl overflow-hidden" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
         <table className="w-full text-[13px]">

@@ -10,9 +10,9 @@ const IS_DEV = BACKEND_MODE === 'localStorage';
 // Seeded dev users — matches base44Client.js seedDB()
 const DEV_USERS = [
   { email: 'admin@neuland.de',           role: 'admin',   label: 'Admin',      description: 'Operations Center, alle Missionen', dest: '/admin' },
-  { email: 'hr@lumen.de',                role: 'company', label: 'Unternehmen', description: 'Helios Klinikum — Missions & Talents', dest: '/company' },
-  { email: 'sophie@neuland.de',          role: 'greeter', label: 'Greeter',    description: 'Miriam Schulz — Aktive Missionen',  dest: '/greeter-dashboard' },
-  { email: 'amara@talent.neuland.de',    role: 'talent',  label: 'Talent',     description: 'Priya Nair — Meine Journey',        dest: '/talent' },
+  { email: 'hr@lumen.de',                role: 'company', label: 'Unternehmen', description: 'Helios Klinikum, Missions & Talents', dest: '/company' },
+  { email: 'sophie@neuland.de',          role: 'greeter', label: 'Greeter',    description: 'Miriam Schulz, Aktive Missionen',  dest: '/greeter-dashboard' },
+  { email: 'amara@talent.neuland.de',    role: 'talent',  label: 'Talent',     description: 'Priya Nair, Meine Journey',        dest: '/talent' },
 ];
 
 const ROLE_COLORS = {
@@ -115,7 +115,7 @@ export default function Login() {
           </div>
           <h1 className="font-serif text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-t1)' }}>Willkommen zurück</h1>
           <p className="text-[13px] text-[var(--mid)] mt-1.5">
-            {IS_DEV ? 'Entwicklungsmodus — Nutzer direkt wählen' : 'Melde dich mit deinem Konto an'}
+            {IS_DEV ? 'Entwicklungsmodus, Nutzer direkt wählen' : 'Melde dich mit deinem Konto an'}
           </p>
         </div>
 

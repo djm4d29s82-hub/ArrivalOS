@@ -11,7 +11,7 @@ export default function AboutSection() {
 
         <p className="font-serif text-navy text-[clamp(22px,3vw,38px)] leading-[1.3] max-w-[24ch] mb-16">
           Niemand sollte in einer neuen Stadt ankommen und sich verloren fühlen.
-          <span className="text-[var(--mid)]"> Eine gute Ankunft ist kein Onboarding-Ticket — sie ist
+          <span className="text-[var(--mid)]"> Eine gute Ankunft ist kein Onboarding-Ticket, sie ist
           ein Mensch, der die Tür öffnet.</span>
         </p>
 
@@ -21,8 +21,8 @@ export default function AboutSection() {
               Wir bauen die <span className="text-gold italic">Betriebsschicht</span> für internationale Ankunft.
             </h2>
             <p className="mt-8 text-[var(--mid)] leading-relaxed max-w-xl">
-              Arrival Germany ist kein weiteres HR-Tool. Wir haben zuerst die Operations gebaut — die echte
-              Wegbegleitung vor Ort — und dann die Software. Deshalb verstehen wir Ankunft nicht als Prozess,
+              Arrival Germany ist kein weiteres HR-Tool. Wir haben zuerst die Operations gebaut, die echte
+              Wegbegleitung vor Ort, und dann die Software. Deshalb verstehen wir Ankunft nicht als Prozess,
               sondern als Moment, in dem ein Mensch sich entscheidet, ob er bleibt.
             </p>
           </div>
@@ -43,7 +43,7 @@ export default function AboutSection() {
               </div>
             </div>
             <p className="mt-7 pt-6 border-t border-[var(--border)] font-serif italic text-[14px] text-[var(--mid)] leading-relaxed">
-              „Ankunft beginnt mit Menschen — Struktur macht sie verlässlich."
+              „Ankunft beginnt mit Menschen, Struktur macht sie verlässlich."
             </p>
           </div>
         </div>

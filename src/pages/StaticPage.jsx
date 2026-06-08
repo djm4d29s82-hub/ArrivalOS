@@ -10,20 +10,20 @@ function buildPages(c) {
   return {
     impressum: {
       title: 'Impressum',
-      meta: `Impressum der ${c.legalName} — gemäß §5 TMG.`,
+      meta: `Impressum der ${c.legalName}, gemäß §5 TMG.`,
       body: [
         ['Angaben gemäß § 5 TMG', `${c.legalName}\n${c.street}\n${c.zip} ${c.city}\n${c.country}`],
         ['Vertreten durch', `Geschäftsführung: ${c.ceo}`],
         ['Kontakt', `Telefon: ${c.phone}\nE-Mail: ${c.email}`],
         ['Registereintrag', `Eintragung im Handelsregister.\nRegistergericht: ${c.registerCourt}\nRegisternummer: ${c.hrb}`],
-        ['Umsatzsteuer-ID', `${c.vatId} — gemäß §27a Umsatzsteuergesetz`],
+        ['Umsatzsteuer-ID', `${c.vatId}, gemäß §27a Umsatzsteuergesetz`],
         ['Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV', `${c.ceo.split(',')[0]} (Anschrift wie oben)`],
         ['Haftungsausschluss', 'Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.'],
       ],
     },
     datenschutz: {
       title: 'Datenschutzerklärung',
-      meta: `Datenschutzerklärung der ${c.legalName} — DSGVO-konform, EU-Hosting.`,
+      meta: `Datenschutzerklärung der ${c.legalName}, DSGVO-konform, EU-Hosting.`,
       body: [
         ['1. Verantwortlicher', `${c.legalName}, ${c.street}, ${c.zip} ${c.city}. Datenschutzbeauftragter: ${c.dpoEmail}`],
         ['2. Erhobene Daten', 'Wir verarbeiten personenbezogene Daten ausschließlich zur Erbringung des Arrival Germany-Services: Stammdaten von Talenten, Unternehmen und Greetern, sowie Operations-Daten der Missions (Status, Kommunikation, Dokumente).'],
@@ -50,7 +50,7 @@ function buildPages(c) {
     },
     karriere: {
       title: 'Karriere bei Arrival Germany',
-      meta: 'Offene Stellen bei Arrival Germany — wir bauen die Infrastruktur für menschliches Ankommen in Deutschland.',
+      meta: 'Offene Stellen bei Arrival Germany, wir bauen die Infrastruktur für menschliches Ankommen in Deutschland.',
       intro: 'Wir bauen die Infrastruktur für menschliches Ankommen in Deutschland. Klingt das nach dir?',
       body: [
         ['Offene Positionen', `– Senior Full-Stack Engineer (Berlin / Remote)
@@ -59,8 +59,8 @@ function buildPages(c) {
 – Customer Success Manager DACH (Remote)`],
         ['Was wir bieten', `– Mission mit echtem Impact: Du hilfst Menschen, in Deutschland anzukommen.
 – Flexibles Arbeiten, faire Vergütung, ESOP-Beteiligung für Kernteam.
-– Diverses, internationales Team — Englisch & Deutsch gemischt.`],
-        ['Bewerbung', `Schreib uns ein paar Sätze zu dir an ${c.careersEmail} — kein 12-Seiten-CV nötig.`],
+– Diverses, internationales Team, Englisch & Deutsch gemischt.`],
+        ['Bewerbung', `Schreib uns ein paar Sätze zu dir an ${c.careersEmail}, kein 12-Seiten-CV nötig.`],
       ],
     },
     presse: {
@@ -69,7 +69,7 @@ function buildPages(c) {
       intro: 'Materialien, Pressekontakt und letzte Meldungen.',
       body: [
         ['Pressekontakt', `${c.ceo.split(',')[0]}\n${c.pressEmail}\n${c.phone}`],
-        ['Über Arrival Germany', `${c.legalName} betreibt Arrival Germany — die Human Arrival Platform für internationales Talent-Onboarding — und arbeitet mit Unternehmen aus Pflege, IT, Engineering und Logistik in deutschen Städten.`],
+        ['Über Arrival Germany', `${c.legalName} betreibt Arrival Germany, die Human Arrival Platform für internationales Talent-Onboarding, und arbeitet mit Unternehmen aus Pflege, IT, Engineering und Logistik in deutschen Städten.`],
         ['Pressemeldungen', `– Mai 2026: Arrival Germany erweitert Greeter-Netzwerk
 – März 2026: Arrival Germany startet HR-Integrationen mit Personio und DATEV
 – Januar 2026: Pilotprojekt mit Klinikum NordWest erfolgreich abgeschlossen`],
@@ -87,7 +87,7 @@ export default function StaticPage() {
   const page = PAGES[slug];
 
   useDocumentMeta({
-    title: page ? `${page.title} — ${COMPANY.brand}` : `404 — ${COMPANY.brand}`,
+    title: page ? `${page.title}, ${COMPANY.brand}` : `404, ${COMPANY.brand}`,
     description: page?.meta,
   });
 

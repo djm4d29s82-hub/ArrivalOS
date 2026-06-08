@@ -76,7 +76,7 @@ export default function AdminSettings() {
       </Section>
 
       {user?.role === 'admin' && (
-        <Section icon={Euro} title="Abrechnung" desc="Paketpreise pro Ankunft (je Tier) — bei Mission-Abschluss wird der Tier-Preis des Unternehmens berechnet">
+        <Section icon={Euro} title="Abrechnung" desc="Paketpreise pro Ankunft (je Tier), bei Mission-Abschluss wird der Tier-Preis des Unternehmens berechnet">
           <div className="grid sm:grid-cols-3 gap-3">
             {TIER_KEYS.map(({ k, label }) => (
               <div key={k}>
@@ -108,7 +108,7 @@ export default function AdminSettings() {
           <ControlRow to="/admin/quality" icon={BarChart3} label="Quality" desc="Qualitäts-Auswertung" />
           <ControlRow to="/admin/invoices" icon={Receipt} label="Rechnungen" desc="Abrechnung & Belege" />
           <ControlRow to="/admin/payouts" icon={Wallet} label="Greeter-Auszahlungen" desc="Honorare pro Einsatz, als ausgezahlt markieren" />
-          <ControlRow to="/admin/partners" icon={Building2} label="Partner" desc="Bank, Versicherung, Wohnung, Sprache — echtes Partnernetzwerk" />
+          <ControlRow to="/admin/partners" icon={Building2} label="Partner" desc="Bank, Versicherung, Wohnung, Sprache, echtes Partnernetzwerk" />
           <ControlRow to="/admin/logs" icon={ScrollText} label="Activity Log" desc="Audit-Verlauf" />
           <ControlRow to="/admin/sops" icon={ScrollText} label="SOPs" desc="Standard-Abläufe" />
           <ControlRow to="/admin/templates" icon={ListChecks} label="Schritt-Vorlagen" desc="Onboarding-Abläufe ohne Deploy" />
@@ -185,7 +185,7 @@ function PushToggle() {
     <div className="flex items-center justify-between gap-3">
       <div>
         <div className="text-sm font-medium" style={{ color: 'var(--ds-t1)' }}>Push-Benachrichtigungen</div>
-        <div className="text-[11.5px]" style={{ color: 'var(--ds-t3)' }}>Neue Mission, Flug-Updates, Nachrichten — auch wenn die App geschlossen ist.</div>
+        <div className="text-[11.5px]" style={{ color: 'var(--ds-t3)' }}>Neue Mission, Flug-Updates, Nachrichten, auch wenn die App geschlossen ist.</div>
       </div>
       <button
         onClick={on ? disable : enable}

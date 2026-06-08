@@ -26,7 +26,7 @@ export enum MissionStatus {
   // ── Phase E: new pipeline statuses ──
   CREATED     = 'created',      // Mission created by company, awaiting greeter assignment
   IN_PROGRESS = 'in_progress',  // Greeter is actively working (flexible intermediate state)
-  ISSUE_OPEN  = 'issue_open',   // Issue open — interruptible, not terminal
+  ISSUE_OPEN  = 'issue_open',   // Issue open, interruptible, not terminal
 }
 
 export enum IssueServerity {

@@ -38,7 +38,7 @@ export class EnvError extends Error {
  * Throws EnvError with a clear, actionable message if not.
  */
 export function validateEnv(): void {
-  // ── Layer 1: mode must be a known value ──────────────────────────────────
+// Layer 1: mode must be a known value
   if (!ALLOWED_BACKEND_MODES.includes(BACKEND_MODE)) {
     throw new EnvError(
       `Unknown backend mode: '${BACKEND_MODE}'. ` +

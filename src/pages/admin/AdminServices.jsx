@@ -81,7 +81,7 @@ export default function AdminServices() {
       <div className="mb-2 text-[11px] uppercase tracking-widest text-gold font-bold">Operations · Services</div>
       <h1 className="font-serif text-3xl font-bold" style={{ color: 'var(--ds-t1)' }}>Service-Pipeline</h1>
       <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>
-        Alle aktivierten Partner-Services über laufende Ankünfte — was offen ist, was überfällig ist, wie es sich verteilt.
+        Alle aktivierten Partner-Services über laufende Ankünfte, was offen ist, was überfällig ist, wie es sich verteilt.
       </p>
 
       {/* KPI row */}

@@ -182,7 +182,7 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Neue Ankunft — Schritt 1/3</DialogTitle>
+            <DialogTitle>Neue Ankunft, Schritt 1/3</DialogTitle>
             <DialogDescription>Informationen über den Kandidaten</DialogDescription>
           </DialogHeader>
 
@@ -260,7 +260,7 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Neue Ankunft — Schritt 2/3</DialogTitle>
+            <DialogTitle>Neue Ankunft, Schritt 2/3</DialogTitle>
             <DialogDescription>Ankunftsdetails</DialogDescription>
           </DialogHeader>
 
@@ -348,7 +348,7 @@ export default function CompanyArrivalForm({ open, onOpenChange }) {
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Neue Ankunft — Schritt 3/3</DialogTitle>
+            <DialogTitle>Neue Ankunft, Schritt 3/3</DialogTitle>
             <DialogDescription>Überprüfe die Informationen</DialogDescription>
           </DialogHeader>
 

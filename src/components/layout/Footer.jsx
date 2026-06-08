@@ -25,7 +25,7 @@ export default function Footer() {
             </div>
           </div>
           <p className="text-[13px] text-cream/75 leading-relaxed max-w-sm">
-            Plattform für menschliches Onboarding internationaler Fachkräfte — strukturiert, sicher und persönlich.
+            Plattform für menschliches Onboarding internationaler Fachkräfte, strukturiert, sicher und persönlich.
           </p>
           <p className="font-serif italic text-[13px] text-cream/40 mt-4">„Ankunft beginnt mit Menschen.”</p>
           <div className="flex gap-2 mt-5">

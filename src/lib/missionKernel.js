@@ -23,7 +23,7 @@ export function greeterKernel(mission, candidateName) {
     case MissionStatus.ACCEPTED:
       return { statement: `${name} wartet. Sende deine Ankunftszeit.`, actionLabel: 'ETA senden', nextStatus: MissionStatus.ON_THE_WAY };
     case MissionStatus.ON_THE_WAY:
-      return { statement: `Du bist unterwegs zu ${name}.`, actionLabel: 'Vor Ort — Check-in', nextStatus: MissionStatus.ARRIVED };
+      return { statement: `Du bist unterwegs zu ${name}.`, actionLabel: 'Vor Ort, Check-in', nextStatus: MissionStatus.ARRIVED };
     case MissionStatus.ARRIVED:
     case MissionStatus.MET_TALENT:
       return { statement: `Du bist bei ${name}.`, actionLabel: 'Abschließen', nextStatus: MissionStatus.COMPLETED };
@@ -62,7 +62,7 @@ const STAGE_STATEMENTS = {
   on_the_way: 'Dein Greeter ist unterwegs zu dir.',
   arrived: 'Dein Greeter ist am Treffpunkt.',
   in_progress: 'Ihr seid gemeinsam unterwegs.',
-  wrap_up: 'Fast geschafft — die letzten Schritte.',
+  wrap_up: 'Fast geschafft, die letzten Schritte.',
 };
 
 /**
@@ -117,9 +117,9 @@ export function missionPriority(mission) {
 }
 
 const COMPANY_STATEMENTS = (gname, cand) => ({
-  created:     'Geplant — Greeter wird zugewiesen.',
-  open:        'Matching läuft — passende Greeter werden gesucht.',
-  matched:     'Matching läuft — passende Greeter werden gesucht.',
+  created:     'Geplant, Greeter wird zugewiesen.',
+  open:        'Matching läuft, passende Greeter werden gesucht.',
+  matched:     'Matching läuft, passende Greeter werden gesucht.',
   assigned:    gname ? `${gname} ist zugewiesen, wartet auf Bestätigung.` : 'Greeter zugewiesen, wartet auf Bestätigung.',
   accepted:    gname ? `${gname} hat den Einsatz angenommen.` : 'Greeter hat angenommen.',
   on_the_way:  gname ? `${gname} ist unterwegs zu ${cand}.` : `Unterwegs zu ${cand}.`,
@@ -128,7 +128,7 @@ const COMPANY_STATEMENTS = (gname, cand) => ({
   in_progress: `Ankunft läuft mit ${cand}.`,
   completed:   `${cand} ist erfolgreich angekommen.`,
   cancelled:   'Mission storniert.',
-  issue_open:  'Problem offen — Operations prüft.',
+  issue_open:  'Problem offen, Operations prüft.',
 });
 
 /**

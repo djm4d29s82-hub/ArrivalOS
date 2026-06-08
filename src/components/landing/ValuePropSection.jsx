@@ -7,8 +7,8 @@ import { UserCheck, LayoutGrid, LineChart, ArrowRight } from 'lucide-react';
 
 const PILLARS = [
   { i: UserCheck, t: 'Ein Ansprechpartner', s: 'Statt zehn Dienstleister zu koordinieren, gibt es eine Stelle, die verantwortlich ist.' },
-  { i: LayoutGrid, t: 'Eine Plattform', s: 'Jeder Schritt, jedes Dokument, jeder Status — an einem Ort, in Echtzeit sichtbar.' },
-  { i: LineChart, t: 'Ein Reporting', s: 'Onboarding-Zeit, Pünktlichkeit, offene Risiken — als Zahlen, nicht als Bauchgefühl.' },
+  { i: LayoutGrid, t: 'Eine Plattform', s: 'Jeder Schritt, jedes Dokument, jeder Status, an einem Ort, in Echtzeit sichtbar.' },
+  { i: LineChart, t: 'Ein Reporting', s: 'Onboarding-Zeit, Pünktlichkeit, offene Risiken, als Zahlen, nicht als Bauchgefühl.' },
 ];
 
 const PACKAGE = [
@@ -28,7 +28,7 @@ export default function ValuePropSection() {
           </h2>
           <p className="mt-8 text-cream/60 leading-relaxed">
             Eine Fachkraft, die nicht ankommt, ist teurer als jeder Service. Wir nehmen Unternehmen die
-            menschliche und operative Seite der Relocation ab — orchestriert über eine Plattform.
+            menschliche und operative Seite der Relocation ab, orchestriert über eine Plattform.
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export default function ValuePropSection() {
         <div className="mt-12 rounded-3xl p-8 md:p-10" style={{ background: 'rgba(196,146,40,0.07)', border: '1px solid rgba(196,146,40,0.2)' }}>
           <p className="text-[11px] uppercase tracking-[0.22em] text-gold mb-2">Arrival Package</p>
           <p className="font-serif text-cream text-[clamp(20px,2.6vw,30px)] leading-tight max-w-[24ch]">
-            Der komplette Ankunftsprozess — in einem Paket.
+            Der komplette Ankunftsprozess, in einem Paket.
           </p>
           <div className="mt-7 flex flex-wrap gap-2.5">
             {PACKAGE.map((item) => (

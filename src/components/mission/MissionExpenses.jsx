@@ -90,7 +90,7 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
       await base44.entities.MissionExpense.update(row.id, {
         status, decided_at: new Date().toISOString(), decided_by: user?.email || null,
       });
-      toast({ title: status === 'approved' ? '✓ Freigegeben — auf der Rechnung' : 'Abgelehnt' });
+      toast({ title: status === 'approved' ? '✓ Freigegeben, auf der Rechnung' : 'Abgelehnt' });
       load();
     } catch (e) {
       toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });
@@ -118,7 +118,7 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
 
       {rows.length === 0 && !adding && (
         <div className="text-[12px] py-2" style={{ color: 'var(--ds-t3)' }}>
-          {managed ? 'Noch keine Auslagen eingereicht.' : 'Tickets oder Auslagen, die du vorgestreckt hast — wir reichen sie an das Unternehmen weiter.'}
+          {managed ? 'Noch keine Auslagen eingereicht.' : 'Tickets oder Auslagen, die du vorgestreckt hast, wir reichen sie an das Unternehmen weiter.'}
         </div>
       )}
 
@@ -168,7 +168,7 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
                 <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'var(--ds-t3)' }}>€</span>
               </div>
             </div>
-            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Notiz (optional) — z. B. Bahnticket DUS→Stadt"
+            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Notiz (optional), z. B. Bahnticket DUS→Stadt"
               className="w-full px-2.5 py-2 rounded-lg text-[13px]" style={{ background: 'var(--ds-input, var(--ds-card))', border: '1px solid var(--ds-input-border, var(--ds-card-border))', color: 'var(--ds-t1)' }} />
             <label className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[12.5px] cursor-pointer" style={{ background: 'var(--ds-input, var(--ds-card))', border: '1px solid var(--ds-input-border, var(--ds-card-border))', color: 'var(--ds-t2)' }}>
               <Paperclip className="w-3.5 h-3.5 shrink-0" style={{ color: '#c49228' }} />
@@ -189,7 +189,7 @@ export default function MissionExpenses({ missionId, greeterId, managed = false 
       )}
 
       {managed && pending > 0 && (
-        <div className="mt-2 text-[11px]" style={{ color: 'var(--ds-t3)' }}>{eur(pending)} warten auf Freigabe — freigegebene Auslagen erscheinen auf der Unternehmens-Rechnung.</div>
+        <div className="mt-2 text-[11px]" style={{ color: 'var(--ds-t3)' }}>{eur(pending)} warten auf Freigabe, freigegebene Auslagen erscheinen auf der Unternehmens-Rechnung.</div>
       )}
     </div>
   );

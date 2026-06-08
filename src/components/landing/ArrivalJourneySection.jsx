@@ -35,9 +35,9 @@ const PHASES = [
     live: true,
     tagline: 'Unser Kern: ein echter Mensch am Flughafen.',
     services: [
-      { i: Users, t: 'Greeter vor Ort', s: 'Persönliche Abholung mit Schild — kein Bot, ein Gesicht.' },
+      { i: Users, t: 'Greeter vor Ort', s: 'Persönliche Abholung mit Schild, kein Bot, ein Gesicht.' },
       { i: MapPin, t: 'Erstorientierung', s: 'Erste Wege, erste Worte, erstes Ankommen in der Stadt.' },
-      { i: ShieldPlus, t: 'Notfallhilfe', s: 'Erreichbar, wenn es zählt — auch nachts.' },
+      { i: ShieldPlus, t: 'Notfallhilfe', s: 'Erreichbar, wenn es zählt, auch nachts.' },
     ],
   },
   {
@@ -46,7 +46,7 @@ const PHASES = [
     icon: Home,
     title: 'Die ersten 30 Tage',
     live: false,
-    tagline: 'Wohnung, Konto, SIM — das, was sofort Stress macht.',
+    tagline: 'Wohnung, Konto, SIM, das, was sofort Stress macht.',
     services: [
       { i: Building2, t: 'Wohnung', s: 'Serviced Apartments, Corporate Housing, Maklernetzwerk.' },
       { i: Landmark, t: 'Bankkonto', s: 'Kontoeröffnung mit getracktem Status bis zur IBAN.' },
@@ -60,7 +60,7 @@ const PHASES = [
     icon: GraduationCap,
     title: 'Integration',
     live: false,
-    tagline: 'Sprache, Behörden, Steuer — strukturiert begleitet.',
+    tagline: 'Sprache, Behörden, Steuer, strukturiert begleitet.',
     services: [
       { i: Languages, t: 'Sprache', s: 'Deutschkurse mit nachvollziehbarem Lernfortschritt.' },
       { i: Stamp, t: 'Behördentermine', s: 'Bürgeramt-Begleitung & Übersetzungsdienste.' },
@@ -73,7 +73,7 @@ const PHASES = [
     icon: Sparkles,
     title: 'Der Alltag',
     live: false,
-    tagline: 'Hier entsteht echte Bindung — und Bleibebereitschaft.',
+    tagline: 'Hier entsteht echte Bindung, und Bleibebereitschaft.',
     services: [
       { i: Dumbbell, t: 'Freizeit & Community', s: 'Sport, Co-Working, lokale Communities.' },
       { i: Brain, t: 'Mental Health', s: 'Coaching & Expat-Beratung für einen guten Start.' },
@@ -95,7 +95,7 @@ export default function ArrivalJourneySection() {
             <span className="text-gold italic">Ein ganzer Ankunftsprozess.</span>
           </h2>
           <p className="mt-8 text-[var(--mid)] leading-relaxed">
-            Wir denken nicht in Features, sondern in Lebensphasen — von der Einreise bis zum Alltag.
+            Wir denken nicht in Features, sondern in Lebensphasen, von der Einreise bis zum Alltag.
             Heute begleiten wir die Ankunft. Schritt für Schritt orchestrieren wir das gesamte Netzwerk
             darum herum.
           </p>
@@ -155,7 +155,7 @@ export default function ArrivalJourneySection() {
 
           {!phase.live && (
             <p className="mt-7 text-[12.5px] text-[var(--light)]">
-              Diese Phase wird über unser wachsendes Partnernetzwerk orchestriert — direkt aus der Plattform heraus.
+              Diese Phase wird über unser wachsendes Partnernetzwerk orchestriert, direkt aus der Plattform heraus.
             </p>
           )}
         </div>

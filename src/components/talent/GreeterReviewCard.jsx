@@ -63,7 +63,7 @@ export default function GreeterReviewCard({ candidateId, createdBy }) {
           const avg = all.reduce((s, r) => s + (r.rating || 0), 0) / all.length;
           await base44.entities.GreeterProfile.update(target.mission.greeter_id, { rating: Math.round(avg * 10) / 10 });
         }
-      } catch { /* RLS blocks talent in prod — trigger handles it */ }
+      } catch { /* RLS blocks talent in prod, trigger handles it */ }
       setDone(true);
     } catch (e) {
       console.error(e);

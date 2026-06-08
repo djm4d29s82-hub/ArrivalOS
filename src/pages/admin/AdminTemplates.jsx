@@ -75,7 +75,7 @@ export default function AdminTemplates() {
         <div>
           <h1 className="font-serif text-3xl font-bold" style={{ color: 'var(--ds-t1)' }}>Schritt-Vorlagen</h1>
           <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>
-            Wiederverwendbare Onboarding-Abläufe — ohne Deploy. Im Missions-Planer unter „Vorlage…" anwendbar.
+            Wiederverwendbare Onboarding-Abläufe, ohne Deploy. Im Missions-Planer unter „Vorlage…" anwendbar.
           </p>
         </div>
         <Button variant="primary" icon={Plus} onClick={onNew}>Neue Vorlage</Button>
@@ -203,7 +203,7 @@ function EditableTemplate({ template, onSave, onDelete }) {
         />
 
         {steps.length === 0 ? (
-          <div className="mt-3 text-[12.5px]" style={{ color: 'var(--ds-t3)' }}>Noch keine Schritte — füge welche hinzu.</div>
+          <div className="mt-3 text-[12.5px]" style={{ color: 'var(--ds-t3)' }}>Noch keine Schritte, füge welche hinzu.</div>
         ) : (
           <ul className="mt-3 space-y-1.5">
             {steps.map((s, i) => (

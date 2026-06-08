@@ -28,7 +28,7 @@ export default function AdminSOPs() {
       <div className="flex items-end justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold" style={{ color: 'var(--ds-t1)' }}>Standard Operating Procedures</h1>
-          <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>Die operative Wahrheit. Jeder Greeter folgt diesen — überall, jedes Mal.</p>
+          <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>Die operative Wahrheit. Jeder Greeter folgt diesen, überall, jedes Mal.</p>
         </div>
         <button className="btn-primary inline-flex items-center gap-2">
           <Plus className="w-4 h-4" /> Neue SOP

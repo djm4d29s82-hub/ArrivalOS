@@ -396,7 +396,7 @@ function GermanyHeatmap({ missions, selectedCity, onCitySelect }) {
         <div className="flex items-center gap-2">
           <MapPin className="w-3.5 h-3.5" style={{ color: 'var(--ds-t3)' }} />
           <span className="text-[10.5px] uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--ds-t3)' }}>
-            Deutschland — Aktive Operationen
+            Deutschland, Aktive Operationen
           </span>
         </div>
         {selectedCity && (
@@ -723,7 +723,7 @@ function MissionDetailDrawer({ missionId, missions, greetersMap, candidatesMap, 
           {hasIssue(mission) && (
             <div className="rounded-xl p-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
               <div className="text-[10px] uppercase tracking-[0.12em] text-red-500 font-semibold mb-1">
-                Aktives Problem — {mission.issue_severity?.toUpperCase()}
+                Aktives Problem, {mission.issue_severity?.toUpperCase()}
               </div>
               <div className="text-[12px] text-red-400">{mission.issue_message || 'Kein Detail'}</div>
             </div>

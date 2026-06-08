@@ -162,7 +162,7 @@ export default function AdminMissionDetail() {
                 <div className="mt-2 rounded-lg px-3 py-2 text-[11.5px] flex items-start gap-1.5"
                   style={{ background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.25)', color: '#b45309' }}>
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                  <span>Plane zuerst die Schritte unten — eine Greeter-Zuweisung ist erst danach möglich.</span>
+                  <span>Plane zuerst die Schritte unten, eine Greeter-Zuweisung ist erst danach möglich.</span>
                 </div>
               )}
               {greeter ? (

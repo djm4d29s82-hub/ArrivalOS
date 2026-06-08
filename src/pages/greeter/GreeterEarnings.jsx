@@ -153,7 +153,7 @@ export default function GreeterEarnings() {
           <Wallet className="w-4 h-4 text-gold" /> Honorare
         </div>
         {payouts.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm" style={{ color: 'var(--ds-t2)' }}>Noch keine Honorare — sie entstehen, sobald ein Einsatz abgeschlossen ist.</div>
+          <div className="px-5 py-10 text-center text-sm" style={{ color: 'var(--ds-t2)' }}>Noch keine Honorare, sie entstehen, sobald ein Einsatz abgeschlossen ist.</div>
         ) : (
           <ul>
             {payouts.map((p) => {

@@ -83,7 +83,7 @@ export default function AdminPartners() {
           </div>
           {items.length === 0 ? (
             <div className="rounded-xl px-4 py-3 text-[12.5px]" style={{ background: 'var(--ds-input)', color: 'var(--ds-t3)', border: '1px dashed var(--ds-card-border)' }}>
-              Netzwerk im Aufbau — noch kein Partner.
+              Netzwerk im Aufbau, noch kein Partner.
             </div>
           ) : (
             <div className="space-y-2">

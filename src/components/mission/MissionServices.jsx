@@ -220,7 +220,7 @@ export default function MissionServices({ missionId, createdBy, managed = false,
                               {catPartners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                             </Select>
                           ) : (
-                            <span className="text-[11.5px] flex-1" style={{ color: 'var(--ds-t3)' }}>Netzwerk im Aufbau — kein Partner in dieser Kategorie.</span>
+                            <span className="text-[11.5px] flex-1" style={{ color: 'var(--ds-t3)' }}>Netzwerk im Aufbau, kein Partner in dieser Kategorie.</span>
                           )
                         )}
                       </div>
@@ -229,7 +229,7 @@ export default function MissionServices({ missionId, createdBy, managed = false,
                           size="sm"
                           className="flex-1"
                           defaultValue={svc.notes || ''}
-                          placeholder={pt === 'company_provided' ? 'Adresse · Schlüssel · Kontakt (für den Greeter sichtbar)' : 'Notiz (optional) — z. B. Termin, Ansprechpartner…'}
+                          placeholder={pt === 'company_provided' ? 'Adresse · Schlüssel · Kontakt (für den Greeter sichtbar)' : 'Notiz (optional), z. B. Termin, Ansprechpartner…'}
                           onBlur={(e) => { if ((e.target.value || '') !== (svc.notes || '')) setNotes(svc, e.target.value); }}
                         />
                         <input
@@ -295,7 +295,7 @@ export default function MissionServices({ missionId, createdBy, managed = false,
 
       {degraded && (
         <div className="text-[11.5px] rounded-lg px-3 py-2" style={{ background: 'var(--ds-input)', color: 'var(--ds-t3)' }}>
-          Migration ausstehend — Services werden erst nach dem Ausführen von <code>2026-06-mission-services.sql</code> gespeichert.
+          Migration ausstehend, Services werden erst nach dem Ausführen von <code>2026-06-mission-services.sql</code> gespeichert.
         </div>
       )}
     </div>

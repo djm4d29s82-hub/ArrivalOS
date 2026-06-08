@@ -27,7 +27,7 @@ export default function AdminQuality() {
     <div>
       <div className="mb-2 text-[11px] uppercase tracking-widest text-gold font-bold">Operations · Quality</div>
       <h1 className="font-serif text-3xl font-bold" style={{ color: 'var(--ds-t1)' }}>Quality Dashboard</h1>
-      <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>Operative Wahrheit auf einen Blick — was läuft gut, wo eskalieren wir.</p>
+      <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>Operative Wahrheit auf einen Blick, was läuft gut, wo eskalieren wir.</p>
 
       <div className="grid md:grid-cols-4 gap-4 mt-8">
         {KPIS.map((k) => (
@@ -68,7 +68,7 @@ export default function AdminQuality() {
 
         <div className="rounded-2xl p-6" style={{ background: 'var(--ds-card)', border: '1px solid var(--ds-card-border)' }}>
           <h2 className="font-serif text-lg font-bold mb-4" style={{ color: 'var(--ds-t1)' }}>Eskalations-Workflow</h2>
-          <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'var(--ds-t2)' }}>Aktuelle Eskalationen — automatisch erkannt aus überfälligen Schritten und negativen Signalen.</p>
+          <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'var(--ds-t2)' }}>Aktuelle Eskalationen, automatisch erkannt aus überfälligen Schritten und negativen Signalen.</p>
           <div className="space-y-2">
             {open === 0 ? (
               <div className="text-[13px] py-6 text-center" style={{ color: 'var(--ds-t2)' }}>Keine aktiven Eskalationen.</div>

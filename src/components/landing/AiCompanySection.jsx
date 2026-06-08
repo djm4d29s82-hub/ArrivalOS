@@ -7,8 +7,8 @@ import { Sparkles, AlertTriangle, ListChecks, ArrowRight } from 'lucide-react';
  */
 
 const CAPS = [
-  { i: Sparkles, t: 'Status in Sekunden', s: 'Alle aktiven Ankünfte als ein verständliches Briefing — ohne sich durch Listen zu klicken.' },
-  { i: AlertTriangle, t: 'Risiken zuerst', s: 'Die KI hebt hervor, welche Ankunft Aufmerksamkeit braucht — bevor eine Frist reißt.' },
+  { i: Sparkles, t: 'Status in Sekunden', s: 'Alle aktiven Ankünfte als ein verständliches Briefing, ohne sich durch Listen zu klicken.' },
+  { i: AlertTriangle, t: 'Risiken zuerst', s: 'Die KI hebt hervor, welche Ankunft Aufmerksamkeit braucht, bevor eine Frist reißt.' },
   { i: ListChecks, t: 'Nächste Schritte', s: 'Konkrete Handlungsempfehlungen statt Rohdaten. Was jetzt zu tun ist, klar benannt.' },
 ];
 
@@ -23,7 +23,7 @@ export default function AiCompanySection() {
               Ein Klick. <span className="text-gold italic">Das ganze Bild.</span>
             </h2>
             <p className="mt-8 text-[var(--mid)] leading-relaxed max-w-xl">
-              HR öffnet die Plattform selten — und denkt in Zahlen, nicht in Schritt-Listen. Unser
+              HR öffnet die Plattform selten, und denkt in Zahlen, nicht in Schritt-Listen. Unser
               KI-Ankunfts-Briefing fasst alle laufenden Ankünfte zusammen, markiert Risiken und nennt die
               nächsten Schritte. In Sekunden, auf Deutsch, direkt im Portal.
             </p>

@@ -46,7 +46,7 @@ export default function AdminMessages() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold" style={{ color: 'var(--ds-t1)' }}>Nachrichten</h1>
-          <p className="text-sm text-[var(--mid)] mt-1.5">Mission-bezogene Konversationen — live</p>
+          <p className="text-sm text-[var(--mid)] mt-1.5">Mission-bezogene Konversationen, live</p>
         </div>
         {totalUnread > 0 && (
           <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: 'rgba(196,146,40,0.15)', color: '#c49228' }}>

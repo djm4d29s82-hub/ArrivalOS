@@ -263,7 +263,7 @@ export async function sendETA(missionId, etaIso, note, actor) {
     greeter_stage: 'eta_sent',
   });
   await logEvent('Mission', missionId, 'mission.eta_sent', '', etaIso,
-    `ETA gesendet: ${new Date(etaIso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}${note ? ' — ' + note : ''}`,
+    `ETA gesendet: ${new Date(etaIso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}${note ? ', ' + note : ''}`,
     actor);
   // Inform the candidate when available
   const candidate = mission.candidate_id ? await base44.entities.Candidate.get(mission.candidate_id).catch(() => null) : null;

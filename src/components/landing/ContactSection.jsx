@@ -51,13 +51,13 @@ export default function ContactSection() {
           Sprechen wir über deinen nächsten Standort.
         </h2>
         <p className="mt-8 max-w-xl text-[var(--mid)] leading-relaxed">
-          Ein kurzer Austausch genügt — über die erste Stunde, die erste Wegbegleitung und einen
+          Ein kurzer Austausch genügt, über die erste Stunde, die erste Wegbegleitung und einen
           ruhigen Start für internationales Talent.
         </p>
 
         {sent ? (
           <p className="mt-12 font-serif text-2xl text-navy">
-            Danke — wir melden uns zeitnah bei dir.
+            Danke, wir melden uns zeitnah bei dir.
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="mt-12 grid gap-3 max-w-xl">

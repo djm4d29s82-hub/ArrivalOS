@@ -34,7 +34,7 @@ const COMPANY_POINTS = [
 ];
 
 const GREETER_POINTS = [
-  { i: Clock, t: 'Flexibel — deine Zeit' },
+  { i: Clock, t: 'Flexible Zeiten' },
   { i: Wallet, t: 'Honorar pro Einsatz' },
   { i: Smartphone, t: 'Alles in der Mobile-App' },
 ];
@@ -60,7 +60,7 @@ export default function Landing() {
               Ankunft, <span className="text-gold italic">menschlich</span> gemacht.
             </h1>
             <p className="mt-8 max-w-2xl text-lg text-[var(--mid)] leading-relaxed">
-              Ein echter Mensch holt deine internationale Fachkraft am Flughafen ab — und ein System
+              Ein echter Mensch holt deine internationale Fachkraft am Flughafen ab. Ein System
               begleitet jeden Schritt von der Einreise bis in den Alltag.
             </p>
             <div className="mt-10 flex items-center gap-x-6 gap-y-3 flex-wrap">
@@ -85,12 +85,12 @@ export default function Landing() {
               <div id="unternehmen" className="scroll-mt-24 reveal-on-scroll rounded-3xl p-8 md:p-10 flex flex-col" style={{ background: 'var(--navy)' }}>
                 <p className="text-[11px] uppercase tracking-[0.24em] text-gold mb-6">Für Unternehmen</p>
                 <h2 className="font-serif text-cream text-[clamp(24px,3vw,38px)] leading-[1.12]">
-                  Ihr stellt international ein — wir sorgen dafür, dass die Fachkraft ankommt
+                  Ihr stellt international ein. Wir sorgen dafür, dass die Fachkraft ankommt
                   <span className="text-gold italic"> und bleibt.</span>
                 </h2>
                 <p className="mt-4 text-cream/60 leading-relaxed">
                   Eine Fachkraft, die nicht ankommt, ist teurer als jeder Service. Wir übernehmen den
-                  ganzen Ankunftsprozess — orchestriert über eine Plattform.
+                  ganzen Ankunftsprozess, orchestriert über eine Plattform.
                 </p>
                 <div className="mt-7 space-y-2.5">
                   {COMPANY_POINTS.map((p) => {
@@ -122,7 +122,7 @@ export default function Landing() {
                   Sei das <span className="text-gold italic">erste Gesicht.</span>
                 </h2>
                 <p className="mt-4 text-[var(--mid)] leading-relaxed">
-                  Begleite Ankommende in deiner Stadt — in deiner Zeit, in deinem Rhythmus. Du bist der
+                  Begleite Ankommende in deiner Stadt, in deiner Zeit, in deinem Rhythmus. Du bist der
                   Mensch, der die Tür öffnet.
                 </p>
                 <div className="mt-7 space-y-2.5">
@@ -164,7 +164,7 @@ export default function Landing() {
               })}
             </div>
             <p className="mt-7 text-[13px] text-[var(--light)] max-w-xl mx-auto">
-              Heute live: die persönliche Ankunft. Drumherum wächst das Service-Netzwerk — Schritt für Schritt,
+              Heute live: die persönliche Ankunft. Drumherum wächst das Service-Netzwerk. Schritt für Schritt,
               ehrlich, ohne Versprechen, die wir nicht halten.
             </p>
           </div>

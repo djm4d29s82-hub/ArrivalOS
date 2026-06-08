@@ -52,7 +52,7 @@ export default function GreeterProfile() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="font-serif text-3xl md:text-4xl font-bold" style={{ color: 'var(--ds-t1)' }}>Mein Profil</h1>
-        <p className="text-sm mt-1.5" style={{ color: 'var(--ds-t2)' }}>Halte dein Profil aktuell — bessere Matches.</p>
+        <p className="text-sm mt-1.5" style={{ color: 'var(--ds-t2)' }}>Halte dein Profil aktuell, bessere Matches.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-3">

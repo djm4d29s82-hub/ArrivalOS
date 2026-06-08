@@ -111,7 +111,7 @@ export default function CompanySLA() {
       <div className="mb-2 text-[11px] uppercase tracking-widest text-gold font-bold">Unternehmen · Kennzahlen</div>
       <h1 className="font-serif text-3xl font-bold" style={{ color: 'var(--ds-t1)' }}>SLA & Fortschritt</h1>
       <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-t2)' }}>
-        Der operative Stand deiner Ankünfte — was Aufmerksamkeit braucht und wie pünktlich das Onboarding läuft.
+        Der operative Stand deiner Ankünfte, was Aufmerksamkeit braucht und wie pünktlich das Onboarding läuft.
       </p>
 
       {/* KPI row */}

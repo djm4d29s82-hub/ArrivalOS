@@ -92,8 +92,8 @@ export default function CompanyDashboard() {
           </h1>
           <p className="text-[14px] mt-2 max-w-lg leading-relaxed" style={{ color: 'var(--ds-t2)' }}>
             {active.length > 0
-              ? `${active.length} ${active.length === 1 ? 'Mission läuft' : 'Missionen laufen'} gerade. Jede sichtbar — in Echtzeit.`
-              : 'Jede Ankunft. Jeder Greeter. Jeder Status — in Echtzeit.'}
+              ? `${active.length} ${active.length === 1 ? 'Mission läuft' : 'Missionen laufen'} gerade. Jede sichtbar, in Echtzeit.`
+              : 'Jede Ankunft. Jeder Greeter. Jeder Status, in Echtzeit.'}
           </p>
 
           <div className="grid grid-cols-4 gap-5 mt-6">

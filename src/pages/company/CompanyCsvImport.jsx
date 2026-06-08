@@ -114,7 +114,7 @@ export default function CompanyCsvImport({ open, onOpenChange }) {
   const skipped = parsed.length - included.length;
 
   const commit = async () => {
-    if (!user?.company_id) { setError('Kein Unternehmen mit deinem Konto verknüpft — Import nicht möglich.'); return; }
+    if (!user?.company_id) { setError('Kein Unternehmen mit deinem Konto verknüpft, Import nicht möglich.'); return; }
     setBusy(true);
     setError(null);
     const created = [];
@@ -198,7 +198,7 @@ export default function CompanyCsvImport({ open, onOpenChange }) {
       <Dialog open={open} onOpenChange={close}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>CSV-Import — Überprüfung</DialogTitle>
+            <DialogTitle>CSV-Import, Überprüfung</DialogTitle>
             <DialogDescription>
               {included.length} gültig · {skipped} übersprungen
             </DialogDescription>

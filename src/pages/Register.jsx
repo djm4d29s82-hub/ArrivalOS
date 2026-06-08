@@ -85,7 +85,7 @@ export default function Register() {
               Du wurdest <span className="text-gold italic">eingeladen.</span>
             </h1>
             <p className="mt-6 text-[var(--mid)] leading-relaxed">
-              Schön, dass du da bist. Leg kurz dein Konto an — dann geht es los.
+              Schön, dass du da bist. Leg kurz dein Konto an, dann geht es los.
             </p>
 
             <form onSubmit={submit} className="mt-10 grid gap-3">
