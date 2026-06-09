@@ -31,13 +31,13 @@ on conflict (id) do nothing;
 
 -- ── Kandidat:innen (Talente der laufenden Einsätze) ──────────────────────────
 insert into public.candidates (id, full_name, origin, country_of_origin, role, city, company_id, arrival_date, arrival_time, flight_no, languages, phone, status, progress) values
-  ('33333333-3333-3333-3333-333333333305','Aarav Sharma','Indien','Indien','Software Engineer','Berlin','11111111-1111-1111-1111-111111111102',current_date,(now()+interval '2.5 hours')::text,'AI 119',ARRAY['Englisch'],'+49 151 33330005','in_progress',30),
-  ('33333333-3333-3333-3333-333333333306','Mei Chen','China','China','Data Scientist','München','11111111-1111-1111-1111-111111111101',current_date,(now()-interval '20 minutes')::text,'LH 723',ARRAY['Englisch','Chinesisch'],'+49 151 33330006','in_progress',50),
-  ('33333333-3333-3333-3333-333333333307','Carlos Ruiz','Spanien','Spanien','Maschinenbauingenieur','Stuttgart','11111111-1111-1111-1111-111111111102',current_date,(now()-interval '1 hour')::text,'IB 357',ARRAY['Englisch','Spanisch'],'+49 151 33330007','in_progress',65),
-  ('33333333-3333-3333-3333-333333333308','Fatima Noor','Ägypten','Ägypten','UX Designerin','Frankfurt','11111111-1111-1111-1111-111111111103',current_date,(now()-interval '3 hours')::text,'MS 785',ARRAY['Englisch','Arabisch'],'+49 151 33330008','in_progress',75),
-  ('33333333-3333-3333-3333-333333333309','Ivan Petrov','Bulgarien','Bulgarien','Pflegefachkraft','Köln','11111111-1111-1111-1111-111111111101',current_date,(now()-interval '5 hours')::text,'FB 412',ARRAY['Englisch','Russisch'],'+49 151 33330009','in_progress',80),
-  ('33333333-3333-3333-3333-333333333310','Sara Okoye','Nigeria','Nigeria','Projektmanagerin','Hamburg','11111111-1111-1111-1111-111111111103',current_date,(now()+interval '1 hour')::text,'LH 591',ARRAY['Englisch'],'+49 151 33330010','in_progress',35),
-  ('33333333-3333-3333-3333-333333333311','Diego Alvarez','Mexiko','Mexiko','DevOps Engineer','Berlin','11111111-1111-1111-1111-111111111102',current_date,(now()-interval '2 hours')::text,'AM 027',ARRAY['Englisch','Spanisch'],'+49 151 33330011','in_progress',60)
+  ('33333333-3333-3333-3333-333333333305','Aarav Sharma','Indien','Indien','Software Engineer','Berlin','11111111-1111-1111-1111-111111111102',current_date,(now()+interval '2.5 hours'),'AI 119',ARRAY['Englisch'],'+49 151 33330005','in_progress',30),
+  ('33333333-3333-3333-3333-333333333306','Mei Chen','China','China','Data Scientist','München','11111111-1111-1111-1111-111111111101',current_date,(now()-interval '20 minutes'),'LH 723',ARRAY['Englisch','Chinesisch'],'+49 151 33330006','in_progress',50),
+  ('33333333-3333-3333-3333-333333333307','Carlos Ruiz','Spanien','Spanien','Maschinenbauingenieur','Stuttgart','11111111-1111-1111-1111-111111111102',current_date,(now()-interval '1 hour'),'IB 357',ARRAY['Englisch','Spanisch'],'+49 151 33330007','in_progress',65),
+  ('33333333-3333-3333-3333-333333333308','Fatima Noor','Ägypten','Ägypten','UX Designerin','Frankfurt','11111111-1111-1111-1111-111111111103',current_date,(now()-interval '3 hours'),'MS 785',ARRAY['Englisch','Arabisch'],'+49 151 33330008','in_progress',75),
+  ('33333333-3333-3333-3333-333333333309','Ivan Petrov','Bulgarien','Bulgarien','Pflegefachkraft','Köln','11111111-1111-1111-1111-111111111101',current_date,(now()-interval '5 hours'),'FB 412',ARRAY['Englisch','Russisch'],'+49 151 33330009','in_progress',80),
+  ('33333333-3333-3333-3333-333333333310','Sara Okoye','Nigeria','Nigeria','Projektmanagerin','Hamburg','11111111-1111-1111-1111-111111111103',current_date,(now()+interval '1 hour'),'LH 591',ARRAY['Englisch'],'+49 151 33330010','in_progress',35),
+  ('33333333-3333-3333-3333-333333333311','Diego Alvarez','Mexiko','Mexiko','DevOps Engineer','Berlin','11111111-1111-1111-1111-111111111102',current_date,(now()-interval '2 hours'),'AM 027',ARRAY['Englisch','Spanisch'],'+49 151 33330011','in_progress',60)
 on conflict (id) do nothing;
 
 -- ── Laufende Missionen (verschiedene Stadien & Städte) ───────────────────────
