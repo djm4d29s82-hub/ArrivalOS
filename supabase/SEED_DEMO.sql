@@ -18,15 +18,15 @@ on conflict (id) do nothing;
 -- ── Greeter (echte Namen + Städte, Kontakt = Platzhalter) ────────────────────
 insert into public.greeter_profiles (id, email, full_name, phone, city, languages, availability, status, rating, completed_missions) values
   ('22222222-2222-2222-2222-222222222201','miriam@neuland.de','Miriam Schulz','+49 151 11110001','Düsseldorf',ARRAY['Deutsch','Englisch'],'flexible','available',4.9,27),
-  ('22222222-2222-2222-2222-222222222202','lena@neuland.de','Lena Hoffmann','+49 151 11110002','Berlin',ARRAY['Deutsch','Englisch'],'weekends','on_mission',4.7,14),
-  ('22222222-2222-2222-2222-222222222203','marco@neuland.de','Marco Klein','+49 151 11110003','Köln',ARRAY['Deutsch','Englisch','Italienisch'],'evenings','on_mission',4.8,31),
-  ('22222222-2222-2222-2222-222222222204','amira@neuland.de','Amira Hassan','+49 151 11110004','Hamburg',ARRAY['Deutsch','Englisch','Französisch'],'flexible','on_mission',4.6,9),
-  ('22222222-2222-2222-2222-222222222205','bassem@neuland.de','Bassem Kamel','+49 151 11110005','Frankfurt',ARRAY['Deutsch','Englisch','Arabisch'],'flexible','on_mission',4.7,16),
-  ('22222222-2222-2222-2222-222222222206','sertan@neuland.de','Sertan Cakar','+49 151 11110006','Frankfurt',ARRAY['Deutsch','Englisch','Türkisch'],'flexible','on_mission',4.8,13),
-  ('22222222-2222-2222-2222-222222222207','nico@neuland.de','Nico Karam','+49 151 11110007','München',ARRAY['Deutsch','Englisch','Arabisch'],'flexible','on_mission',4.9,22),
-  ('22222222-2222-2222-2222-222222222208','omar@neuland.de','Omar Ismail','+49 151 11110008','Leipzig',ARRAY['Deutsch','Englisch','Arabisch'],'weekends','break',4.6,8),
-  ('22222222-2222-2222-2222-222222222209','david@neuland.de','David Schmitt','+49 151 11110009','Stuttgart',ARRAY['Deutsch','Englisch'],'evenings','on_mission',4.5,11),
-  ('22222222-2222-2222-2222-222222222210','jonas@neuland.de','Jonas Weber','+49 151 11110010','Berlin',ARRAY['Deutsch','Englisch'],'flexible','on_mission',4.8,18)
+  ('22222222-2222-2222-2222-222222222202','lena@neuland.de','Lena Hoffmann','+49 151 11110002','Berlin',ARRAY['Deutsch','Englisch'],'weekends','busy',4.7,14),
+  ('22222222-2222-2222-2222-222222222203','marco@neuland.de','Marco Klein','+49 151 11110003','Köln',ARRAY['Deutsch','Englisch','Italienisch'],'evenings','busy',4.8,31),
+  ('22222222-2222-2222-2222-222222222204','amira@neuland.de','Amira Hassan','+49 151 11110004','Hamburg',ARRAY['Deutsch','Englisch','Französisch'],'flexible','busy',4.6,9),
+  ('22222222-2222-2222-2222-222222222205','bassem@neuland.de','Bassem Kamel','+49 151 11110005','Frankfurt',ARRAY['Deutsch','Englisch','Arabisch'],'flexible','busy',4.7,16),
+  ('22222222-2222-2222-2222-222222222206','sertan@neuland.de','Sertan Cakar','+49 151 11110006','Frankfurt',ARRAY['Deutsch','Englisch','Türkisch'],'flexible','busy',4.8,13),
+  ('22222222-2222-2222-2222-222222222207','nico@neuland.de','Nico Karam','+49 151 11110007','München',ARRAY['Deutsch','Englisch','Arabisch'],'flexible','busy',4.9,22),
+  ('22222222-2222-2222-2222-222222222208','omar@neuland.de','Omar Ismail','+49 151 11110008','Leipzig',ARRAY['Deutsch','Englisch','Arabisch'],'weekends','offline',4.6,8),
+  ('22222222-2222-2222-2222-222222222209','david@neuland.de','David Schmitt','+49 151 11110009','Stuttgart',ARRAY['Deutsch','Englisch'],'evenings','busy',4.5,11),
+  ('22222222-2222-2222-2222-222222222210','jonas@neuland.de','Jonas Weber','+49 151 11110010','Berlin',ARRAY['Deutsch','Englisch'],'flexible','busy',4.8,18)
 on conflict (id) do nothing;
 
 -- ── Kandidat:innen (Talente der laufenden Einsätze) ──────────────────────────

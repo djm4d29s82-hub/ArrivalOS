@@ -994,8 +994,8 @@ export default function OperationsCenterDashboard() {
       issues: all.filter(m => hasIssue(m)).length,
       completed: all.filter(m => m.status === MissionStatus.COMPLETED || m.status === 'completed').length,
       greetersAvailable: greeters.filter(g => g.status === 'available').length,
-      greetersBusy: greeters.filter(g => g.status === 'on_mission').length,
-      greetersBreak: greeters.filter(g => g.status === 'break').length,
+      greetersBusy: greeters.filter(g => g.status === 'busy').length,
+      greetersBreak: greeters.filter(g => g.status === 'offline').length,
     };
   }, [missions, greetersMap]);
 
@@ -1293,7 +1293,7 @@ export default function OperationsCenterDashboard() {
             {[
               { label: 'Verfügbar', count: stats.greetersAvailable, dot: 'bg-green-500' },
               { label: 'Im Einsatz', count: stats.greetersBusy, dot: 'bg-blue-500' },
-              { label: 'Pause', count: stats.greetersBreak, dot: 'bg-amber-400' },
+              { label: 'Offline', count: stats.greetersBreak, dot: 'bg-slate-400' },
             ].map(({ label, count, dot }) => (
               <div key={label} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
