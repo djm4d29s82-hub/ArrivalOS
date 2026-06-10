@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Briefcase, MapPin, Clock, ChevronRight, Calendar } from 'lucide-react';
+import { Briefcase, MapPin, ChevronRight, Calendar, Languages, Navigation, Banknote } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Card, Avatar, Pill, StatusPill, EmptyState, SkeletonCard } from '@/components/ui';
@@ -89,7 +89,7 @@ export default function GreeterMissions() {
         </Card>
       ) : (
         <div className="space-y-2.5">
-          {list.map((m) => <MissionRow key={m.id} mission={m} candidates={candidates} />)}
+          {list.map((m) => <MissionRow key={m.id} mission={m} candidates={candidates} profile={profile} isOffer={tab === 'new'} />)}
         </div>
       )}
     </div>
@@ -107,10 +107,14 @@ const PROGRESS_CFG = {
   cancelled:   0,
 };
 
-function MissionRow({ mission, candidates }) {
+function MissionRow({ mission, candidates, profile, isOffer }) {
   const candidate = candidates.find((c) => c.id === mission.candidate_id);
   const stage = mission.greeter_stage;
   const isDone = ['completed', 'cancelled'].includes(mission.status);
+  // Offer-decision factors: pay · required language (does the greeter speak it?) · distance.
+  const reqLangs = mission.requirements?.languages || [];
+  const speaksAll = reqLangs.length > 0 && reqLangs.every((l) => (profile?.languages || []).includes(l));
+  const dist = distanceLabel(profile?.city, mission.city);
   return (
     <Link
       to={`/greeter-dashboard/missions/${mission.id}`}
@@ -153,6 +157,27 @@ function MissionRow({ mission, candidates }) {
               <Pill tone="gold" size="xs">{getStatusLabel(stage) || stage}</Pill>
             )}
           </div>
+
+          {/* Offer-decision factors — Pay · Sprache · Distanz */}
+          {isOffer && (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-2.5 pt-2.5 text-[11.5px]" style={{ borderTop: '1px solid var(--ds-card-border)' }}>
+              {mission.pay != null && (
+                <span className="inline-flex items-center gap-1 font-bold" style={{ color: '#c49228' }}>
+                  <Banknote className="w-3.5 h-3.5" /> {mission.pay} €
+                </span>
+              )}
+              {reqLangs.length > 0 && (
+                <span className="inline-flex items-center gap-1" style={{ color: speaksAll ? '#16a34a' : 'var(--ds-t2)' }}>
+                  <Languages className="w-3.5 h-3.5" /> {reqLangs.join(', ')}{speaksAll ? ' ✓' : ''}
+                </span>
+              )}
+              {dist && (
+                <span className="inline-flex items-center gap-1" style={{ color: 'var(--ds-t2)' }}>
+                  <Navigation className="w-3.5 h-3.5" /> {dist}
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <div className="grid place-items-center pr-3 shrink-0">
           <ChevronRight className="w-4 h-4" style={{ color: 'var(--ds-t3)' }} />
@@ -173,6 +198,26 @@ function MissionRow({ mission, candidates }) {
 }
 
 // helpers
+// Grobe Distanz zwischen Greeter-Stadt und Missions-Stadt (Haversine, gerundet).
+// Gleiche Stadt → "in deiner Stadt"; unbekannte Stadt → null (dann nur Stadtname auf der Karte).
+const DE_CITY_LATLNG = {
+  'Berlin': [52.52, 13.405], 'München': [48.137, 11.575], 'Hamburg': [53.551, 9.993],
+  'Köln': [50.937, 6.96], 'Frankfurt': [50.11, 8.682], 'Stuttgart': [48.775, 9.182],
+  'Düsseldorf': [51.227, 6.773], 'Leipzig': [51.34, 12.375], 'Ingolstadt': [48.766, 11.425],
+  'Wuppertal': [51.256, 7.15], 'Dortmund': [51.514, 7.466], 'Hannover': [52.376, 9.718],
+  'Nürnberg': [49.452, 11.077], 'Bremen': [53.079, 8.802], 'Dresden': [51.05, 13.737],
+};
+function distanceLabel(fromCity, toCity) {
+  if (!toCity) return null;
+  if (fromCity && fromCity === toCity) return 'in deiner Stadt';
+  const a = DE_CITY_LATLNG[fromCity]; const b = DE_CITY_LATLNG[toCity];
+  if (!a || !b) return null;
+  const R = 6371, toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b[0] - a[0]), dLng = toRad(b[1] - a[1]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLng / 2) ** 2;
+  const km = Math.round((2 * R * Math.asin(Math.sqrt(h))) / 10) * 10;
+  return `~${km} km`;
+}
 function timeOf(iso) { return iso ? new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '—'; }
 function dayOf(iso) { return iso ? String(new Date(iso).getDate()).padStart(2, '0') : '—'; }
 function dayShort(iso) { return iso ? new Date(iso).toLocaleDateString('de-DE', { weekday: 'short' }) : ''; }
