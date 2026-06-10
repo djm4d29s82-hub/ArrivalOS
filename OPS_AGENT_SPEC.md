@@ -3,7 +3,8 @@
 > **Zweck:** Diese Datei sagt einer **Flotte autonomer Agenten** (PaperclipAI), wie sie
 > `arrivalgermany.com` **selbständig betreiben und überwachen**. Jede Rolle (A0–A11) ist eine
 > in sich abgeschlossene Aufgabe — **spawne pro Rolle einen Agenten** und gib ihm die jeweilige
-> Karte als Auftrag. A0 (Orchestrator) koordiniert die übrigen.
+> Karte als Auftrag. A0 (Orchestrator) koordiniert die übrigen; A1–A11 = Betrieb/Monitoring,
+> **A12 = Kunden-Support** (spricht mit Kund:innen und meldet Feedback zurück an A0).
 >
 > **Stand:** Juni 2026 · Maßgeschneidert auf dieses Repo. Prüf-Reihenfolgen/Deploy stehen in
 > [GO_LIVE.md](GO_LIVE.md) — dieses Dokument **dupliziert** das nicht, sondern verweist darauf.
@@ -77,6 +78,9 @@
 - **Checks:** Vollständigkeit (meldet sich jeder Agent im erwarteten Takt? → „Agent A_x stumm" ist selbst ein 🟡).
 - **Alarm:** bündelt & versendet; schreibt In-App-`notifications` (type `alert`/`critical`) an `ADMIN_EMAIL`.
 - **Auto-Fix:** nur **freigeben/orchestrieren**, nicht selbst ausführen. 🔴-Auto-Fixes brauchen eine Allow-Liste.
+- **Support-Schleife (zweiseitig):** nimmt von **A12** strukturiertes `product_feedback/bug/ux` entgegen, dedupt
+  und **routet** (Bug → Coding-Agent bzw. A4/A6 · UX → Backlog · kritisch → Gründer). Gibt **umgekehrt** den
+  aktuellen Health-/Incident-Status an A12 weiter, damit A12 Kund:innen bei Störungen **proaktiv & ehrlich** informiert.
 
 ### A1 — Uptime & Erreichbarkeit
 - **Mission:** Ist die Seite erreichbar und schnell?
@@ -233,6 +237,39 @@
 - **Alarm:** PII in Logs/KI-Payload → 🔴. Unvollständiges Impressum → 🟡 (rechtliches Risiko).
 - **Auto-Fix:** keiner (rechtlich/Mensch).
 
+### A12 — Customer-Support / Concierge  *(spricht mit Kund:innen + Feedback an A0)*
+- **Mission:** Erste Anlaufstelle für **Kund:innen** (Unternehmen/HR = zahlende Kund:innen, primär; auch Talente
+  & Greeter): Fragen beantworten, beim Onboarding/Nutzen helfen, Probleme triagieren, an Mensch eskalieren —
+  und **wiederkehrendes Feedback strukturiert an A0** zurückgeben.
+- **Takt:** event-getrieben (neue Nachricht/Lead) + **Tages-Digest** des gesammelten Feedbacks an A0.
+- **Zugänge:** Supabase (read für Kontext, write `messages`/`leads`/`notifications`), Resend (E-Mail),
+  Anthropic (Gesprächs-Modell, z. B. `claude-haiku-4-5`), **optional** WhatsApp-Bridge (Greeter nutzen WhatsApp).
+- **Kanäle & Zielgruppen (echte Produkt-Surfaces):**
+  - **Unternehmen/HR:** Kontaktformular-Leads (`leads` → `notify-on-lead`), E-Mail `support@arrivalgermany.com`,
+    In-App-Chat (`messages`).
+  - **Talente:** Journey-/Onboarding-FAQ, In-App-Chat (`messages`) — **Talent-SOS bleibt Mensch/112, nie Bot**.
+  - **Greeter:** Fragen zu Einsätzen/Verdienst/Spesen, In-App-Chat / WhatsApp.
+- **Darf:**
+  - FAQ **DE/EN** (Talent ist zweisprachig); Missionsstatus **read-only** erklären; Onboarding führen
+    (Ankunft anlegen, CSV-Import, KI-Briefing, Spesen einreichen).
+  - Tickets/Leads anlegen, Konversation zusammenfassen, sauber an Mensch übergeben.
+  - **Proaktiv** kommunizieren: meldet A0 eine Störung (z. B. A1 „down"), informiert A12 betroffene Kund:innen
+    ehrlich („Wir wissen Bescheid, arbeiten daran") statt sie raten zu lassen.
+- **Feedback-Schleife (Kern):** erkennt Muster (z. B. „5 Unternehmen melden CSV-Import-Fehler", „Talente verstehen
+  Schritt X nicht") → meldet an **A0**: `{ "type":"bug|ux|product_feedback", "severity":"…", "summary":"…",
+  "evidence_count": N, "examples":[…anonymisiert…] }`. A0 routet weiter (siehe A0).
+- **Guardrails (Trust-Linie strikt):**
+  - **Nichts erfinden** — keine Preise/Partner/Termine/Zusagen erfinden; unklar → „im Aufbau" / eskalieren.
+  - **Kein Datenleck:** nur Daten der jeweiligen Person/Company zeigen (RLS-Logik achten) — **niemals** fremde
+    Missionen/Unternehmen.
+  - **Recht/Beschwerde/Kündigung/Datenschutz/Vertrag** → **an Mensch (Gründer)** eskalieren, nicht selbst entscheiden.
+  - **Notfall/SOS** (Talent am Gate, dringend) → sofort an zugewiesenen Greeter/Mensch + **A7**, nie in eine
+    Bot-Schleife.
+  - **Ton:** ruhig, menschlich, hilfsbereit — Markenkern „menschliche Ankunft". Ehrlich, keine Floskeln.
+- **Alarm/Eskalation:** sicherheits-/rechtsrelevante Anliegen oder gehäufte 🔴-Bugs → sofort an A0 → Gründer.
+- **Auto-Fix:** keiner an der Infrastruktur. „Self-service": darf dem Kunden helfen, Dinge **selbst** zu tun
+  (Anleitung), aber keine privilegierten Schreibaktionen außerhalb von `messages`/`leads`/`notifications`.
+
 ---
 
 ## 3. Was bereits abgedeckt ist (NICHT doppelt bauen)
@@ -269,4 +306,9 @@ Realtime: Greeter hakt Step ab → Company/Talent sehen Update in 12–15 s, kei
 1 Infrastruktur → A1/A2/A3/A9 · 2 DB/Migrationen → A4 · 3 Sicherheit → A5 · 4 Edge Functions → A6 ·
 5 Mission-Logic → A7 (+🟢 Crons) · 6 KI-Briefing → A6 · 7 Realtime → A2/A8 · 8 Performance → A8 ·
 9 Landing → A1 (+🟢 Sentry) · 10 E-Mail → A6 · 11 i18n → A8/Smoke · 12 DNS → A10 · 13 DSGVO → A11 ·
-14 Kosten/Quota → A2 · 15 Disaster Recovery → A3/A2/A0 · 16 Deploy-Prozess → A3 + GO_LIVE · 17 Smoke-Tests → §6.
+14 Kosten/Quota → A2 · 15 Disaster Recovery → A3/A2/A0 · 16 Deploy-Prozess → A3 + GO_LIVE · 17 Smoke-Tests → §6 ·
+**Kunden-Support & Produkt-Feedback → A12** (Schleife über A0).
+
+> **Möglicher nächster Bau-Schritt (separat, Code):** ein echtes In-App-Support-Postfach + `feedback`-Tabelle,
+> damit A12 strukturiert schreiben/lesen kann statt nur über `messages`/`leads`. Heute bewusst **nur** als
+> Agenten-Anleitung dokumentiert.
