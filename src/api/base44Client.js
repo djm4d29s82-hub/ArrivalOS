@@ -7,14 +7,16 @@
 import { uid } from '@/lib/utils';
 import { createSupabaseClient } from './supabaseAdapter';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://jtaegmuftgxzjddfevbs.supabase.co';
+// Modus ist AUSSCHLIESSLICH env-getrieben (siehe GO_LIVE.md §1). Früher gab es hier hartkodierte
+// Prod-Fallbacks — dadurch sprach jeder `npm run dev` ohne .env mit der PRODUKTIONS-Datenbank und
+// der localStorage-Demo-Modus war unerreichbar. Security-Audit 2026-06-11, P0-3: entfernt.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 
 // Sicherheits-Guard: Ein SECRET-Key darf NIEMALS im Browser laufen. Falls der Host (z.B. eine
-// falsch gesetzte Vercel-Env-Var) einen `sb_secret_`-Key injiziert, ignorieren wir ihn und nutzen
-// den ÖFFENTLICHEN Publishable-Key (der ist client-safe und gehört ohnehin ins Bundle).
-const PUBLISHABLE_KEY = 'sb_publishable_QjJrJ9QPGqicol0QY1HrIw_kC2cs3lw';
+// falsch gesetzte Vercel-Env-Var) einen `sb_secret_`-Key injiziert, ignorieren wir ihn (dann
+// greift der localStorage-Modus statt eines Server-Keys im Bundle).
 const ENV_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const SUPABASE_KEY = ENV_KEY && !ENV_KEY.startsWith('sb_secret_') ? ENV_KEY : PUBLISHABLE_KEY;
+const SUPABASE_KEY = ENV_KEY && !ENV_KEY.startsWith('sb_secret_') ? ENV_KEY : '';
 const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_KEY);
 
 // Bump this when the seed demo data changes so dev clients re-seed automatically
@@ -25,6 +27,7 @@ const ENTITY_NAMES = [
   'User',
   'Company',
   'GreeterProfile',
+  'GreeterPrivate',
   'Candidate',
   'Mission',
   'JourneyStep',

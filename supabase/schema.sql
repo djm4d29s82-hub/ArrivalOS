@@ -63,9 +63,8 @@ create table if not exists public.greeter_profiles (
   status text default 'available' check (status in ('available','busy','offline')),
   rating numeric(2,1),
   completed_missions int default 0,
-  iban text,
-  tax_id text,
-  payout_address text,
+  -- iban/tax_id/payout_address leben NICHT mehr hier: greeter_profiles ist für Matching breit
+  -- lesbar. Sensible Auszahlungsdaten → public.greeter_private (security-hardening-2026-06.sql).
   contract_status text default 'pending',   -- freelancer agreement: pending|accepted
   created_at timestamptz default now(),
   updated_at timestamptz default now()

@@ -10,6 +10,8 @@ const TABLE_MAP = {
   User: 'users',
   Company: 'companies',
   GreeterProfile: 'greeter_profiles',
+  GreeterPrivate: 'greeter_private', // IBAN/Steuer-ID/Anschrift — RLS: nur Admin + der Greeter selbst
+
   Candidate: 'candidates',
   Mission: 'missions',
   JourneyStep: 'journey_steps',

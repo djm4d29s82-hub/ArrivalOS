@@ -31,6 +31,12 @@ const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const sb = createClient(SUPABASE_URL, SERVICE_KEY);
 
 serve(async (req) => {
+  // Security-Audit 2026-06-11, P0-4: mit --no-verify-jwt deployt war der Endpoint öffentlich
+  // aufrufbar (E-Mail-Spam im Namen von Arrival Germany). Der DB-Webhook sendet laut Setup oben
+  // "Authorization: Bearer <service_role_key>" — genau das wird jetzt erzwungen.
+  if (req.headers.get('Authorization') !== `Bearer ${SERVICE_KEY}`) {
+    return new Response('unauthorized', { status: 401 });
+  }
   try {
     const payload = await req.json();
     // Supabase Webhook-Payload: { type, table, record, old_record }

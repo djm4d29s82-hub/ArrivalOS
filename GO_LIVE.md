@@ -150,10 +150,14 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
 - [ ] **Projekt** in Region **Frankfurt (EU Central)** anlegen, DB-Passwort sicher ablegen.
       Project-Ref (bestehend): `jtaegmuftgxzjddfevbs`.
 - [ ] **Basis-SQL in dieser Reihenfolge** im SQL-Editor ausführen:
-      `schema.sql` → **`rls-hardening.sql` (PFLICHT)** → `audit-triggers.sql` → `rate-limit.sql` →
-      `storage-policies.sql`.
+      `schema.sql` → **`rls-hardening.sql` (PFLICHT)** → **`security-hardening-2026-06.sql` (PFLICHT)** →
+      `audit-triggers.sql` → `rate-limit.sql` → `storage-policies.sql`.
       ⚠️ **`schema.sql` allein lässt die DB OFFEN** (Pilot-Policies `using(true)`). `rls-hardening.sql` ist
       **nicht optional** — ohne diesen Schritt kann jeder eingeloggte User alle Daten lesen/schreiben.
+      ⚠️ **`security-hardening-2026-06.sql`** (Audit-P0): verschiebt IBAN/Steuer-ID/Anschrift nach
+      `greeter_private` (RLS: nur Admin + der Greeter selbst) und erzwingt den Missions-Update-Trigger
+      (Spaltenschutz + legale Statusübergänge serverseitig). **VOR dem Frontend-Deploy ausführen** —
+      GreeterEarnings speichert Bankdaten sonst ins Leere. Runbook: `supabase/SECURITY_DEPLOY_2026-06.md`.
 - [ ] **RLS-Gate ausführen:** `rls-verify.sql` im SQL-Editor → muss **„RLS OK"** ausgeben. Wirft eine
       `exception`, falls noch offene `auth_read_*/auth_write_*`-Policies existieren (= Hardening vergessen).
       Erst weitermachen, wenn dieser Check grün ist.
@@ -177,6 +181,10 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
 - [ ] **Storage-Bucket** `documents` (Public = Off), danach `storage-policies.sql` (idempotent; enthält jetzt
       auch die `receipts/<mission_id>/`-Policies für Greeter-Spesenbelege — bei Bestandssystem erneut ausführen).
 - [ ] **Edge Functions deployen (alle 8):**
+      ⚠️ **Seit Audit-P0-4:** alle Webhook-/Cron-Functions (`notify-*`, `send-push`, `flight-tracker`,
+      `step-reminders`) verlangen `Authorization: Bearer <service_role_key>` — im Dashboard prüfen, dass
+      **jeder DB-Webhook diesen Header gesetzt hat** (sonst 401). `ai-arrival-briefing` verlangt jetzt einen
+      eingeloggten Nutzer mit Rolle admin/company.
       - **Auth:** `admin-invite` (**mit** JWT-Verify) · `accept-invite` (**`--no-verify-jwt`**).
       - **Transaktional (E-Mail):** `notify-on-message` · `notify-on-lead` · `notify-on-mission-status`
         (alle `--no-verify-jwt`).

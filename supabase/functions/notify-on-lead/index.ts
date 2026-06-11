@@ -16,12 +16,19 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
+const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'Arrival Germany <support@arrivalgermany.com>';
 const APP_URL = Deno.env.get('APP_URL') || 'https://arrivalgermany.com';
 const CRM_FORWARD_URL = Deno.env.get('CRM_FORWARD_URL') || '';
 const SALES_INBOX = Deno.env.get('SALES_INBOX') || 'support@arrivalgermany.com';
 
 serve(async (req) => {
+  // Security-Audit 2026-06-11, P0-4: nur der DB-Webhook (Authorization: Bearer <service_role_key>)
+  // darf rufen — sonst kann jeder Bestätigungs-Mails an beliebige Adressen auslösen.
+  // Webhook-Setup: Database → Webhooks → leads/INSERT → Header "Authorization: Bearer <service_role_key>".
+  if (req.headers.get('Authorization') !== `Bearer ${SERVICE_KEY}`) {
+    return new Response('unauthorized', { status: 401 });
+  }
   try {
     const { record: lead } = await req.json();
     if (!lead?.email) return new Response('no lead', { status: 200 });

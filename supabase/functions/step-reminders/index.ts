@@ -11,7 +11,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const NIL = '00000000-0000-0000-0000-000000000000';
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  // Security-Audit 2026-06-11, P0-4: nur der pg_cron-Job (Authorization: Bearer <service_role_key>,
+  // siehe CRON_SETUP.sql) darf rufen — sonst kann jeder Reminder-/Eskalations-Spam auslösen.
+  if (req.headers.get('Authorization') !== `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`) {
+    return new Response('unauthorized', { status: 401 });
+  }
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,

@@ -45,6 +45,11 @@ const MILESTONES: Record<string, { label: string; message: string }> = {
 };
 
 serve(async (req) => {
+  // Security-Audit 2026-06-11, P0-4: nur der DB-Webhook (Authorization: Bearer <service_role_key>)
+  // darf rufen — der Header ist im Webhook-Setup oben ohnehin vorgesehen, wird jetzt erzwungen.
+  if (req.headers.get('Authorization') !== `Bearer ${SERVICE_KEY}`) {
+    return new Response('unauthorized', { status: 401 });
+  }
   try {
     const payload = await req.json();
     // Supabase Webhook-Payload: { type, table, record, old_record }

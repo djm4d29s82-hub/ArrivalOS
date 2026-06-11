@@ -16,9 +16,12 @@
 // Ohne Key antwortet die Funktion sauber mit { configured:false } — das UI zeigt das ruhig an.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || '';
 const MODEL = Deno.env.get('ANTHROPIC_MODEL') || 'claude-haiku-4-5';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -46,6 +49,21 @@ Regeln:
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+
+  // Security-Audit 2026-06-11, P0-4: verify_jwt lässt auch den bloßen anon-Key durch — jeder konnte
+  // Anthropic-Tokens verbrennen. Jetzt: Aufrufer muss ein echter, eingeloggter Nutzer mit Rolle
+  // admin/company sein (das Briefing ist ein Unternehmens-Feature).
+  try {
+    const jwt = (req.headers.get('Authorization') || '').replace('Bearer ', '');
+    if (!jwt) return json({ error: 'Nicht authentifiziert.' }, 401);
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE, { auth: { autoRefreshToken: false, persistSession: false } });
+    const { data: caller } = await admin.auth.getUser(jwt);
+    if (!caller?.user) return json({ error: 'Nicht authentifiziert.' }, 401);
+    const { data: me } = await admin.from('users').select('role').eq('id', caller.user.id).maybeSingle();
+    if (!me || !['admin', 'company'].includes(me.role)) return json({ error: 'Keine Berechtigung.' }, 403);
+  } catch {
+    return json({ error: 'Nicht authentifiziert.' }, 401);
+  }
 
   if (!ANTHROPIC_API_KEY) {
     return json({ configured: false, error: 'KI ist nicht konfiguriert (ANTHROPIC_API_KEY fehlt).' });

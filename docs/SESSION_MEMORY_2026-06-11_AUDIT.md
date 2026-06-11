@@ -1,0 +1,9 @@
+# Session Memory — Full Project Audit (2026-06-11) · type: project
+
+> Hinweis: Sollte eigentlich nach `C:\Users\musta\.claude\projects\` — Ordner war in dieser Session nicht freigegeben. Bitte dorthin kopieren.
+
+**Fakt:** Vollaudit durchgeführt → `AUDIT_REPORT_2026-06-11.md` im Repo-Root. Kernbefunde: (1) `greeter_profiles` RLS `using(true)` leakt IBAN/Steuer-ID an alle Nutzer; (2) `missions_update`-Policy ohne Spaltenbeschränkung → Greeter kann `pay`/Status ändern, State Machine nur clientseitig; (3) `base44Client.js` hat Prod-Supabase-URL+Key hartkodiert → Dev-Builds treffen Prod-DB, localStorage-Modus unerreichbar (toter Code inkl. Seed); (4) notify-*-Edge-Functions ohne Webhook-Secret (`--no-verify-jwt`) = offene Mail-Endpoints; (5) Phase-2B-Systeme (Offline-Queue, Audit-Trail-UI, auditIntegration) NICHT eingebunden, Tests nicht lauffähig (kein Runner in package.json) — CLAUDE.md-Behauptungen stimmen nicht; (6) drei parallele Mission-Logik-Systeme (missionStateMachine.ts / missionEngine.js / missionKernel.js) + LEGACY_TRANSITIONS; DB erlaubt 13 Status, SM kennt 11; (7) überall Volltabellen-Fetch + 8–12s-Polling statt scoped Queries/Realtime; (8) kein Passwort-Reset; Talent-Portal deutsch als Default; `notifications_insert` RLS admin-only bricht Benachrichtigungen in Prod.
+
+**Why:** Künftige Sessions dürfen die CLAUDE.md-Statusangaben („completed systems", „100+ tests", „0 compile errors") nicht als wahr übernehmen — Code-Realität weicht ab. P0-Sicherheitsfixes haben Vorrang vor jedem Feature.
+
+**How to apply:** Vor Featurearbeit zuerst P0-Liste aus AUDIT_REPORT Kap. 11 (#1–15) abarbeiten; bei Missions-Logik nur über `src/api/missionWriteApi.ts` schreiben und mittelfristig auf EIN Statusmodell (8 Status, serverseitige RPC-Transitions) konsolidieren; `rls-policies.sql` ist legacy (Konflikt mit `rls-hardening.sql`) — nicht ausführen, löschen.

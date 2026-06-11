@@ -34,7 +34,12 @@ export default function GreeterEarnings() {
         const pr = ps?.[0] || null;
         setProfile(pr);
         if (pr) {
-          setForm({ iban: pr.iban || '', tax_id: pr.tax_id || '', payout_address: pr.payout_address || '' });
+          // Bank-/Steuerdaten leben in greeter_private (RLS: nur Admin + der Greeter selbst) —
+          // NICHT mehr auf greeter_profiles, das für Matching breit lesbar ist (Audit P0-1).
+          try {
+            const priv = await base44.entities.GreeterPrivate.get(pr.id);
+            setForm({ iban: priv?.iban || '', tax_id: priv?.tax_id || '', payout_address: priv?.payout_address || '' });
+          } catch { /* noch keine private Zeile — Formular bleibt leer */ }
           try {
             const po = await base44.entities.Payout.filter({ greeter_id: pr.id });
             setPayouts(Array.isArray(po) ? po : []);
@@ -58,8 +63,12 @@ export default function GreeterEarnings() {
     if (!profile) return;
     setSaving(true);
     try {
-      await base44.entities.GreeterProfile.update(profile.id, { ...form });
-      setProfile((p) => ({ ...p, ...form }));
+      // Upsert in greeter_private (id = profil-id). update wirft, wenn die Zeile fehlt → create.
+      try {
+        await base44.entities.GreeterPrivate.update(profile.id, { ...form });
+      } catch {
+        await base44.entities.GreeterPrivate.create({ id: profile.id, ...form });
+      }
       toast({ title: 'Bankdaten gespeichert' });
     } catch (e) {
       toast({ title: 'Fehler', description: e?.message || String(e), variant: 'destructive' });

@@ -26,6 +26,9 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
 }
 
 Deno.serve(async (req) => {
+  // Security-Audit 2026-06-11, P0-4: nur der DB-Webhook (Authorization: Bearer <service_role_key>)
+  // darf rufen — sonst kann jeder Push-Spam an alle Geräte eines Nutzers auslösen.
+  if (req.headers.get('Authorization') !== `Bearer ${SERVICE_KEY}`) return json({ ok: false, error: 'unauthorized' }, 401);
   if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) return json({ ok: false, error: 'VAPID keys not set' }, 500);
   try {
     const payload = await req.json().catch(() => ({}));
