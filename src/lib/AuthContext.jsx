@@ -97,6 +97,9 @@ export function AuthProvider({ children }) {
     setSentryUser(null);
   }, []);
 
+  const requestPasswordReset = useCallback((email) => base44.auth.requestPasswordReset(email), []);
+  const updatePassword = useCallback((password) => base44.auth.updatePassword(password), []);
+
   const navigateToLogin = useCallback(() => {
     window.location.hash = '#/';
   }, []);
@@ -113,6 +116,8 @@ export function AuthProvider({ children }) {
         loginWithPassword,
         switchRole,
         logout,
+        requestPasswordReset,
+        updatePassword,
         navigateToLogin,
       }}
     >

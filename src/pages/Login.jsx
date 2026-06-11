@@ -189,10 +189,20 @@ export default function Login() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11.5px] font-semibold mb-1.5" style={{ color: 'var(--ds-t1)' }}>Passwort</label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[11.5px] font-semibold" style={{ color: 'var(--ds-t1)' }}>Passwort</label>
+                      <button
+                        type="button"
+                        onClick={() => nav('/reset-password')}
+                        className="text-[11px] underline"
+                        style={{ color: 'var(--ds-t3)' }}
+                      >
+                        Passwort vergessen?
+                      </button>
+                    </div>
                     <input
                       type="password"
-                      autoComplete="new-password"
+                      autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"

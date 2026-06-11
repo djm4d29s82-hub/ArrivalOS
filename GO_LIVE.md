@@ -211,7 +211,8 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       `supabase/functions/CRON_SETUP.sql` mit `<PROJECT_REF>=jtaegmuftgxzjddfevbs` ausführen
       *(Alternative: Dashboard → Edge Functions → Schedules)*. Test ohne Warten:
       `supabase functions invoke step-reminders` / `flight-tracker` → JSON-Summary; neue Zeilen in `notifications`.
-- [ ] **Auth:** E-Mail + Magic-Link an; **URL Configuration** Site-URL + Redirect `https://arrivalgermany.com/*`.
+- [ ] **Auth:** E-Mail + Magic-Link an; **URL Configuration** Site-URL + Redirect `https://arrivalgermany.com/*`
+      (das `/*` deckt auch den **Passwort-Reset**-Rücklink `…/reset-password` ab — sonst bricht „Passwort vergessen?").
 - [ ] **Backups/PITR aktivieren** (Pflicht vor erstem echten Kunden).
 - [ ] **RLS-Tests** (`rls-tests.sql`) mit 4 Test-Usern durchspielen — erwartete Ergebnisse stehen als Kommentare.
 - [ ] 🔑 **`service_role`-Key rotieren** (Dashboard → API → Reset). Er wurde beim E2E-Seeding im Chat

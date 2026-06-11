@@ -128,6 +128,22 @@ export function createSupabaseClient(url, anonKey) {
     async switchRole() {
       throw new Error('Role-switching is dev-mode only, not available in Supabase mode.');
     },
+    // Passwort-Reset: schickt eine Recovery-Mail; der Link führt zurück auf /reset-password,
+    // wo Supabase eine kurzlebige Recovery-Session setzt (Event PASSWORD_RECOVERY).
+    // ⚠️ Die redirectTo-URL muss in Supabase → Auth → URL Configuration als Redirect erlaubt sein.
+    async requestPasswordReset(email) {
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      return { sent: true };
+    },
+    // Setzt das neue Passwort für die aktuell (per Recovery-Link) eingeloggte Session.
+    async updatePassword(newPassword) {
+      const { error } = await sb.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      return { updated: true };
+    },
     async logout() {
       await sb.auth.signOut();
     },

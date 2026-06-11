@@ -15,6 +15,7 @@ import Landing from '@/pages/Landing';
 import StaticPage from '@/pages/StaticPage';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import ResetPassword from '@/pages/ResetPassword';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MobileGreeterLayout from '@/components/layout/MobileGreeterLayout';
 
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/impressum" element={<StaticPage />} />
         <Route path="/datenschutz" element={<StaticPage />} />
         <Route path="/agb" element={<StaticPage />} />

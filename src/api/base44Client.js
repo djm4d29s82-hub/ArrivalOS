@@ -324,6 +324,13 @@ const localBase44 = {
       localStorage.setItem('neuland-current-user', JSON.stringify(u));
       return u;
     },
+    // Im Dev-Modus gibt es keine echten Passwörter — Reset ist nur im Supabase-Modus sinnvoll.
+    async requestPasswordReset() {
+      throw new Error('Passwort-Reset ist nur im Supabase-Modus verfügbar.');
+    },
+    async updatePassword() {
+      throw new Error('Passwort-Reset ist nur im Supabase-Modus verfügbar.');
+    },
     async logout() {
       localStorage.removeItem('neuland-current-user');
     },
