@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PlaneLanding, CheckCircle2, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { notify } from '@/lib/notify';
 import { useLang } from '@/lib/LangContext';
 
 // Stages where "I've landed" is still meaningful (greeter not yet physically with the talent).
@@ -33,18 +34,16 @@ export default function TalentArrivalSignal({ mission, greeter, user }) {
         read: false,
         timestamp: new Date().toISOString(),
       });
-      try {
-        if (greeter.email) {
-          await base44.entities.Notification.create({
-            user_email: greeter.email,
-            title: t('arrival.signal'),
-            message: `${user?.full_name || 'Talent'}: ${t('arrival.message')}`,
-            type: 'action',
-            link: `/greeter-dashboard/missions/${mission.id}`,
-            read: false,
-          });
-        }
-      } catch { /* notification best-effort (RLS may block) */ }
+      if (greeter.email) {
+        await notify({
+          userEmail: greeter.email,
+          title: t('arrival.signal'),
+          message: `${user?.full_name || 'Talent'}: ${t('arrival.message')}`,
+          type: 'action',
+          link: `/greeter-dashboard/missions/${mission.id}`,
+          missionId: mission.id,
+        });
+      }
       if (flagKey) localStorage.setItem(flagKey, '1');
       setSent(true);
     } catch (e) {

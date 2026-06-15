@@ -5,6 +5,7 @@ import { Briefcase, MapPin, Clock, CheckCircle2, ChevronRight } from 'lucide-rea
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { assignGreeter } from '@/api';
+import { notify } from '@/lib/notify';
 import { useToast } from '@/components/ui/toaster';
 import MissionKernel from '@/components/mission/MissionKernel';
 import { greeterKernel, greeterProgress } from '@/lib/missionKernel';
@@ -62,9 +63,9 @@ export default function GreeterHome() {
   const onAccept = async (m) => {
     try {
       await assignGreeter({ mission: m, greeterId: profile.id, role: user?.role || 'greeter', actor: user?.email || profile.email, base44 });
-      await base44.entities.Notification.create({
-        user_email: user?.email, title: 'Mission angenommen!',
-        message: `Du hast Mission "${m.title}" angenommen.`, type: 'success', read: false,
+      await notify({
+        userEmail: user?.email, title: 'Mission angenommen!',
+        message: `Du hast Mission "${m.title}" angenommen.`, type: 'success', missionId: m.id,
       });
       toast({ title: 'Einsatz angenommen', description: m.title });
       qc.invalidateQueries();

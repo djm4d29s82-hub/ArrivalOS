@@ -10,6 +10,7 @@
 
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { notify } from './notify';
 import {
   MissionStatus,
   MissionState,
@@ -352,14 +353,14 @@ export function useMissionState(missionId: string, userEmail: string): UseMissio
           timestamp: new Date().toISOString(),
         });
 
-        // 4. Create notification for admins
-        await base44.entities.Notification.create({
-          user_email: 'admin@neuland.de', // Admin alert
+        // 4. Create notification for admins (über den sanktionierten RPC-Pfad — Audit S8)
+        await notify({
+          userEmail: 'admin@neuland.de',
           title: `Mission Issue: ${mission.title}`,
           message: message,
           type: 'alert',
           link: `/admin/missions/${mission.id}`,
-          read: false,
+          missionId: mission.id,
         });
 
         setIsDirty(false);

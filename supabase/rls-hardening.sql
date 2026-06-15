@@ -138,12 +138,18 @@ create policy "missions_update" on public.missions for update to authenticated
 create policy "missions_delete_admin" on public.missions for delete to authenticated
   using (public.is_admin());
 
--- JOURNEY_STEPS — Sichtbarkeit folgt Mission
+-- JOURNEY_STEPS — Sichtbarkeit folgt Mission; Schreiben nur Admin + zugewiesener Greeter (Audit S6)
 create policy "journey_steps_select" on public.journey_steps for select to authenticated
   using (exists (select 1 from public.missions m where m.id = mission_id));
-create policy "journey_steps_modify" on public.journey_steps for all to authenticated
-  using (exists (select 1 from public.missions m where m.id = mission_id))
-  with check (exists (select 1 from public.missions m where m.id = mission_id));
+create policy "journey_steps_write" on public.journey_steps for all to authenticated
+  using (
+    public.is_admin()
+    or exists (select 1 from public.missions m where m.id = mission_id and m.greeter_id = public.current_greeter_id())
+  )
+  with check (
+    public.is_admin()
+    or exists (select 1 from public.missions m where m.id = mission_id and m.greeter_id = public.current_greeter_id())
+  );
 
 -- MESSAGES — nur Teilnehmer derselben Mission
 create policy "messages_select" on public.messages for select to authenticated
@@ -168,12 +174,27 @@ create policy "notifications_update" on public.notifications for update to authe
 create policy "notifications_insert_admin" on public.notifications for insert to authenticated
   with check (public.is_admin());
 
--- ACTIVITY_LOGS — append-only, nur Admin lesen
+-- ACTIVITY_LOGS — append-only, nur Admin lesen; created_by fälschungssicher (Audit S5)
 create policy "activity_logs_select_admin" on public.activity_logs for select to authenticated
   using (public.is_admin());
 create policy "activity_logs_insert" on public.activity_logs for insert to authenticated
   with check (true);
 -- kein UPDATE/DELETE (immutable)
+-- created_by darf nicht gefälscht werden: Trigger stempelt die echte E-Mail des eingeloggten Nutzers;
+-- service_role / interne Pfade (auth.uid() null) behalten den übergebenen Wert ('system').
+create or replace function public.enforce_activity_actor()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is not null then
+    new.created_by := coalesce((select email from public.users where id = auth.uid()), new.created_by);
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists trg_enforce_activity_actor on public.activity_logs;
+create trigger trg_enforce_activity_actor
+  before insert on public.activity_logs
+  for each row execute function public.enforce_activity_actor();
 
 -- INVOICES — Company sieht eigene (außer Entwürfe); Admin alles
 create policy "invoices_select" on public.invoices for select to authenticated

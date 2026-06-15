@@ -162,6 +162,13 @@ export function createSupabaseClient(url, anonKey) {
     entities,
     auth,
     raw: sb,
+    // Aufruf einer Postgres-Funktion (RPC). Genutzt für sanktionierte Schreibpfade, die eine
+    // SECURITY-DEFINER-Funktion brauchen (z. B. app_create_notification — Audit S8).
+    async rpc(fn, args) {
+      const { data, error } = await sb.rpc(fn, args);
+      if (error) throw error;
+      return data;
+    },
     resetDB() {
       throw new Error('resetDB is only available in localStorage-mode.');
     },

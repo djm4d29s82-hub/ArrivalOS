@@ -1,5 +1,6 @@
 import { base44 } from '@/api/base44Client';
 import { DEFAULT_JOURNEY_STEPS } from '@/lib/journeySteps';
+import { notify } from '@/lib/notify';
 
 const TRANSITIONS = {
   open: ['matched', 'cancelled'],
@@ -32,17 +33,9 @@ async function logEvent(entityType, entityId, action, oldValue, newValue, descri
   } catch { /* audit log is best-effort */ }
 }
 
-async function createNotification(userEmail, title, message, type = 'info', link = '') {
-  try {
-    await base44.entities.Notification.create({
-      user_email: userEmail,
-      title,
-      message,
-      type,
-      link,
-      read: false,
-    });
-  } catch { /* notification is best-effort */ }
+async function createNotification(userEmail, title, message, type = 'info', link = '', missionId = null) {
+  // Über den sanktionierten Pfad (RPC) — die direkte notifications-Insert-Policy ist admin-only (Audit S8).
+  await notify({ userEmail, title, message, type, link, missionId });
 }
 
 // Weekly availability grid uses keys `${Day}_${Slot}` (Day Mo..So, Slot Vormittag|Nachmittag|Abend).
@@ -99,7 +92,7 @@ export async function runMatchingEngine(mission, opts = {}) {
 
   for (const g of matched.slice(0, 5)) {
     if (g.email) {
-      await createNotification(g.email, 'Neue Mission!', `Mission "${mission.title}" passt zu deinem Profil.`, 'action', '/greeter-dashboard/missions');
+      await createNotification(g.email, 'Neue Mission!', `Mission "${mission.title}" passt zu deinem Profil.`, 'action', '/greeter-dashboard/missions', mission.id);
     }
   }
   return matchedIds;
@@ -123,7 +116,7 @@ export async function transitionMission(missionId, newStatus, actor, notifyEmail
     const existing = await base44.entities.JourneyStep.filter({ mission_id: missionId });
     if (existing.length === 0) await createJourneySteps(missionId);
     if (notifyEmail) {
-      await createNotification(notifyEmail, 'Mission zugewiesen!', `Mission "${mission.title}" wurde dir zugewiesen.`, 'success');
+      await createNotification(notifyEmail, 'Mission zugewiesen!', `Mission "${mission.title}" wurde dir zugewiesen.`, 'success', '', missionId);
     }
   }
   return { ...mission, status: newStatus };
@@ -159,7 +152,7 @@ export async function acceptMission(missionId, greeterProfile, userEmail) {
   const existing = await base44.entities.JourneyStep.filter({ mission_id: missionId });
   if (existing.length === 0) await createJourneySteps(missionId);
   await logEvent('Mission', missionId, 'mission.assigned', mission.status, 'assigned', `Greeter "${greeterProfile.full_name}" accepted`, userEmail);
-  await createNotification(userEmail, 'Mission angenommen!', `Du hast Mission "${mission.title}" angenommen.`, 'success');
+  await createNotification(userEmail, 'Mission angenommen!', `Du hast Mission "${mission.title}" angenommen.`, 'success', '', missionId);
   return { ...mission, status: 'assigned', greeter_id: greeterProfile.id };
 }
 
@@ -270,7 +263,7 @@ export async function sendETA(missionId, etaIso, note, actor) {
   if (candidate?.email) {
     await createNotification(candidate.email, 'Dein Greeter ist unterwegs',
       `Geschätzte Ankunft: ${new Date(etaIso).toLocaleString('de-DE', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}`,
-      'info', '/talent');
+      'info', '/talent', missionId);
   }
   return { ...mission, eta_at: etaIso, greeter_stage: 'eta_sent' };
 }
@@ -307,7 +300,7 @@ export async function reportMissionIssue(missionId, message, actor, severity = '
     `Issue (${severity}): ${message}`, actor);
   // Notify admins
   await createNotification('admin@neuland.de', 'Issue gemeldet',
-    `${mission.title}: ${message}`, 'alert', '/admin/missions');
+    `${mission.title}: ${message}`, 'alert', '/admin/missions', missionId);
   return true;
 }
 

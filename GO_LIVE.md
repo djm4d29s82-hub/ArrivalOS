@@ -158,6 +158,10 @@ Reihenfolge strikt einhalten. Details in `supabase/README.md`.
       `greeter_private` (RLS: nur Admin + der Greeter selbst) und erzwingt den Missions-Update-Trigger
       (Spaltenschutz + legale Statusübergänge serverseitig). **VOR dem Frontend-Deploy ausführen** —
       GreeterEarnings speichert Bankdaten sonst ins Leere. Runbook: `supabase/SECURITY_DEPLOY_2026-06.md`.
+      ⚠️ **`security-hardening-2-rls.sql`** (Audit-P0, RLS-Charge 2): RPC `app_create_notification`
+      (entsperrt die In-App-Glocke für Nicht-Admins, S8), journey_steps-Schreibrecht nur Admin+Greeter
+      (S6), activity_logs-`created_by`-Stempel (S5). **VOR dem Frontend-Deploy ausführen** — ohne die RPC
+      bleiben Notifications stumm (best-effort, keine Fehler, aber leere Glocke).
 - [ ] **RLS-Gate ausführen:** `rls-verify.sql` im SQL-Editor → muss **„RLS OK"** ausgeben. Wirft eine
       `exception`, falls noch offene `auth_read_*/auth_write_*`-Policies existieren (= Hardening vergessen).
       Erst weitermachen, wenn dieser Check grün ist.
