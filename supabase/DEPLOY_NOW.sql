@@ -1,5 +1,5 @@
 -- ============================================================================
--- ARRIVAL GERMANY — DEPLOY_NOW.sql  (Spesen + Rechnungs-Review-Gate + Beleg-Upload)
+-- ARRIVAL GERMANY — DEPLOY_NOW.sql  (Spesen + Rechnungs-Review-Gate + Beleg-Upload + Rechnungsnummer)
 -- ----------------------------------------------------------------------------
 -- So benutzt du das:
 --   Supabase Dashboard → SQL Editor → New query → DIESEN GESAMTEN INHALT einfügen → "Run".
@@ -187,4 +187,31 @@ using (
   and public.is_admin()
 );
 
--- ✅ Fertig. Wenn keine Fehlermeldung erscheint, sind Spesen + Rechnungs-Gate + Beleg-Upload live.
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ 5/5  Fortlaufende Rechnungsnummer (§14 UStG) + Empfänger-Adresse            │
+-- └──────────────────────────────────────────────────────────────────────────┘
+create sequence if not exists public.invoice_number_seq start 1001;
+alter table public.invoices add column if not exists invoice_number text;
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'invoices_invoice_number_key') then
+    alter table public.invoices add constraint invoices_invoice_number_key unique (invoice_number);
+  end if;
+end $$;
+create or replace function public.assign_invoice_number()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.invoice_number is null and coalesce(new.status, '') <> 'draft' then
+    new.invoice_number := 'AG-' || nextval('public.invoice_number_seq');
+  end if;
+  return new;
+end $$;
+drop trigger if exists trg_assign_invoice_number on public.invoices;
+create trigger trg_assign_invoice_number
+  before insert or update on public.invoices
+  for each row execute function public.assign_invoice_number();
+alter table public.companies add column if not exists street text;
+alter table public.companies add column if not exists zip text;
+
+-- ✅ Fertig. Wenn keine Fehlermeldung erscheint, sind Spesen + Rechnungs-Gate + Beleg-Upload
+--    + fortlaufende Rechnungsnummern live.

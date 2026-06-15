@@ -46,6 +46,8 @@ create table if not exists public.companies (
   industry text,
   city text,
   package_tier text default 'professional',   -- starter|professional|enterprise (per-candidate price tier)
+  street text,                                 -- Rechnungsadresse (§14 Empfängerblock)
+  zip text,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -264,8 +266,26 @@ create table if not exists public.invoices (
   status text default 'pending' check (status in ('draft','pending','paid','overdue','cancelled')),
   issued_at timestamptz default now(),
   due_at timestamptz,
+  invoice_number text unique,   -- fortlaufende Rechnungsnummer (§14), bei Ausstellung vergeben
   created_at timestamptz default now()
 );
+
+-- Fortlaufende Rechnungsnummer (§14 UStG) — vergeben beim Übergang draft → Nicht-Entwurf.
+-- Vollständige Definition + Trigger in migration 2026-06-invoice-number.sql.
+create sequence if not exists public.invoice_number_seq start 1001;
+create or replace function public.assign_invoice_number()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.invoice_number is null and coalesce(new.status, '') <> 'draft' then
+    new.invoice_number := 'AG-' || nextval('public.invoice_number_seq');
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists trg_assign_invoice_number on public.invoices;
+create trigger trg_assign_invoice_number
+  before insert or update on public.invoices
+  for each row execute function public.assign_invoice_number();
 
 -- Greeter pass-through expenses (Spesen/Tickets) forwarded onto the company invoice.
 -- Policies + triggers live in migration 2026-06-mission-expenses.sql.

@@ -261,7 +261,7 @@ Talent sieht Update → Abholung → Mission completed.**
 
 - [ ] Cloud-Ops-Checkliste (Abschnitt 5) vollständig abgehakt — inkl. **Backups/PITR** und **RLS-Tests grün**.
 - [ ] **`rls-verify.sql` gibt „RLS OK" aus** (Pflicht-Gate: keine offenen `auth_read_*/auth_write_*`-Policies).
-- [ ] **Alle 18 Migrationen** ausgeführt; **alle 10 Edge Functions** deployt (inkl. `ai-arrival-briefing`, `partner-referral`, `send-push` + VAPID-Secrets +
+- [ ] **Alle 19 Migrationen** ausgeführt (inkl. `2026-06-invoice-number.sql` — fortlaufende Rechnungsnummer §14); **alle 10 Edge Functions** deployt (inkl. `ai-arrival-briefing`, `partner-referral`, `send-push` + VAPID-Secrets +
       `ANTHROPIC_API_KEY`); **Cron** geplant (`step-reminders`/`flight-tracker`); **`missions`-UPDATE-Webhook** aktiv.
 - [ ] **Domain** `arrivalgermany.com` live auf Vercel; **Supabase Auth-URL** auf die Domain gesetzt.
 - [ ] 🔑 **`service_role`-Key rotiert** nach dem E2E-Seeding.

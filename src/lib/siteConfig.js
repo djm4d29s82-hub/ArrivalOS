@@ -23,6 +23,11 @@ export const COMPANY = {
   registerCourt: env.VITE_COMPANY_REGISTER_COURT || 'Amtsgericht München',
   vatId: env.VITE_COMPANY_VAT_ID || 'DE 367 482 916',
   hostingCity: env.VITE_HOSTING_CITY || 'Frankfurt am Main',
+  // Rechnungs-Pflichtangaben (§14 UStG). Kleinunternehmer §19 → Steuernummer statt USt-IdNr.
+  // Leerer Default = im Rechnungs-PDF weggelassen (keine erfundenen Werte).
+  taxNumber: env.VITE_COMPANY_TAX_NUMBER || '',
+  iban: env.VITE_COMPANY_IBAN || '',
+  bank: env.VITE_COMPANY_BANK || '',
 };
 
 export const URLS = {

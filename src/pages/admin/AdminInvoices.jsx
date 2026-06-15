@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { formatDate } from '@/lib/utils';
+import { printInvoice } from '@/lib/invoicePdf';
 import { useToast } from '@/components/ui/toaster';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -86,7 +87,7 @@ export default function AdminInvoices() {
                 <tr key={inv.id} className="transition" style={{ borderTop: '1px solid var(--ds-card-border)' }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,146,40,0.04)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
-                  <td className="px-5 py-3.5 font-mono text-xs" style={{ color: 'var(--ds-t1)' }}>{inv.id}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs" style={{ color: 'var(--ds-t1)' }}>{inv.invoice_number || (inv.status === 'draft' ? 'Entwurf' : String(inv.id).slice(0, 8))}</td>
                   <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--ds-t1)' }}>{co?.name || '—'}</td>
                   <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--ds-t2)' }}>{formatDate(inv.issued_at)}</td>
                   <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--ds-t2)' }}>{formatDate(inv.due_at)}</td>
@@ -100,18 +101,23 @@ export default function AdminInvoices() {
                   </td>
                   <td className="px-5 py-3.5"><span className={`badge ${STATUS[inv.status]}`}>{LABEL[inv.status]}</span></td>
                   <td className="px-5 py-3.5 text-right whitespace-nowrap">
-                    {inv.status === 'draft' ? (
-                      !isCompany && (
-                        <div className="inline-flex items-center gap-1.5">
-                          {inv.mission_id && (
-                            <Link to={`/admin/missions/${inv.mission_id}`} className="btn-ghost text-xs">Spesen prüfen</Link>
-                          )}
-                          <button onClick={() => sendInvoice(inv)} className="btn-ghost text-xs font-semibold" style={{ color: '#c49228' }}>An Unternehmen senden</button>
-                        </div>
-                      )
-                    ) : (
-                      inv.status !== 'paid' && <button onClick={() => markPaid(inv)} className="btn-ghost text-xs">Als bezahlt markieren</button>
-                    )}
+                    <div className="inline-flex items-center gap-1.5">
+                      <button onClick={() => printInvoice({ invoice: inv, company: co })} className="btn-ghost text-xs">
+                        {inv.status === 'draft' ? 'Vorschau' : 'PDF'}
+                      </button>
+                      {inv.status === 'draft' ? (
+                        !isCompany && (
+                          <>
+                            {inv.mission_id && (
+                              <Link to={`/admin/missions/${inv.mission_id}`} className="btn-ghost text-xs">Spesen prüfen</Link>
+                            )}
+                            <button onClick={() => sendInvoice(inv)} className="btn-ghost text-xs font-semibold" style={{ color: '#c49228' }}>An Unternehmen senden</button>
+                          </>
+                        )
+                      ) : (
+                        !isCompany && inv.status !== 'paid' && <button onClick={() => markPaid(inv)} className="btn-ghost text-xs">Als bezahlt markieren</button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
