@@ -87,7 +87,7 @@ export default function AdminMissionDetail() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-[12.5px] text-[var(--mid)]">
             <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-gold" />{formatDateTime(mission.datetime)}</span>
             <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-gold" />{mission.location || mission.city}</span>
-            {company && <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5" />{company.name}</span>}
+            {company && <Link to={`/admin/companies/${company.id}`} className="flex items-center gap-1 hover:text-gold transition"><Building2 className="w-3.5 h-3.5" />{company.name}</Link>}
             <StatusPill status={mission.status} />
             {mission.has_issue && <Pill tone="red" size="xs" dot>Issue gemeldet</Pill>}
           </div>
@@ -169,7 +169,7 @@ export default function AdminMissionDetail() {
                 <div className="flex items-center gap-3 mt-2">
                   <Avatar name={greeter.full_name} size="lg" ringed />
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold" style={{ color: 'var(--ds-t1)' }}>{greeter.full_name}</div>
+                    <Link to={`/admin/greeters/${greeter.id}`} className="font-semibold hover:text-gold transition" style={{ color: 'var(--ds-t1)' }}>{greeter.full_name}</Link>
                     <div className="text-[12px] text-[var(--mid)] flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
                       <span>★ {greeter.rating?.toFixed(1) || '—'}</span>
                       <span>·</span>
@@ -218,7 +218,7 @@ export default function AdminMissionDetail() {
                 <div className="flex items-center gap-3 mt-2">
                   <Avatar name={candidate.full_name} size="lg" ringed />
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold" style={{ color: 'var(--ds-t1)' }}>{candidate.full_name}</div>
+                    <Link to={`/admin/candidates/${candidate.id}`} className="font-semibold hover:text-gold transition" style={{ color: 'var(--ds-t1)' }}>{candidate.full_name}</Link>
                     <div className="text-[12px] text-[var(--mid)] mt-0.5">
                       {candidate.country_of_origin} · {candidate.email}
                     </div>

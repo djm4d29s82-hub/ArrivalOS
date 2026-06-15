@@ -24,6 +24,7 @@ const OperationsCenterDashboard = lazy(() => import('@/pages/admin/OperationsCen
 const AdminMissions = lazy(() => import('@/pages/admin/AdminMissions'));
 const AdminMissionDetail = lazy(() => import('@/pages/admin/AdminMissionDetail'));
 const AdminCandidates = lazy(() => import('@/pages/admin/AdminCandidates'));
+const AdminCandidateDetail = lazy(() => import('@/pages/admin/AdminCandidateDetail'));
 const AdminGreeters = lazy(() => import('@/pages/admin/AdminGreeters'));
 const AdminGreeterDetail = lazy(() => import('@/pages/admin/AdminGreeterDetail'));
 const AdminCompanyDetail = lazy(() => import('@/pages/admin/AdminCompanyDetail'));
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
           <Route path="/admin/missions/:id" element={<AdminMissionDetail />} />
           <Route path="/admin/execution" element={<AdminExecution />} />
           <Route path="/admin/candidates" element={<AdminCandidates />} />
+          <Route path="/admin/candidates/:id" element={<AdminCandidateDetail />} />
           <Route path="/admin/greeters" element={<AdminGreeters />} />
           <Route path="/admin/greeters/:id" element={<AdminGreeterDetail />} />
           <Route path="/admin/companies" element={<AdminCompanies />} />

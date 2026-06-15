@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import CandidateCard from '@/components/dashboard/CandidateCard';
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 
 export default function AdminCandidates() {
+  const navigate = useNavigate();
   const { data: candidates = [] } = useQuery({ queryKey: ['candidates'], queryFn: () => base44.entities.Candidate.list('-created_at') });
   const [q, setQ] = useState('');
   const filtered = candidates.filter((c) => !q || `${c.full_name} ${c.role} ${c.city} ${c.origin}`.toLowerCase().includes(q.toLowerCase()));
@@ -26,7 +28,7 @@ export default function AdminCandidates() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((c) => <CandidateCard key={c.id} candidate={c} />)}
+        {filtered.map((c) => <CandidateCard key={c.id} candidate={c} onClick={() => navigate(`/admin/candidates/${c.id}`)} />)}
       </div>
       {filtered.length === 0 && <div className="text-center py-20 text-sm text-[var(--mid)]">Keine Kandidat:innen gefunden.</div>}
     </div>

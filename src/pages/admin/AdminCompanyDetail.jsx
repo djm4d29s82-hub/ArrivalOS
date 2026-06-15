@@ -128,14 +128,14 @@ export default function AdminCompanyDetail() {
           {candidates.length === 0 ? <EmptyState icon={Users} title="Keine Talente" className="py-8" /> : (
             <div className="mt-2 divide-y" style={{ borderColor: 'var(--ds-card-border)' }}>
               {candidates.map((c) => (
-                <div key={c.id} className="flex items-center gap-3 py-2.5">
+                <Link key={c.id} to={`/admin/candidates/${c.id}`} className="flex items-center gap-3 py-2.5 group">
                   <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-medium truncate" style={{ color: 'var(--ds-t1)' }}>{c.full_name}</div>
+                    <div className="text-[13px] font-medium truncate group-hover:text-gold transition" style={{ color: 'var(--ds-t1)' }}>{c.full_name}</div>
                     <div className="text-[11.5px] truncate" style={{ color: 'var(--ds-t3)' }}>{[c.role, c.city, c.country_of_origin].filter(Boolean).join(' · ')}</div>
                   </div>
                   {c.arrival_time && <span className="text-[11px] tabular-nums shrink-0" style={{ color: 'var(--ds-t3)' }}>{formatDate(c.arrival_time)}</span>}
                   <Pill tone={c.status === 'completed' ? 'green' : c.status === 'cancelled' ? 'neutral' : 'gold'} size="xs">{c.status}</Pill>
-                </div>
+                </Link>
               ))}
             </div>
           )}
