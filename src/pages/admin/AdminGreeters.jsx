@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Star, MapPin, Languages, Award, Users } from 'lucide-react';
+import { Star, MapPin, Award, Users } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import {
   PageHeader, Card, Pill, Avatar, EmptyState, SearchInput, Select, SkeletonCard,
@@ -52,7 +53,7 @@ export default function AdminGreeters() {
             const completed = missions.filter((m) => m.greeter_id === g.id && m.status === 'completed').length;
             const active = missions.filter((m) => m.greeter_id === g.id && ['assigned', 'in_progress'].includes(m.status)).length;
             return (
-              <Card key={g.id} variant="default" interactive className="overflow-hidden">
+              <Card key={g.id} as={Link} to={`/admin/greeters/${g.id}`} variant="default" interactive className="overflow-hidden block">
                 <div className="p-5 pb-4">
                   <div className="flex items-center gap-3 mb-3">
                     <Avatar name={g.full_name} size="lg" ringed />
